@@ -36,16 +36,6 @@ const mongoClient = require('mongodb').MongoClient; // Use for CRUD with the dat
 
 // instance of mongoClient, similiar to express and app.
 const database = new mongoClient(atlasURL, {useNewUrlParser: true, useUnifiedTopology: true});
-
-// database.connect(error => {
-//     if(error) {
-//         console.log('Something is wrong, f')
-//         process.exit(1);
-//     }
-      
-// })
-console.log('Connected to MongoDB Atlas')
-
 const studyPals = database.db(mongodb_database); // The actual database we will interact with.
 
 // All the collections
