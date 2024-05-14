@@ -69,6 +69,72 @@ app.get('/', (req, res) => {
     res.render('index');
 })
 
+app.get('/signup', (req, res) => {
+    res.render('signup');
+})
+
+app.post('/signupSubmit', async (req,res) => {
+    let username = req.body.username;
+    let email = req.body.email;
+    let password = req.body.password;
+    let usernameSchema = Joi.string().alphanum().max(20).required();
+    let emailSchema = Joi.string().email().required();
+    let passwordSchema = Joi.string().max(20).required();
+    let usernameValidation = usernameSchema.validate(username);
+    let emailValidation = emailSchema.validate(email);
+    let passwordValidation = passwordSchema.validate(password);
+    if (usernameValidation.error != null) {
+        res.render("signuperror", {error: "Username"});
+    } else if (emailValidation.error != null) {
+        res.render("signuperror", {error: "Email"});
+    } else if (passwordValidation.error != null) {
+        res.render("signuperror", {error: "Password"});
+    } else {
+        let hashedPassword = await bcrypt.hash(password, saltRounds);
+        await usersCollection.insertOne({username: username, email: email, password: hashedPassword, friends: [], groups: []});
+        req.session.authenticated = true;
+        req.session.username = username;
+        req.session.friends = [];
+        req.session.groups = [];
+        req.session.cookie.maxAge = expireTime;
+        res.redirect('/homepage');
+        return;
+    }
+})
+
+app.get('/login', (req, res) => {
+    res.render('login');
+})
+
+app.post('/loggingin', async (req,res) => {
+    let email = req.body.email;
+    let password = req.body.password;
+    let emailSchema = Joi.string().email().required();
+    let passwordSchema = Joi.string().max(20).required();
+    let emailValidation = emailSchema.validate(email);
+    let passwordValidation = passwordSchema.validate(password);
+    var error = "Invalid email/password.";
+    if (emailValidation.error == null && passwordValidation.error == null) {
+        const result = await usersCollection.find({email: email}).project({username: 1, password: 1, friends: 1, groups: 1, _id: 1}).toArray();
+        if (result.length != 1) {
+            error = "User not found.";
+        } else if (await bcrypt.compare(password, result[0].password)) {
+            req.session.authenticated = true;
+            req.session.username = result[0].username;
+            req.session.friends = result[0].friends;
+            req.session.groups = result[0].groups;
+            req.session.cookie.maxAge = expireTime;
+            return res.redirect('/homepage');
+        }
+    }
+
+    res.render("loginerror", {error: error});
+});
+
+app.get('/homepage', (req, res) => {
+    res.render('homepage');
+})
+
 app.get('*', (req, res) => {
     res.status(404);
     res.render('404');
