@@ -1,8 +1,23 @@
 <%- include("templates/header") %>
-<form action='/signup' method='get'>
-    <button type='submit'>Sign up</button>
-</form>
-<form action='/login' method='get'>
-    <button type='submit'>Log in</button>
-</form>
-<%- include("templates/footer") %>
+<div class="relative max-w-full mx-auto mt-20">
+    <img class="h-64 w-full object-cover" src="dummy1.jpg" alt="Placeholder image">
+    <div class="absolute inset-0 bg-gray-700 opacity-60"></div>
+    <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <h2 class="text-white text-3xl font-bold">StudyPals</h2>
+        <form action='/signup' method='get'>
+            <button class="text-white" type='submit'>Sign up</button>
+        </form>
+        <form action='/login' method='get'>
+            <button class="text-white" type='submit'>Log in</button>
+        </form>
+    </div>
+</div>
+<% for (let i = 0; i < 3; i++) { %>
+    <div class="relative">
+        <img class="h-64 w-full object-cover" src="dummy2.png" alt="Placeholder image">
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <h2 class="text-3xl font-bold">TBD</h2>
+        </div>    
+    </div>
+<% } %>
+<%- include("templates/navbar") %>
