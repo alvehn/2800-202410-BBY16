@@ -139,12 +139,20 @@ app.get('/friends', (req, res) => {
     res.render('friends');
 })
 
+app.get('/groups', (req, res) => {
+    res.render('groups');
+})
+
 app.get('/profile', (req, res) => {
     res.render('profile');
 })
 
-app.get('/friends', (req, res) => {
-    res.render('friends');
+app.get('/petinv', (req, res) => {
+    res.render('petinv');
+})
+
+app.get('/petshop', (req, res) => {
+    res.render('petshop');
 })
 
 app.get('*', (req, res) => {
