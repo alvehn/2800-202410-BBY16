@@ -135,6 +135,10 @@ app.get('/homepage', (req, res) => {
     res.render('homepage');
 })
 
+app.get('/friends', (req, res) => {
+    res.render('friends');
+})
+
 app.get('/profile', (req, res) => {
     res.render('profile');
 })
