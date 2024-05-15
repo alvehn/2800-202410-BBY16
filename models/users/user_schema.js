@@ -26,7 +26,7 @@ const user_schema = {
       },
       password: {
         bsonType: "string",
-        description: "must be a string and is required",
+        description: "must be a string and is requireda",
       },
       total_study_hours: {
         bsonType: "int",
