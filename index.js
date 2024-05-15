@@ -139,12 +139,12 @@ app.get('/friends', (req, res) => {
     res.render('friends');
 })
 
-app.get('/profile', (req, res) => {
-    res.render('profile');
+app.get('/groups', (req, res) => {
+    res.render('groups');
 })
 
-app.get('/friends', (req, res) => {
-    res.render('friends');
+app.get('/profile', (req, res) => {
+    res.render('profile');
 })
 
 app.get('*', (req, res) => {
