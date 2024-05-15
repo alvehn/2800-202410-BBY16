@@ -135,6 +135,10 @@ app.get('/homepage', (req, res) => {
     res.render('homepage');
 })
 
+app.get('/profile', (req, res) => {
+    res.render('profile');
+})
+
 app.get('*', (req, res) => {
     res.status(404);
     res.render('404');
