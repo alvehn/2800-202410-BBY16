@@ -1,2 +1,39 @@
 <%- include("templates/header") %>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/friends">Friends</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/groups">Groups</a>
+        </li>
+    </ul>
+    <div>Search Bar Here</div>
+    <div class="friends">
+        <p>Friends List Displays Here</p>
+        <button id="openModal">Daniel Wang</button>
+        <div class="modal" id="modal">
+            <div class="friend-profile">Daniel Wang</div>
+            <button id="closeModal">Close</button>
+        </div>
+    </div>
+    <div>Add friend button and function here</div>
+
+    <!-- This is the template for popup when veiwing user profile -->
+    <template>
+        <div></div>
+    </template>
+
+    <script>
+        const openButton = document.getElementById("openModal");
+        const closeButton = document.getElementById("closeModal");
+        const modal = document.getElementById("modal");
+
+        openButton.addEventListener("click", () => {
+            modal.classList.add("open");
+        });
+
+        closeButton.addEventListener("click", () => {
+            modal.classList.remove("open");
+        });
+    </script>
 <%- include("templates/footer") %>
