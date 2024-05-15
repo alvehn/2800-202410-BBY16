@@ -147,6 +147,14 @@ app.get('/friends', (req, res) => {
     res.render('friends');
 })
 
+app.get('/petinv', (req, res) => {
+    res.render('petinv');
+})
+
+app.get('/petshop', (req, res) => {
+    res.render('petshop');
+})
+
 app.get('*', (req, res) => {
     res.status(404);
     res.render('404');
