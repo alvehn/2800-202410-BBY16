@@ -139,6 +139,10 @@ app.get('/profile', (req, res) => {
     res.render('profile');
 })
 
+app.get('/friends', (req, res) => {
+    res.render('friends');
+})
+
 app.get('*', (req, res) => {
     res.status(404);
     res.render('404');
