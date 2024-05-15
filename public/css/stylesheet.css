@@ -1,0 +1,41 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+footer {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: grey;
+}
+
+.navbar ul {
+    position: relative;
+    display: flex;
+}
+
+.navbar ul li{
+    position: relative;
+    list-style: none;
+    z-index: 1;
+}
+
+.navbar ul li a {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding-left: 10vw;
+    padding-right:10vw;
+}
