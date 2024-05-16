@@ -101,8 +101,8 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-app.get("/sign_up", (req, res) => {
-  res.render("sign_up");
+app.get("/signup", (req, res) => {
+  res.render("signup");
 });
 
 app.post("/signupSubmit", async (req, res) => {
