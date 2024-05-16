@@ -8,15 +8,29 @@
         </li>
     </ul>
     <div>Search Bar Here</div>
-    <div class="friends">
+    <br>
+    <div class="friends_list">
         <p>Friends List Displays Here</p>
-        <button id="openModal">Daniel Wang</button>
-        <div class="modal" id="modal">
-            <div class="friend-profile">Daniel Wang</div>
-            <button id="closeModal">Close</button>
+        <button id="open_friends">Daniel Wang</button>
+        <div class="friend_profile" id="friend_profile">
+            <div>Daniel Wang</div>
+            <button id="close_friends">Close</button>
         </div>
     </div>
-    <div>Add friend button and function here</div>
+    <br>
+    <div>
+        <p>Add friend button and function here</p>
+        <button id="open_adding">+</button>
+        <div class="add_popup" id="add_popup">
+            <div>
+                <form id="form">
+                    <input name='username' id='username' type='text' placeholder='Add Friend'>
+                    <button type="button" onclick="return addFriend()">Add</button>
+                </form>
+            </div>
+            <button id="close_adding">Close</button>
+        </div>
+    </div>
 
     <!-- This is the template for popup when veiwing user profile -->
     <template>
@@ -24,16 +38,62 @@
     </template>
 
     <script>
-        const openButton = document.getElementById("openModal");
-        const closeButton = document.getElementById("closeModal");
-        const modal = document.getElementById("modal");
+        const openProfile = document.getElementById("open_friends");
+        const closeProfile = document.getElementById("close_friends");
+        const profile = document.getElementById("friend_profile");
+        const openAdd = document.getElementById("open_adding");
+        const closeAdd = document.getElementById("close_adding");
+        const Add = document.getElementById("add_popup");
 
-        openButton.addEventListener("click", () => {
-            modal.classList.add("open");
+        openProfile.addEventListener("click", () => {
+            profile.classList.add("open");
         });
 
-        closeButton.addEventListener("click", () => {
-            modal.classList.remove("open");
+        closeProfile.addEventListener("click", () => {
+            profile.classList.remove("open");
         });
+
+        openAdd.addEventListener("click", () => {
+            Add.classList.add("open");
+        });
+
+        closeAdd.addEventListener("click", () => {
+            Add.classList.remove("open");
+        });
+
+        function addFriend() {
+            let form = document.getElementById("form");
+
+            // Serialize form data into a JSON object
+            let jsonObject = {};
+            for (let input of form.elements) {
+                if (input.name) {
+                    jsonObject[input.name] = input.value;
+                }
+            }
+
+            fetch('/friends/check', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json' // Set Content-Type to JSON
+                },
+                body: JSON.stringify(jsonObject) // Send JSON data in the body
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    form.insertAdjacentHTML('afterend', `<p>${data.message}</p>`);
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+        }
+
     </script>
-<%- include("templates/footer") %>
+    <%- include("templates/footer") %>

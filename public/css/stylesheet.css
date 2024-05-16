@@ -40,7 +40,7 @@ footer {
     padding-right:10vw;
 }
 
-.modal {
+.friend_profile {
     background-color: grey !important; 
     opacity: 0 !important;
     position: fixed !important;
@@ -57,11 +57,33 @@ footer {
     z-index: -1 !important;
 }
 
-.modal.open {
+.friend_profile.open {
     opacity: 1 !important;
     z-index: 999 !important;
 }
 
-.friend-profile {
+.profile {
     width: 50vw;
+}
+
+.add_popup {
+    background-color: grey !important; 
+    opacity: 0 !important;
+    position: fixed !important;
+    width: 90% !important;
+    height: 90% !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease-in-out !important;
+    opacity: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: -1 !important;
+}
+
+.add_popup.open {
+    opacity: 1 !important;
+    z-index: 999 !important;
 }
