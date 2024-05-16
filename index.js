@@ -149,6 +149,7 @@ app.post("/signupSubmit", async (req, res) => {
         achievements: [], // Initialize with default values
         individual_sessions: [], // Assuming individual_sessions for sessions
         group_sessions: [], // Assuming group_sessions for sessions
+        status: "online", // Assuming the user sign_up normally
       });
 
       req.session.authenticated = true;

@@ -87,6 +87,10 @@ const user_schema = {
         },
         description: "must be an array of achievement IDs",
       },
+      status: {
+        bsonType: "string",
+        description: "must be a string of either 'online' or 'offline'",
+      },
     },
   },
 };
