@@ -1,7 +1,7 @@
-const pet_schema = {
+const costume_schema = {
   $jsonSchema: {
     bsonType: "object",
-    required: ["name", "cost", "image", "description"],
+    required: ["name", "cost", "compatibility", "description"],
     properties: {
       _id: {
         bsonType: "objectId",
@@ -15,13 +15,12 @@ const pet_schema = {
         bsonType: "int",
         description: "must be a number and is required",
       },
-      image: {
-        bsonType: "string",
-        description: "must be a string and is required",
-      },
-      costume: {
-        bsonType: "string",
-        description: "must be a string",
+      compatibility: {
+        bsonType: "array",
+        items: {
+          bsonType: "objectId",
+        },
+        description: "must be an array of pet IDs that can equipt this costume",
       },
       description: {
         bsonType: "string",
@@ -31,4 +30,4 @@ const pet_schema = {
   },
 };
 
-module.exports = pet_schema;
+module.exports = costume_schema;

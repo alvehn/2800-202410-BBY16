@@ -9,7 +9,7 @@ const individual_session_schema = {
       },
       user_id: {
         bsonType: "objectId",
-        description: "must be an ObjectId and is required",
+        description: "must be the ObjectId of the user and is required",
       },
       hours_spent: {
         bsonType: "int",

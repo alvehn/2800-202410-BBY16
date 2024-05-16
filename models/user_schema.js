@@ -1,19 +1,15 @@
 const user_schema = {
   $jsonSchema: {
     bsonType: "object",
-    required: [
-      "username",
-      "email",
-      "password",
-      "total_study_hours",
-      "points",
-      "pets_owned",
-      "current_pet",
-    ],
+    required: ["username", "email", "display_name", "password", "current_pet"],
     properties: {
       _id: {
         bsonType: "objectId",
         description: "must be an ObjectId and is required",
+      },
+      display_name: {
+        bsonType: "string",
+        description: "the display name of the user and is required",
       },
       username: {
         bsonType: "string",
@@ -26,22 +22,22 @@ const user_schema = {
       },
       password: {
         bsonType: "string",
-        description: "must be a string and is required",
+        description: "must be a hashed string and is required",
       },
       total_study_hours: {
         bsonType: "int",
-        description: "must be a number and is required",
+        description: "must be a number",
       },
       points: {
         bsonType: "int",
-        description: "must be a number and is required",
+        description: "must be a number",
       },
       pets_owned: {
         bsonType: "array",
         items: {
           bsonType: "objectId",
         },
-        description: "must be an array of pet IDs and is required",
+        description: "must be an array of pet IDs",
       },
       friends: {
         bsonType: "array",
@@ -49,6 +45,13 @@ const user_schema = {
           bsonType: "objectId",
         },
         description: "must be an array of friends' IDs",
+      },
+      incoming_requests: {
+        bsonType: "array",
+        items: {
+          bsonType: "objectId",
+        },
+        description: "must be an array of user Ids",
       },
       individual_sessions: {
         bsonType: "array",
