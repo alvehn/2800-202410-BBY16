@@ -229,6 +229,45 @@ app.get("/profile", sessionValidation('profile'), async (req, res) => {
   res.render("profile", {user: result});
 });
 
+app.get("/update_profile", sessionValidation("update_profile"), async(req, res) => {
+  const result = await usersCollection.findOne({username: req.session.username});
+  res.render("update_profile", {user: result});
+});
+
+app.post("/updating_profile", sessionValidation("updating_profile"), async(req, res) => {
+  const {display_name, username, email} = req.body;
+  await usersCollection.updateOne({username: req.session.username }, {
+    $set:{
+      display_name: display_name,
+      username: username,
+      email: email
+    }
+  });
+  res.redirect('/profile');
+})
+
+app.get("/change_password", sessionValidation("change_password"), async(req, res) => {
+  res.render('change_password', {error: null});
+})
+
+app.post("/changing_password", sessionValidation("changing_password"), async(req, res) => {
+  const{current_password, new_password, confirm_password} = req.body;
+  const { password: user_password } = await usersCollection.findOne({ username: req.session.username });
+  if(await bcrypt.compare(current_password, user_password)){
+    if(new_password === confirm_password){
+      const newPassword = await bcrypt.hash(new_password, saltRounds);
+      await usersCollection.updateOne({username: req.session.username},
+      {$set: { password: newPassword}})
+      res.redirect('/profile');
+
+    }else{
+      res.render('change_password', {error: 2});
+    }
+  }else{
+    res.render('change_password', {error: 1});
+  }
+})
+
 app.get("/friends", (req, res) => {
   res.render("friends");
 });

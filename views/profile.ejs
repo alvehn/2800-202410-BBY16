@@ -1,15 +1,16 @@
 <%- include("templates/header") %>
 <div class="flex flex-col w-full min-h-screen pt-16 pb-16 bg-slate-600">
     
-    <div class="bg-slate-300 h-64 flex flex-col p-7">
+    <div class="bg-slate-300 h-80 flex flex-col pt-7 pr-7 pl-7">
         <div class="flex flex-row justify-between h-1/5">
             <div>Profile</div>
-            <div><a rel="/update_profile">Edit</a></div>
+            <a href="/update_profile">Edit</a>
         </div>
         <div class="h-3/5 bg-orange-300">Image</div>
         <div class=" h-2/5 flex flex-col justify-evenly">
             <h2 class="text-center"><%= user.display_name %></h2>
             <h3 class="text-center">#<%= user.username %></h3>
+            <h3 class="text-center"><%= user.email %></h3>
         </div>
     </div>
 
