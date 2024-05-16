@@ -278,14 +278,6 @@ app.get('/logout', (req, res) => {
   res.render("logout");
 });
 
-app.get("*", (req, res) => {
-  res.status(404);
-  res.render("404");
-});
-app.get('/friends', (req, res) => {
-    res.render('friends');
-})
-
 app.post('/friends/check', async (req, res) => {
     let username = req.body.username; // Inputted username
     let usernameSchema = Joi.string().alphanum().max(20).required();
