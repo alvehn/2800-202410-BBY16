@@ -1,8 +1,24 @@
-<%- include("templates/header") %>
-<form action='/signup' method='get'>
-    <button type='submit'>Sign up</button>
-</form>
-<form action='/login' method='get'>
-    <button type='submit'>Log in</button>
-</form>
+<%- include("templates/default") %>
+<div class="relative max-w-full mx-auto">
+    <img class="h-64 w-full object-cover" src="dummy1.jpg" alt="Placeholder image">
+    <div class="absolute inset-0 bg-gray-700 opacity-60"></div>
+    <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <h1 class="text-white text-3xl font-bold mb-8 mt-[-50px]">StudyPals</h1>
+        <h2 class="text-white text-2xl font-bold">Let's get pawductive!</h2>
+        <form action='/signup' method='get'>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow mb-2" type='submit'>Sign up</button>
+        </form>
+        <form action='/login' method='get'>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow" type='submit'>Log in</button>
+        </form>
+    </div>
+</div>
+<% for (let i = 0; i < 3; i++) { %>
+    <div class="relative">
+        <img class="h-64 w-full object-cover" src="dummy2.png" alt="Placeholder image">
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <h2 class="text-3xl font-bold">TBD</h2>
+        </div>    
+    </div>
+<% } %>
 <%- include("templates/footer") %>

@@ -1,0 +1,32 @@
+<%- include("templates/header") %>
+<div class="min-h-screen pt-16 pb-16">
+    <!-- Profile Information Update Component -->
+    <div class="pl-7 pr-7 pb-7 w-full">
+        <h2 class="text-xl">Profile</h2>    
+        <form action="/updating_profile" method="post" class="flex flex-col">
+            <div class="flex flex-col pt-4">
+                <label class="">Display name</label>
+                <input name="display_name" class="bg-gray-200 rounded-md" value="<%= user.display_name %>">
+            </div>
+
+            <div class="flex flex-col pt-4">
+                <label class="">Username</label>
+                <input name="username" class="bg-gray-200 rounded-md" value="<%= user.username %>">
+            </div>
+
+            <div class="flex flex-col pt-4">
+                <label class="">Email</label>
+                <input name="email" class="bg-gray-200 rounded-md" value="<%= user.email %>">
+            </div>
+
+            <div class="flex justify-evenly pt-4">
+                <button type="submit">Save</button>
+                <a href="/profile">Go back</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+
+</script>
+<%- include("templates/navbar") %>
