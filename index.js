@@ -272,6 +272,11 @@ app.get("/friends", (req, res) => {
   res.render("friends");
 });
 
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.render("logout");
+});
+
 app.get("*", (req, res) => {
   res.status(404);
   res.render("404");
