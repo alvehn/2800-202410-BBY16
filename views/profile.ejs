@@ -1,8 +1,7 @@
 <%- include("templates/header") %>
     <img src="#" style="width: 50px; height: 50px; border-radius: 50%;" >
-    <h1>Hello, <%= user %>!</h1> <br>
-    <h2>ID: <%= user_ID %></h2> <br>
+    <h1>Hello, <%= user.display_name %>!</h1> <br>
+    <h2>ID: <%= user.email %></h2> <br>
     <button type="button">Edit</button>
     <button type="button">View Log</button>
-    <h2>Total hours this week: <%= user_hours %></h2>
 <%- include("templates/navbar") %>

@@ -80,6 +80,18 @@ app.use(
   })
 );
 
+function sessionValidation(endRoute) {  // SessionValidation, I wraped the middleware function
+  return function(req, res, next) {     // in another function so that you can redirect the user
+    if(req.session.authenticated){      // to different location depends on where the request route.
+      next();
+    }else {
+      if(endRoute === 'profile'){
+        res.redirect('/login');
+      }
+    }
+  }
+}
+
 /*
     Below are route handlers
 */
@@ -212,8 +224,9 @@ app.get("/friends", (req, res) => {
   res.render("friends");
 });
 
-app.get("/profile", (req, res) => {
-  res.render("profile");
+app.get("/profile", sessionValidation('profile'), async (req, res) => {
+  const result = await usersCollection.findOne({username: req.session.username});
+  res.render("profile", {user: result});
 });
 
 app.get("/friends", (req, res) => {
