@@ -1,18 +1,18 @@
 <%- include("templates/header") %>
-<div class="flex flex-col w-full min-h-screen pt-16 pb-16 bg-gray-100">
-    
+<div class="flex flex-col w-full min-h-screen pt-16 pb-16 bg-gray-100 overflow-y-auto"> <!-- Adjusted padding and overflow -->
+
     <div class="bg-white shadow-md rounded-lg m-4 h-80 flex flex-col pt-7 pr-7 pl-7">
         <div class="flex flex-row justify-between items-center h-1/5">
             <div class="text-xl font-semibold">Profile</div>
             <a href="/update_profile" class="text-blue-600 hover:underline">Edit</a>
         </div>
-        <div class="h-3/5 bg-orange-300 flex items-center justify-center rounded-md">
+        <div class="h-2/5 bg-orange-300 flex items-center justify-center rounded-md">
             <img src="<%= user.profile_image || '/default-profile.png' %>" alt="Profile Image" class="h-full rounded-md object-cover">
         </div>
-        <div class="h-2/5 flex flex-col justify-evenly items-center">
-            <h2 class="text-center text-lg font-semibold"><%= user.display_name %></h2>
-            <h3 class="text-center text-gray-600">#<%= user.username %></h3>
-            <h3 class="text-center text-gray-600"><%= user.email %></h3>
+        <div class="h-3/5 flex flex-col justify-center items-center">
+            <h2 class="text-center font-semibold"><%= user.display_name %></h2>
+            <h3 class="text-center text-sm text-gray-500">#<%= user.username %></h3>
+            <h3 class="text-center text-sm text-gray-500"><%= user.email %></h3>
         </div>
     </div>
 
@@ -43,9 +43,5 @@
         <p class="text-gray-700">Content goes here...</p>
     </div>
 
-    <form action='/logout' method='get' class="flex justify-center mt-8">
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Log Out</button>
-    </form>
 </div>
-    
 <%- include("templates/navbar") %>
