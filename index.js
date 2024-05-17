@@ -210,11 +210,15 @@ app.post("/loggingin", async (req, res) => {
       req.session.friends = result[0].friends;
       req.session.groups = result[0].groups;
       req.session.cookie.maxAge = expireTime;
-      return res.redirect("/homepage");
+      return res.redirect("/home_page");
     }
   }
 
   res.render("login_error", { error: error });
+});
+
+app.get("/forget_password", (req, res) => {
+  res.render("forget_password");
 });
 
 app.get("/home_page", (req, res) => {
