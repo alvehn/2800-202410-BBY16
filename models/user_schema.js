@@ -42,16 +42,16 @@ const user_schema = {
       friends: {
         bsonType: "array",
         items: {
-          bsonType: "objectId",
+          bsonType: "string",
         },
-        description: "must be an array of friends' IDs",
+        description: "must be an array of friends usernames",
       },
       incoming_requests: {
         bsonType: "array",
         items: {
-          bsonType: "objectId",
+          bsonType: "string",
         },
-        description: "must be an array of user Ids",
+        description: "must be an array of user usernames",
       },
       individual_sessions: {
         bsonType: "array",
