@@ -284,12 +284,16 @@ app.get("/friends", (req, res) => {
 });
 
 app.get('/logout', async (req, res) => {
+  let username = req.session.username;
+  let email = req.session.email;
   const result = await usersCollection
       .find({ email: email })
       .project({ friends: 1 })
       .toArray();
-  for (let friend of result[0].friends) {
-    await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
+  if (result[0] && result[0].friends) {
+    for (let friend of result[0].friends) {
+      await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
+    }
   }
   req.session.destroy();
   res.render("logout");
