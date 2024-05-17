@@ -6,6 +6,8 @@ const express = require("express");
 const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const nodemailer = require('nodemailer');
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
 
@@ -37,6 +39,8 @@ const mongodb_database = process.env.MONGODB_DATABASE; // We currently only have
 const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_host = process.env.MONGODB_HOST;
+const email_account = process.env.EMAIL_ACCOUNT;
+const email_password = process.env.EMAIL_PASSWORD;
 
 /*
     This part are for database connection.
@@ -52,6 +56,7 @@ const studyPals = database.db(mongodb_database); // The actual database we will 
 
 // All the collections
 const usersCollection = studyPals.collection("users");
+const resetCodeCollection = studyPals.collection("reset_code");
 const sessionsCollection = studyPals.collection("sessions");
 
 /* Validating that when you try to update the database, it ensures that it doesn't violate these properties. */
@@ -91,6 +96,18 @@ function sessionValidation(endRoute) {  // SessionValidation, I wraped the middl
     }
   }
 }
+
+/*
+  This part is for mail transpoter
+*/
+
+const gmailTransporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: email_account,
+    pass: email_password
+  }
+})
 
 /*
     Below are route handlers
@@ -221,9 +238,78 @@ app.post("/loggingin", async (req, res) => {
   res.render("login_error", { error: error });
 });
 
+/*
+  Password Resetting Section
+  The following are handler for resetting user password through email
+  during logining. 
+*/
 app.get("/forget_password", (req, res) => {
-  res.render("forget_password");
+  res.render("forget_password", {userNotFound: 0});
 });
+
+app.post("/reset_password", async (req, res) => {
+  const { email } = req.body;
+  const user = await usersCollection.findOne({email: email});
+
+  if(!user){
+    console.log("Wrong password");
+    res.render('forget_password', {userNotFound: 1});
+  } else {
+    res.render('reset_password', {email: email, codeError: 0});
+  }
+})
+
+app.post("/send_code", async(req, res) => {
+  const{ email } = req.body;
+  if(!email){
+    res.redirect('/forget_password');
+    return;
+  }
+  console.log(email_account)
+  console.log(email_password)
+
+  console.log("valid email address")
+
+  const resetCode = crypto.randomInt(1000, 9999).toString();
+  console.log(resetCode);
+  await resetCodeCollection.updateOne(
+    {email: email},
+    {$set: {resetCode: resetCode, codeExpiry: Date.now() + 60 * 1000}},
+    {upsert: true}
+  );
+
+  await gmailTransporter.sendMail({
+    to: email,
+    subject: "StudyPals: Password Reset Code",
+    text: `Your password reset code is ${resetCode}`
+  })
+  console.log("Code sent!");
+  res.render("reset_password", {email: email, codeError: 0})
+})
+
+app.post("/verify_code", async(req, res) => {
+  const {email, code} = req.body;
+  const validationResult = await resetCodeCollection.findOne({email: email, resetCode: code});
+  if(!validationResult || validationResult.codeExpiry < Date.now()){
+    res.render("reset_password", {email: email, codeError: 1});
+  }else{
+    res.render("set_new_password", {email: email, error: 0});
+  }
+})
+
+app.post("/set_new_password", async(req, res) => {
+  const {email, new_password, confirm_password} = req.body;
+  if(new_password !== confirm_password){
+    res.render("set_new_password", {email: email, error: 1})
+  }else{
+    const newHashedPassword = await bcrypt.hash(new_password, saltRounds);
+    await usersCollection.updateOne({email: email}, {$set: {password: newHashedPassword}});
+    res.redirect('/login');
+  }
+})
+/*
+  End of Password Resetting Section
+*/
 
 app.get("/home_page", (req, res) => {
   console.log("home_page route handler started");
