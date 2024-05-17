@@ -115,21 +115,6 @@ app.post("/signupSubmit", async (req, res) => {
   let passwordSchema = Joi.string().max(20).required();
   let displaynameSchema = Joi.string().alphanum().max(20).required();
 
-  app.get("/groups", (req, res) => {
-    res.render("groups");
-  });
-
-  app.get("/profile", (req, res) => {
-    res.render("profile");
-  });
-
-  app.get("/petinv", (req, res) => {
-    res.render("petinv");
-  });
-
-  app.get("/petshop", (req, res) => {
-    res.render("petshop");
-  });
   let usernameValidation = usernameSchema.validate(username);
   let emailValidation = emailSchema.validate(email);
   let passwordValidation = passwordSchema.validate(password);
@@ -182,6 +167,22 @@ app.post("/signupSubmit", async (req, res) => {
       }
     }
   }
+});
+
+app.get("/groups", (req, res) => {
+  res.render("groups");
+});
+
+app.get("/profile", (req, res) => {
+  res.render("profile");
+});
+
+app.get("/petinv", (req, res) => {
+  res.render("petinv");
+});
+
+app.get("/petshop", (req, res) => {
+  res.render("petshop");
 });
 
 app.get("/login", (req, res) => {
@@ -270,6 +271,11 @@ app.post("/changing_password", sessionValidation("changing_password"), async(req
 
 app.get("/friends", (req, res) => {
   res.render("friends");
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.render("logout");
 });
 
 app.get("*", (req, res) => {
