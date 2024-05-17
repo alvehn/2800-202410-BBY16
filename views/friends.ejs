@@ -87,6 +87,14 @@
                     }
                 })
                 .then(data => {
+                    //
+                    // testing and debugging
+                    //
+                    //console.log(data.result);
+                    //
+                    //
+                    //
+                    console.log(data.message);
                     form.insertAdjacentHTML('afterend', `<p>${data.message}</p>`);
                 })
                 .catch(error => {

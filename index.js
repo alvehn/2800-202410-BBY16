@@ -67,25 +67,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/public'));
 app.use(session({
-    secret: node_session_secret,
-    saveUninitialized: false,
-    resave: true,
-    store: mongoStore.create({
-      mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`,
-      collection: "sessions",
-      crypto: {
-        secret: mongodb_session_secret,
-      },
-    }),
-  })
+  secret: node_session_secret,
+  saveUninitialized: false,
+  resave: true,
+  store: mongoStore.create({
+    mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`,
+    collection: "sessions",
+    crypto: {
+      secret: mongodb_session_secret,
+    },
+  }),
+})
 );
 
 function sessionValidation(endRoute) {  // SessionValidation, I wraped the middleware function
-  return function(req, res, next) {     // in another function so that you can redirect the user
-    if(req.session.authenticated){      // to different location depends on where the request route.
+  return function (req, res, next) {     // in another function so that you can redirect the user
+    if (req.session.authenticated) {      // to different location depends on where the request route.
       next();
-    }else {
-      if(endRoute === 'profile'){
+    } else {
+      if (endRoute === 'profile') {
         res.redirect('/login');
       }
     }
@@ -205,12 +205,18 @@ app.post("/loggingin", async (req, res) => {
     if (result.length != 1) {
       error = "User not found.";
     } else if (await bcrypt.compare(password, result[0].password)) {
+      // Updates friends current status
+      for (let friend of result[0].friends) {
+        await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "online" } });
+      }
+      // Creates a session
       req.session.authenticated = true;
       req.session.username = result[0].username;
       req.session.friends = result[0].friends;
+      req.session.incoming_requests = result[0].incoming_requests;
       req.session.groups = result[0].groups;
       req.session.cookie.maxAge = expireTime;
-      return res.redirect("/homepage");
+      return res.redirect("/home_page");
     }
   }
 
@@ -226,19 +232,19 @@ app.get("/friends", (req, res) => {
 });
 
 app.get("/profile", sessionValidation('profile'), async (req, res) => {
-  const result = await usersCollection.findOne({username: req.session.username});
-  res.render("profile", {user: result});
+  const result = await usersCollection.findOne({ username: req.session.username });
+  res.render("profile", { user: result });
 });
 
-app.get("/update_profile", sessionValidation("update_profile"), async(req, res) => {
-  const result = await usersCollection.findOne({username: req.session.username});
-  res.render("update_profile", {user: result});
+app.get("/update_profile", sessionValidation("update_profile"), async (req, res) => {
+  const result = await usersCollection.findOne({ username: req.session.username });
+  res.render("update_profile", { user: result });
 });
 
-app.post("/updating_profile", sessionValidation("updating_profile"), async(req, res) => {
-  const {display_name, username, email} = req.body;
-  await usersCollection.updateOne({username: req.session.username }, {
-    $set:{
+app.post("/updating_profile", sessionValidation("updating_profile"), async (req, res) => {
+  const { display_name, username, email } = req.body;
+  await usersCollection.updateOne({ username: req.session.username }, {
+    $set: {
       display_name: display_name,
       username: username,
       email: email
@@ -247,25 +253,25 @@ app.post("/updating_profile", sessionValidation("updating_profile"), async(req, 
   res.redirect('/profile');
 })
 
-app.get("/change_password", sessionValidation("change_password"), async(req, res) => {
-  res.render('change_password', {error: null});
+app.get("/change_password", sessionValidation("change_password"), async (req, res) => {
+  res.render('change_password', { error: null });
 })
 
-app.post("/changing_password", sessionValidation("changing_password"), async(req, res) => {
-  const{current_password, new_password, confirm_password} = req.body;
+app.post("/changing_password", sessionValidation("changing_password"), async (req, res) => {
+  const { current_password, new_password, confirm_password } = req.body;
   const { password: user_password } = await usersCollection.findOne({ username: req.session.username });
-  if(await bcrypt.compare(current_password, user_password)){
-    if(new_password === confirm_password){
+  if (await bcrypt.compare(current_password, user_password)) {
+    if (new_password === confirm_password) {
       const newPassword = await bcrypt.hash(new_password, saltRounds);
-      await usersCollection.updateOne({username: req.session.username},
-      {$set: { password: newPassword}})
+      await usersCollection.updateOne({ username: req.session.username },
+        { $set: { password: newPassword } })
       res.redirect('/profile');
 
-    }else{
-      res.render('change_password', {error: 2});
+    } else {
+      res.render('change_password', { error: 2 });
     }
-  }else{
-    res.render('change_password', {error: 1});
+  } else {
+    res.render('change_password', { error: 1 });
   }
 })
 
@@ -273,49 +279,56 @@ app.get("/friends", (req, res) => {
   res.render("friends");
 });
 
-app.get('/logout', (req, res) => {
+app.get('/logout', async (req, res) => {
+  const result = await usersCollection
+      .find({ email: email })
+      .project({ friends: 1 })
+      .toArray();
+  for (let friend of result[0].friends) {
+    await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
+  }
   req.session.destroy();
   res.render("logout");
 });
 
 app.post('/friends/check', async (req, res) => {
-    let username = req.body.username; // Inputted username
-    let usernameSchema = Joi.string().alphanum().max(20).required();
-    let usernameValidation = usernameSchema.validate(username); // Validate inputted username with joi
-    let message;
-    if (usernameValidation.error != null) {
-        // If validation fails, return an error response
-        message = username + " is not valid!";
+  let username = req.body.username; // Inputted username
+  let usernameSchema = Joi.string().alphanum().max(20).required();
+  let usernameValidation = usernameSchema.validate(username); // Validate inputted username with joi
+  let message;
+  if (usernameValidation.error != null) { // If validation fails, return an error response
+    message = username + " is not valid!";
+  } else {
+    let user = req.session.username; // Get current session user
+    let friend = await usersCollection.find({ username: username }).project({ friends: 1, incoming_requests: 1, status: 1 }).toArray();
+    let result = await usersCollection.find({ username: user }).project({ friends: 1, incoming_requests: 1, status: 1 }).toArray();
+    if (friend.length != 1) {
+      message = "User not found.";
     } else {
-        let user = req.session.username; // Get current session user
-        let friend = await usersCollection.find({ username: username }).project({ friends: 1, incoming_requests: 1, status: 1}).toArray();
-        let result = await usersCollection.find({ username: user }).project({ friends: 1, incoming_requests: 1, status: 1}).toArray();
-        if (friend.length != 1) {
-            message = "User not found.";
-        } else {
-            if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
-                // Adds current user as a friend of the requested user in database
-                await usersCollection.update({ username: username }, {$push: { friends: { username: user, status: "online" } }});
-                // Adds requested user as a friend of the current user in database
-                await usersCollection.update({ username: user }, {$push: { friends: { username: username, status: friend[0].status } }});
-                // Removes the incoming request from the newly added friend
-                await usersCollection.updateOne({ username: user }, { $pull: { incoming_requests: username } });
-                message = username + " has been added!";
-            } else if (friend[0].incoming_requests.includes(user)) { // checks if request to other user to be friends exists
-                message = "Already sent friend request to " + username + ".";
-            } else {
-                await usersCollection.update({ username: username }, {$push: { incoming_requests: user }});
-                message = "Friend request sent to " + username +"!";
-            }
-        }
-        // If validation succeeds, return a success response
+      if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
+        // Adds current user as a friend of the requested user in database
+        await usersCollection.update({ username: username }, { $push: { friends: { username: user, status: "online" } } });
+        // Adds requested user as a friend of the current user in database
+        await usersCollection.update({ username: user }, { $push: { friends: { username: username, status: friend[0].status } } });
+        // Removes the incoming request from the newly added friend
+        await usersCollection.updateOne({ username: user }, { $pull: { incoming_requests: username } });
+        message = username + " has been added!";
+      } else if (friend[0].incoming_requests.includes(user)) { // checks if request to other user to be friends exists
+        message = "Already sent friend request to " + username + ".";
+      } else { // If no prior requests exist from either side, send friend request
+        await usersCollection.updateOne({ username: username }, { $push: { incoming_requests: user } });
+        //await usersCollection.updateOne({ username: username }, { $set: { incoming_requests: { $concatArrays: [ "$incoming_requests", [ user ]]}}}); potentially another way to update array
+        message = "Friend request sent to " + username + "!";
+      }
     }
-    res.json({ message });
+    // If validation succeeds, return a success response
+  }
+  res.json({ message });
 });
 
 app.get('*', (req, res) => {
-    res.status(404);
-    res.render('404');
+  res.status(404);
+  res.render('404');
 })
 
 app.listen(port, () => {
