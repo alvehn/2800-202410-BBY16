@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "tailwindcss build src/input.css -o public/css/tailwind.css",
-    "watch:css": "tailwindcss build src/input.css -o public/css/tailwind.css --watch"
+    "watch:css": "tailwindcss build src/input.css -o public/css/tailwind.css --watch",
+    "start:dev": "concurrently \"npm run watch:css\" \"nodemon index.js\""
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3"
   }
