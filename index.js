@@ -204,16 +204,16 @@ app.get("/login", (req, res) => {
 
 app.post("/loggingin", async (req, res) => {
   console.log("loggingin route handler started");
-  let email = req.body.email;
+  let username = req.body.username;
   let password = req.body.password;
-  let emailSchema = Joi.string().email().required();
+  let usernameSchema = Joi.string().required();
   let passwordSchema = Joi.string().max(20).required();
-  let emailValidation = emailSchema.validate(email);
+  let usernameValidation = usernameSchema.validate(username);
   let passwordValidation = passwordSchema.validate(password);
-  var error = "Invalid email/password.";
-  if (emailValidation.error == null && passwordValidation.error == null) {
+  var error = "Invalid username/password.";
+  if (usernameValidation.error == null && passwordValidation.error == null) {
     const result = await usersCollection
-      .find({ email: email })
+      .find({ username: username })
       .project({ username: 1, password: 1, friends: 1, groups: 1, _id: 1 })
       .toArray();
     if (result.length != 1) {
@@ -230,7 +230,6 @@ app.post("/loggingin", async (req, res) => {
       req.session.incoming_requests = result[0].incoming_requests;
       req.session.groups = result[0].groups;
       req.session.cookie.maxAge = expireTime;
-      return res.redirect("/home_page");
       return res.redirect("/home_page");
     }
   }
