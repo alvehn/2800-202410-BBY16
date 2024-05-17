@@ -173,10 +173,6 @@ app.get("/groups", (req, res) => {
   res.render("groups");
 });
 
-app.get("/profile", (req, res) => {
-  res.render("profile");
-});
-
 app.get("/petinv", (req, res) => {
   res.render("petinv");
 });
@@ -190,6 +186,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/loggingin", async (req, res) => {
+  console.log("loggingin route handler started");
   let email = req.body.email;
   let password = req.body.password;
   let emailSchema = Joi.string().email().required();
@@ -222,16 +219,18 @@ app.get("/forget_password", (req, res) => {
 });
 
 app.get("/home_page", (req, res) => {
+  console.log("home_page route handler started");
   res.render("home_page");
 });
 
 app.get("/friends", (req, res) => {
+  console.log("friend route handler started");
   res.render("friends");
 });
 
 app.get("/profile", sessionValidation('profile'), async (req, res) => {
-  const result = await usersCollection.findOne({username: req.session.username});
-  res.render("profile", {user: result});
+    const result = await usersCollection.findOne({username: req.session.username});
+    res.render("profile", {user: result});
 });
 
 app.get("/update_profile", sessionValidation("update_profile"), async(req, res) => {
