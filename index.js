@@ -315,6 +315,15 @@ app.get("/home_page", (req, res) => {
   res.render("home_page");
 });
 
+/*
+  The following handler are for starting individual stuy session.
+*/
+app.get('/start_study_session', sessionValidation("start_study_session"), (req, res) => {
+  res.render("study_session");
+})
+
+
+
 app.get("/friends", (req, res) => {
   console.log("friend route handler started");
   res.render("friends");
