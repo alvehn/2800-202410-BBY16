@@ -9,7 +9,7 @@
     </ul>
     <div>Search Bar Here</div>
     <br>
-    <div class="friends_list">
+    <div id="friends_container">
         <p>Friends List Displays Here</p>
         <button id="open_friends">Daniel Wang</button>
         <div class="friend_profile" id="friend_profile">
@@ -33,7 +33,7 @@
     </div>
 
     <!-- This is the template for popup when veiwing user profile -->
-    <template>
+    <template id="friendCardTemplate">
         <div></div>
     </template>
 
@@ -87,14 +87,6 @@
                     }
                 })
                 .then(data => {
-                    //
-                    // testing and debugging
-                    //
-                    //console.log(data.result);
-                    //
-                    //
-                    //
-                    console.log(data.message);
                     form.insertAdjacentHTML('afterend', `<p>${data.message}</p>`);
                 })
                 .catch(error => {
@@ -102,6 +94,35 @@
                     console.error('Error:', error);
                 });
         }
+
+        function displayFriendsDynamically() {
+            let friends;
+            fetch('/friends/get_friends', {
+                method: 'post',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    friends = data.friends;
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+            // Creates the friends card
+            let cardTemplate = document.getElementById("friendCardTemplate");
+            for (let friend of friends) {
+                let newcard = cardTemplate.content.cloneNode(true);
+                document.getElementById("friends_container").appendChild(newcard);
+            }
+        }
+
+        displayFriendsDynamically();
 
     </script>
 <%- include("templates/navbar") %>

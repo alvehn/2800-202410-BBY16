@@ -42,7 +42,7 @@ const user_schema = {
       friends: {
         bsonType: "array",
         items: {
-          bsonType: "string",
+          bsonType: "objectId",
         },
         description: "must be an array of friends usernames",
       },

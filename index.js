@@ -214,7 +214,6 @@ app.post("/loggingin", async (req, res) => {
       req.session.groups = result[0].groups;
       req.session.cookie.maxAge = expireTime;
       return res.redirect("/home_page");
-      return res.redirect("/home_page");
     }
   }
 
@@ -236,8 +235,8 @@ app.get("/friends", (req, res) => {
 });
 
 app.get("/profile", sessionValidation('profile'), async (req, res) => {
-    const result = await usersCollection.findOne({username: req.session.username});
-    res.render("profile", {user: result});
+  const result = await usersCollection.findOne({ username: req.session.username });
+  res.render("profile", { user: result });
 });
 
 app.get("/update_profile", sessionValidation("update_profile"), async (req, res) => {
@@ -285,9 +284,9 @@ app.get("/friends", (req, res) => {
 
 app.get('/logout', async (req, res) => {
   const result = await usersCollection
-      .find({ email: email })
-      .project({ friends: 1 })
-      .toArray();
+    .find({ email: email })
+    .project({ friends: 1 })
+    .toArray();
   for (let friend of result[0].friends) {
     await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
   }
@@ -304,16 +303,16 @@ app.post('/friends/check', async (req, res) => {
     message = username + " is not valid!";
   } else {
     let user = req.session.username; // Get current session user
-    let friend = await usersCollection.find({ username: username }).project({ friends: 1, incoming_requests: 1, status: 1 }).toArray();
-    let result = await usersCollection.find({ username: user }).project({ friends: 1, incoming_requests: 1, status: 1 }).toArray();
+    let friend = await usersCollection.find({ username: username }).project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 }).toArray();
+    let result = await usersCollection.find({ username: user }).project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 }).toArray();
     if (friend.length != 1) {
       message = "User not found.";
     } else {
       if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
         // Adds current user as a friend of the requested user in database
-        await usersCollection.update({ username: username }, { $push: { friends: { username: user, status: "online" } } });
+        await usersCollection.update({ username: username }, { $push: { friends: result[0]._id } });
         // Adds requested user as a friend of the current user in database
-        await usersCollection.update({ username: user }, { $push: { friends: { username: username, status: friend[0].status } } });
+        await usersCollection.update({ username: user }, { $push: { friends: friend[0]._id } });
         // Removes the incoming request from the newly added friend
         await usersCollection.updateOne({ username: user }, { $pull: { incoming_requests: username } });
         message = username + " has been added!";
@@ -328,6 +327,13 @@ app.post('/friends/check', async (req, res) => {
     // If validation succeeds, return a success response
   }
   res.json({ message });
+});
+
+app.post('/friends/get_friends', async (req, res) => {
+  let user = req.session.username;
+  let friendsObject = await usersCollection.findOne({ username: user }, { projection: { friends: 1 } });
+  let friends = friendsObject.friends;
+  res.json({ friends });
 });
 
 app.get('*', (req, res) => {
