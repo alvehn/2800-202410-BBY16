@@ -1,41 +1,47 @@
 <%- include("templates/header") %>
-<div class="flex flex-col w-full min-h-screen pt-16 pb-16 bg-slate-600">
+<div class="flex flex-col w-full min-h-screen pt-16 pb-16 bg-gray-100 overflow-y-auto"> <!-- Adjusted padding and overflow -->
+
+    <div class="bg-white shadow-md rounded-lg m-4 h-80 flex flex-col pt-7 pr-7 pl-7">
+        <div class="flex flex-row justify-between items-center h-1/5">
+            <div class="text-xl font-semibold">Profile</div>
+            <a href="/update_profile" class="text-blue-600 hover:underline">Edit</a>
+        </div>
+        <div class="h-2/5 bg-orange-300 flex items-center justify-center rounded-md">
+            <img src="<%= user.profile_image || '/default-profile.png' %>" alt="Profile Image" class="h-full rounded-md object-cover">
+        </div>
+        <div class="h-3/5 flex flex-col justify-center items-center">
+            <h2 class="text-center font-semibold"><%= user.display_name %></h2>
+            <h3 class="text-center text-sm text-gray-500">#<%= user.username %></h3>
+            <h3 class="text-center text-sm text-gray-500"><%= user.email %></h3>
+        </div>
+    </div>
+
+    <div class="bg-red-300 h-48 p-7 m-4 rounded-lg shadow-md">
+        <div class="bg-white w-full h-full flex flex-row justify-evenly rounded-md shadow-md">
+            <div class="bg-blue-300 w-1/3 h-full flex flex-col items-center justify-center rounded-md m-2 p-2">
+                <img src="/medal.webp" class="w-16 h-16">
+                <span class="flex items-center justify-center h-full text-xl font-semibold"><%= user.study_streak %></span>
+            </div>
+            <div class="bg-blue-300 w-1/3 h-full flex flex-col items-center justify-center rounded-md m-2 p-2">
+                <img src="/medal.webp" class="w-16 h-16">
+                <span class="flex items-center justify-center h-full text-xl font-semibold"><%= user.total_study_hours %></span>
+            </div>
+            <div class="bg-blue-300 w-1/3 h-full flex flex-col items-center justify-center rounded-md m-2 p-2">
+                <img src="/medal.webp" class="w-16 h-16">
+                <span class="flex items-center justify-center h-full text-xl font-semibold"><%= user.groups.length %></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-green-300 h-80 p-7 m-4 rounded-lg shadow-md">
+        <div class="text-2xl font-semibold mb-4">Achievement Section</div>
+        <p class="text-gray-700">Content goes here...</p>
+    </div>
     
-    <div class="bg-slate-300 h-80 flex flex-col pt-7 pr-7 pl-7">
-        <div class="flex flex-row justify-between h-1/5">
-            <div>Profile</div>
-            <a href="/update_profile">Edit</a>
-        </div>
-        <div class="h-3/5 bg-orange-300">Image</div>
-        <div class=" h-2/5 flex flex-col justify-evenly">
-            <h2 class="text-center"><%= user.display_name %></h2>
-            <h3 class="text-center">#<%= user.username %></h3>
-            <h3 class="text-center"><%= user.email %></h3>
-        </div>
+    <div class="bg-yellow-300 h-80 p-7 m-4 rounded-lg shadow-md">
+        <div class="text-2xl font-semibold mb-4">Studying Hours History Section</div>
+        <p class="text-gray-700">Content goes here...</p>
     </div>
 
-    <div class="bg-red-300 h-48 p-7">
-        <div class="bg-white w-full h-full flex flex-row justify-evenly">
-            <div class="bg-blue-300 w-1/3 h-full flex flex-col items-center justify-center">
-                <img src="/medal.webp" class="w-full">
-                <span class="flex items-center justify-center h-full"><%= user.study_streak %></span>
-            </div>
-            <div class="bg-blue-300 w-1/3 h-full flex flex-col items-center justify-center">
-                <img src="/medal.webp" class="w-full">
-                <span class="flex items-center justify-center h-full"><%= user.total_study_hours %></span>
-            </div>
-            <div class="bg-blue-300 w-1/3 h-full flex flex-col items-center justify-center">
-                <img src="/medal.webp" class="w-full">
-                <span class="flex items-center justify-center h-full"><%= user.groups.length %></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-green-300 h-80 p-7">Achievement Section</div>
-    <div class="bg-yellow-300 h-80 p-7">Studying Hours History Section</div>
-    <form action='/logout' method='get'>
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Log Out</button>
-    </form>
 </div>
-    
 <%- include("templates/navbar") %>

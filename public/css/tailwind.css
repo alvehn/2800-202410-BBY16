@@ -666,16 +666,8 @@ video {
   margin-inline-end: 1.5rem;
 }
 
-.ml-3 {
-  margin-left: 0.75rem;
-}
-
 .mr-2 {
   margin-right: 0.5rem;
-}
-
-.mt-20 {
-  margin-top: 5rem;
 }
 
 .mt-\[-50px\] {
@@ -694,10 +686,6 @@ video {
   display: flex;
 }
 
-.inline-flex {
-  display: inline-flex;
-}
-
 .table {
   display: table;
 }
@@ -712,6 +700,10 @@ video {
 
 .hidden {
   display: none;
+}
+
+.h-1 {
+  height: 0.25rem;
 }
 
 .h-1\/5 {
@@ -732,6 +724,10 @@ video {
 
 .h-24 {
   height: 6rem;
+}
+
+.h-3 {
+  height: 0.75rem;
 }
 
 .h-3\/5 {
@@ -768,6 +764,10 @@ video {
 
 .min-h-screen {
   min-height: 100vh;
+}
+
+.w-1 {
+  width: 0.25rem;
 }
 
 .w-1\/3 {
@@ -956,9 +956,19 @@ video {
   background-color: rgb(37 99 235 / var(--tw-bg-opacity));
 }
 
-.bg-blue-700 {
+.bg-dark-sage {
   --tw-bg-opacity: 1;
-  background-color: rgb(29 78 216 / var(--tw-bg-opacity));
+  background-color: rgb(120 157 133 / var(--tw-bg-opacity));
+}
+
+.bg-evergreen {
+  --tw-bg-opacity: 1;
+  background-color: rgb(43 78 57 / var(--tw-bg-opacity));
+}
+
+.bg-golden-yellow {
+  --tw-bg-opacity: 1;
+  background-color: rgb(219 197 150 / var(--tw-bg-opacity));
 }
 
 .bg-gray-100 {
@@ -991,14 +1001,19 @@ video {
   background-color: rgb(34 197 94 / var(--tw-bg-opacity));
 }
 
+.bg-light-sage {
+  --tw-bg-opacity: 1;
+  background-color: rgb(169 192 161 / var(--tw-bg-opacity));
+}
+
 .bg-lime-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(190 242 100 / var(--tw-bg-opacity));
 }
 
-.bg-orange-300 {
+.bg-orange {
   --tw-bg-opacity: 1;
-  background-color: rgb(253 186 116 / var(--tw-bg-opacity));
+  background-color: rgb(239 155 85 / var(--tw-bg-opacity));
 }
 
 .bg-purple-500 {
@@ -1019,6 +1034,16 @@ video {
 .bg-slate-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(71 85 105 / var(--tw-bg-opacity));
+}
+
+.bg-stone {
+  --tw-bg-opacity: 1;
+  background-color: rgb(214 212 197 / var(--tw-bg-opacity));
+}
+
+.bg-teal {
+  --tw-bg-opacity: 1;
+  background-color: rgb(85 140 123 / var(--tw-bg-opacity));
 }
 
 .bg-white {
@@ -1064,11 +1089,6 @@ video {
   padding: 2rem;
 }
 
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
@@ -1082,11 +1102,6 @@ video {
 .px-8 {
   padding-left: 2rem;
   padding-right: 2rem;
-}
-
-.py-1 {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
 }
 
 .py-2 {
