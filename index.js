@@ -220,9 +220,9 @@ app.post("/loggingin", async (req, res) => {
       error = "User not found.";
     } else if (await bcrypt.compare(password, result[0].password)) {
       // Updates friends current status
-      for (let friend of result[0].friends) {
+      /* for (let friend of result[0].friends) {
         await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "online" } });
-      }
+      } */
       // Creates a session
       req.session.authenticated = true;
       req.session.username = result[0].username;
@@ -243,24 +243,24 @@ app.post("/loggingin", async (req, res) => {
   during logining. 
 */
 app.get("/forget_password", (req, res) => {
-  res.render("forget_password", {userNotFound: 0});
+  res.render("forget_password", { userNotFound: 0 });
 });
 
 app.post("/reset_password", async (req, res) => {
   const { email } = req.body;
-  const user = await usersCollection.findOne({email: email});
+  const user = await usersCollection.findOne({ email: email });
 
-  if(!user){
+  if (!user) {
     console.log("Wrong password");
-    res.render('forget_password', {userNotFound: 1});
+    res.render('forget_password', { userNotFound: 1 });
   } else {
-    res.render('reset_password', {email: email, codeError: 0});
+    res.render('reset_password', { email: email, codeError: 0 });
   }
 })
 
-app.post("/send_code", async(req, res) => {
-  const{ email } = req.body;
-  if(!email){
+app.post("/send_code", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
     res.redirect('/forget_password');
     return;
   }
@@ -272,9 +272,9 @@ app.post("/send_code", async(req, res) => {
   const resetCode = crypto.randomInt(1000, 9999).toString();
   console.log(resetCode);
   await resetCodeCollection.updateOne(
-    {email: email},
-    {$set: {resetCode: resetCode, codeExpiry: Date.now() + 60 * 1000}},
-    {upsert: true}
+    { email: email },
+    { $set: { resetCode: resetCode, codeExpiry: Date.now() + 60 * 1000 } },
+    { upsert: true }
   );
 
   await gmailTransporter.sendMail({
@@ -283,26 +283,26 @@ app.post("/send_code", async(req, res) => {
     text: `Your password reset code is ${resetCode}`
   })
   console.log("Code sent!");
-  res.render("reset_password", {email: email, codeError: 0})
+  res.render("reset_password", { email: email, codeError: 0 })
 })
 
-app.post("/verify_code", async(req, res) => {
-  const {email, code} = req.body;
-  const validationResult = await resetCodeCollection.findOne({email: email, resetCode: code});
-  if(!validationResult || validationResult.codeExpiry < Date.now()){
-    res.render("reset_password", {email: email, codeError: 1});
-  }else{
-    res.render("set_new_password", {email: email, error: 0});
+app.post("/verify_code", async (req, res) => {
+  const { email, code } = req.body;
+  const validationResult = await resetCodeCollection.findOne({ email: email, resetCode: code });
+  if (!validationResult || validationResult.codeExpiry < Date.now()) {
+    res.render("reset_password", { email: email, codeError: 1 });
+  } else {
+    res.render("set_new_password", { email: email, error: 0 });
   }
 })
 
-app.post("/set_new_password", async(req, res) => {
-  const {email, new_password, confirm_password} = req.body;
-  if(new_password !== confirm_password){
-    res.render("set_new_password", {email: email, error: 1})
-  }else{
+app.post("/set_new_password", async (req, res) => {
+  const { email, new_password, confirm_password } = req.body;
+  if (new_password !== confirm_password) {
+    res.render("set_new_password", { email: email, error: 1 })
+  } else {
     const newHashedPassword = await bcrypt.hash(new_password, saltRounds);
-    await usersCollection.updateOne({email: email}, {$set: {password: newHashedPassword}});
+    await usersCollection.updateOne({ email: email }, { $set: { password: newHashedPassword } });
     res.redirect('/login');
   }
 })
@@ -372,14 +372,14 @@ app.get('/logout', async (req, res) => {
   let username = req.session.username;
   let email = req.session.email;
   const result = await usersCollection
-      .find({ email: email })
-      .project({ friends: 1 })
-      .toArray();
-  if (result[0] && result[0].friends) {
+    .find({ email: email })
+    .project({ friends: 1 })
+    .toArray();
+  /* if (result[0] && result[0].friends) {
     for (let friend of result[0].friends) {
       await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
     }
-  }
+  } */
   req.session.destroy();
   res.render("logout");
 });
@@ -400,12 +400,16 @@ app.post('/friends/check', async (req, res) => {
     } else {
       if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
         // Adds current user as a friend of the requested user in database
-        await usersCollection.update({ username: username }, { $push: { friends: result[0]._id } });
-        // Adds requested user as a friend of the current user in database
-        await usersCollection.update({ username: user }, { $push: { friends: friend[0]._id } });
-        // Removes the incoming request from the newly added friend
-        await usersCollection.updateOne({ username: user }, { $pull: { incoming_requests: username } });
-        message = username + " has been added!";
+        try {
+          await usersCollection.updateOne({ username: username }, { $push: { friends: result[0]._id } });
+          // Adds requested user as a friend of the current user in database
+          await usersCollection.updateOne({ username: user }, { $push: { friends: friend[0]._id } });
+          // Removes the incoming request from the newly added friend
+          await usersCollection.updateOne({ username: user }, { $pull: { incoming_requests: username } });
+          message = username + " has been added!";
+        } catch (err) {
+          message = err;
+        }
       } else if (friend[0].incoming_requests.includes(user)) { // checks if request to other user to be friends exists
         message = "Already sent friend request to " + username + ".";
       } else { // If no prior requests exist from either side, send friend request
@@ -424,6 +428,19 @@ app.post('/friends/get_friends', async (req, res) => {
   let friendsObject = await usersCollection.findOne({ username: user }, { projection: { friends: 1 } });
   let friends = friendsObject.friends;
   res.json({ friends });
+});
+
+app.post('/friends/get_friend_status', async (req, res) => {
+  let friend_id = req.body.friend_id;
+  let objId = new ObjectId(friend_id);
+  try {
+    let {username, status} = await usersCollection.findOne({ _id: objId }, { projection: { username: 1, status: 1 } });
+    res.json({ username: username, status: status });
+    return;
+  } catch (err) {
+    res.json(err);
+    return;
+  }
 });
 
 app.get('*', (req, res) => {
