@@ -320,6 +320,7 @@ app.get("/home_page", (req, res) => {
 */
 app.get('/start_study_session', sessionValidation("start_study_session"), (req, res) => {
   res.render("study_session", {startTime: Date.now});
+
 })
 
 
