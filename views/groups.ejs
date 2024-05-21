@@ -17,6 +17,16 @@
         </div>
     </div>
     <div>Create group button and function here</div>
+    <button id="open_adding">+</button>
+    <div class="add_popup" id="add_popup">
+        <div>
+            <form id="form">
+                <input name='username' id='username' type='text' placeholder='Group Name'>
+                <button type="button" onclick="return addFriend()">Create Group</button>
+            </form>
+        </div>
+        <button id="close_adding">Close</button>
+    </div>
 
     <!-- This is the template for popup when veiwing user profile -->
     <template>
@@ -27,6 +37,9 @@
         const openButton = document.getElementById("openModal");
         const closeButton = document.getElementById("closeModal");
         const modal = document.getElementById("modal");
+        const openAdd = document.getElementById("open_adding");
+        const closeAdd = document.getElementById("close_adding");
+        const Add = document.getElementById("add_popup");
 
         openButton.addEventListener("click", () => {
             modal.classList.add("open");
@@ -35,5 +48,15 @@
         closeButton.addEventListener("click", () => {
             modal.classList.remove("open");
         });
+
+        openAdd.addEventListener("click", () => {
+            Add.classList.add("open");
+        });
+
+        closeAdd.addEventListener("click", () => {
+            Add.classList.remove("open");
+        });
+
+
     </script>
 <%- include("templates/navbar") %>
