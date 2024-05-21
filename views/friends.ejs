@@ -1,42 +1,48 @@
-<%- include("templates/header") %>
-    <ul class="nav nav-tabs">
+<%- include("templates/default") %>
+
+    <ul class="nav nav-tabs flex justify-center space-x-2 ">
+        <!-- friends button -->
         <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/friends">Friends</a>
+            <a class="nav-link text-gray-700 hover:text-blue-500" aria-current="page" href="/friends">Friends</a>
         </li>
+        <!-- group button -->
         <li class="nav-item">
-            <a class="nav-link" href="/groups">Groups</a>
+            <a class="nav-link text-gray-700 hover:text-blue-500" href="/groups">Groups</a>
         </li>
     </ul>
-    <div>Search Bar Here</div>
-    <br>
+    <div class="pt-4 mx-auto max-w-screen-lg px-4">
+        <!-- search field-->
+    <div class="mb-4">
+        <input type="text" placeholder="Search..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
     <div id="friends_container">
-        <p>Friends List Displays Here</p>
+        <!-- fix-->
         <button id="open_friends">Daniel Wang</button>
         <div class="friend_profile" id="friend_profile">
-            <div>Daniel Wang</div>
             <button id="close_friends">Close</button>
         </div>
     </div>
-    <br>
+
     <div>
-        <p>Add friend button and function here</p>
-        <button id="open_adding">+</button>
-        <div class="add_popup" id="add_popup">
-            <div>
-                <form id="form">
-                    <input name='username' id='username' type='text' placeholder='Add Friend'>
-                    <button type="button" onclick="return addFriend()">Add</button>
-                </form>
-            </div>
-            <button id="close_adding">Close</button>
+        <button id="open_adding" class="fixed w-12 h-12 bottom-4 right-4 z-10 bg-blue-500 text-white rounded-full text-2xl flex items-center justify-center">+</button>
+    </div>
+    <!--fix-->
+    <div id="add_popup" class=" hidden fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 transition-opacity duration-300">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+            <form id="form">
+                <input name='username' id='username' type='text' placeholder='Add Friend' class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+                <button type="button" onclick="return addFriend()" class="w-full px-4 py-2 bg-green-500 text-white rounded-lg">Add</button>
+            </form>
+            <button id="close_adding" class="mt-4 text-red-500 w-full">Close</button>
         </div>
     </div>
+    
 
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
-        <div>
-            <p id="friend_username"></p>
-            <p id="friend_status"></p>
+        <div class="p-4 border rounded-lg shadow-md mb-4">
+            <p id="friend_username" class="font-bold"></p>
+            <p id="friend_status" class="text-gray-600"></p>
         </div>
     </template>
 
@@ -57,12 +63,12 @@
         });
 
         openAdd.addEventListener("click", () => {
-            Add.classList.add("open");
-        });
+        addPopup.classList.add("opacity-100", "z-50");
+    });
 
-        closeAdd.addEventListener("click", () => {
-            Add.classList.remove("open");
-        });
+    closeAdd.addEventListener("click", () => {
+        addPopup.classList.remove("opacity-100", "z-50");
+    });
 
         function addFriend() {
             let form = document.getElementById("form");

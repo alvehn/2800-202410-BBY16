@@ -1,13 +1,16 @@
-<%- include("templates/header") %>
-    <ul class="nav nav-tabs">
+<%- include("templates/default") %>
+    <ul class="nav nav-tabs flex justify-center space-x-4 py-2">
         <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/friends">Friends</a>
+            <a class="nav-link text-gray-700 hover:text-blue-500" aria-current="page" href="/friends">Friends</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/groups">Groups</a>
+            <a class="nav-link text-gray-700 hover:text-blue-500" href="/groups">Groups</a>
         </li>
     </ul>
-    <div>Search Bar Here</div>
+    <div class="mb-4">
+        <input type="text" placeholder="Search..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
     <div class="groups">
         <p>Groups List Displays Here</p>
         <button id="openModal">Study Group 1</button>
@@ -36,4 +39,4 @@
             modal.classList.remove("open");
         });
     </script>
-<%- include("templates/navbar") %>
+    <%- include("templates/navbar") %>
