@@ -408,7 +408,11 @@ app.post('/friends/check', async (req, res) => {
     if (friend.length != 1) {
       message = "User not found.";
     } else {
-      if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
+      const friendIds = friend[0].friends.map(id => id.toString()); // Convert all ObjectIds to strings
+      const resultIdString = result[0]._id.toString();
+      if (friendIds.includes(resultIdString)) { // check if users are already friends
+        message = "Already friends.";
+      } else if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
         // Adds current user as a friend of the requested user in database
         try {
           await usersCollection.updateOne({ username: username }, { $push: { friends: result[0]._id } });
