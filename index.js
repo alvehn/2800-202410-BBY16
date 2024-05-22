@@ -58,7 +58,9 @@ const studyPals = database.db(mongodb_database); // The actual database we will 
 const usersCollection = studyPals.collection("users");
 const petsCollection = studyPals.collection("pets");
 const resetCodeCollection = studyPals.collection("reset_code");
-const individual_sessionsCollection = studyPals.collection("individual_sessions");
+const individual_sessionsCollection = studyPals.collection(
+  "individual_sessions"
+);
 const sessionsCollection = studyPals.collection("sessions");
 
 /* Validating that when you try to update the database, it ensures that it doesn't violate these properties. */
@@ -172,9 +174,11 @@ app.post("/signupSubmit", async (req, res) => {
         group_sessions: [], // Assuming group_sessions for sessions
         study_session: {
           inSession: false,
-          currentSessionID: null
+          currentSessionID: null,
         },
         status: "online", // Assuming the user sign_up normally
+        study_session: 0,
+        groups: [],
       });
 
       req.session.authenticated = true;
@@ -259,7 +263,10 @@ app.post("/loggingin", async (req, res) => {
     if (result.length != 1) {
       error = "User not found.";
     } else if (await bcrypt.compare(password, result[0].password)) {
-      await usersCollection.updateOne({ username: username }, { $set: { status: "online" } });
+      await usersCollection.updateOne(
+        { username: username },
+        { $set: { status: "online" } }
+      );
       req.session.authenticated = true;
       req.session.userID = result[0]._id.toString();
       req.session.username = result[0].username;
@@ -355,39 +362,45 @@ app.post("/set_new_password", async (req, res) => {
 */
 
 app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
-  const user = await usersCollection.findOne({_id: new ObjectId(req.session.userID)});
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(req.session.userID),
+  });
   const inSession = user && user.study_session.inSession;
-  res.render("home_page", {inSession: inSession});
+  res.render("home_page", { inSession: inSession });
 });
-
 
 /*
   The following handler are for starting individual stuy session.
 */
-app.post("/start_study_session", sessionValidation("start_study_session"), async(req, res) => {
-  const userID = new ObjectId(req.session.userID);
-  const startTime = new Date();
+app.post(
+  "/start_study_session",
+  sessionValidation("start_study_session"),
+  async (req, res) => {
+    const userID = new ObjectId(req.session.userID);
+    const startTime = new Date();
 
-  const newSession = {
-    user_id: userID,
-    start_time: startTime,
-    end_time: null,
-    duration: 0
-  };
+    const newSession = {
+      user_id: userID,
+      start_time: startTime,
+      end_time: null,
+      duration: 0,
+    };
 
-  const result = await individual_sessionsCollection.insertOne(newSession);
-  const newSessionId = result.insertedId;
+    const result = await individual_sessionsCollection.insertOne(newSession);
+    const newSessionId = result.insertedId;
 
-  await usersCollection.updateOne(
-    {_id: userID}, 
-    {$set: {
-      study_session: {
-        inSession: true,
-        currentSessionID: newSessionId
+    await usersCollection.updateOne(
+      { _id: userID },
+      {
+        $set: {
+          study_session: {
+            inSession: true,
+            currentSessionID: newSessionId,
+          },
+        },
       }
-    }}
-  )
-  res.render("study_session",  {duration: 0, sessionId: newSessionId});
+    );
+    res.render("study_session", { duration: 0, sessionId: newSessionId });
   }
 );
 
@@ -398,26 +411,29 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const endTime = new Date();
 
   await individual_sessionsCollection.updateOne(
-    {_id: sessionId }, 
-    {$set: {
-      end_time: endTime,
-      duration: duration
-    }}
-  )
+    { _id: sessionId },
+    {
+      $set: {
+        end_time: endTime,
+        duration: duration,
+      },
+    }
+  );
 
   await usersCollection.updateOne(
-    {_id: userId},
-    {$set: {
-      study_session: {
-        inSession: false,
-        currentSessionID: null
-      }
-    }}
-  )
+    { _id: userId },
+    {
+      $set: {
+        study_session: {
+          inSession: false,
+          currentSessionID: null,
+        },
+      },
+    }
+  );
 
   res.redirect("/home_page");
-  
-})
+});
 /*
   The End of study session handler
 */
@@ -532,7 +548,10 @@ app.get("/logout", async (req, res) => {
     .find({ email: email })
     .project({ friends: 1 })
     .toArray();
-  await usersCollection.updateOne({ username: username}, { $set: { status: "offline" } });
+  await usersCollection.updateOne(
+    { username: username },
+    { $set: { status: "offline" } }
+  );
   req.session.destroy();
   res.render("logout");
 });
@@ -558,11 +577,13 @@ app.post("/friends/check", async (req, res) => {
     if (friend.length != 1) {
       message = "User not found.";
     } else {
-      const friendIds = friend[0].friends.map(id => id.toString()); // Convert all ObjectIds to strings
+      const friendIds = friend[0].friends.map((id) => id.toString()); // Convert all ObjectIds to strings
       const resultIdString = result[0]._id.toString();
-      if (friendIds.includes(resultIdString)) { // check if users are already friends
+      if (friendIds.includes(resultIdString)) {
+        // check if users are already friends
         message = "Already friends.";
-      } else if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
+      } else if (result[0].incoming_requests.includes(username)) {
+        //checks if requested user has also requested current user to be friends
         // Adds current user as a friend of the requested user in database
         try {
           await usersCollection.updateOne(
@@ -631,13 +652,14 @@ app.get("/groups", (req, res) => {
   res.render("groups");
 });
 
-app.post('/groups/check', async (req, res) => {
+app.post("/groups/check", async (req, res) => {
   let groupName = req.body.group_name; // Inputted username
   let selected = req.body.selected;
   let groupNameSchema = Joi.string().alphanum().max(20).required();
   let groupNameValidation = groupNameSchema.validate(groupName); // Validate inputted username with joi
   let message;
-  if (groupNameValidation.error != null) { // If validation fails, return an error response
+  if (groupNameValidation.error != null) {
+    // If validation fails, return an error response
     message = groupName + " is not valid!";
   } else {
     /* let user = req.session.username; // Get current session user
@@ -689,7 +711,7 @@ app.post('/groups/check', async (req, res) => {
   res.json({ message });
 });
 
-app.post('/friends/get_friends', async (req, res) => {
+app.post("/friends/get_friends", async (req, res) => {
   let user = req.session.username;
   let friendsObject = await usersCollection.findOne(
     { username: user },
@@ -719,13 +741,14 @@ app.get("/groups", (req, res) => {
   res.render("groups");
 });
 
-app.post('/groups/check', async (req, res) => {
+app.post("/groups/check", async (req, res) => {
   let groupName = req.body.group_name; // Inputted username
   let selected = req.body.selected;
   let groupNameSchema = Joi.string().alphanum().max(20).required();
   let groupNameValidation = groupNameSchema.validate(groupName); // Validate inputted username with joi
   let message;
-  if (groupNameValidation.error != null) { // If validation fails, return an error response
+  if (groupNameValidation.error != null) {
+    // If validation fails, return an error response
     message = groupName + " is not valid!";
   } else {
     /* let user = req.session.username; // Get current session user
