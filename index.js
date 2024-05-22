@@ -143,19 +143,26 @@ app.post("/signupSubmit", async (req, res) => {
   let emailSchema = Joi.string().email().required();
   let passwordSchema = Joi.string().max(20).required();
   let displaynameSchema = Joi.string().alphanum().max(20).required();
+  let error = {};
 
   let usernameValidation = usernameSchema.validate(username);
   let emailValidation = emailSchema.validate(email);
   let passwordValidation = passwordSchema.validate(password);
   let displaynameValidation = displaynameSchema.validate(displayname);
   if (usernameValidation.error != null) {
-    res.render("signuperror", { error: "Username" });
-  } else if (emailValidation.error != null) {
-    res.render("signuperror", { error: "Email" });
-  } else if (passwordValidation.error != null) {
-    res.render("signuperror", { error: "Password" });
-  } else if (displaynameValidation.error != null) {
-    res.render("signuperror", { error: "Display name" });
+    error.username = true;
+  }
+  if (emailValidation.error != null) {
+    error.email = true;
+  }
+  if (passwordValidation.error != null) {
+    error.password = true;
+  }
+  if (displaynameValidation.error != null) {
+    error.displayName = true;
+  }
+  if (error.username || error.email || error.password || error.displayName) {
+    return res.render("signup", { error });
   } else {
     let hashedPassword = await bcrypt.hash(password, saltRounds);
     try {
@@ -198,8 +205,8 @@ app.post("/signupSubmit", async (req, res) => {
         return res.redirect("/sign_up");
       } else {
         console.log(err);
-        return res.render("signuperror", {
-          error: "Unexpected error occurred",
+        return res.render("signup", {
+          error: "Sign up failed, please try again.",
         });
       }
     }
@@ -400,11 +407,11 @@ app.post(
           study_session: {
             inSession: true,
             currentSessionID: newSessionId,
-          }
+          },
         },
         $push: {
-          individual_sessions: newSessionId
-        }
+          individual_sessions: newSessionId,
+        },
       }
     );
     res.render("study_session", {
@@ -454,12 +461,12 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
       $set: {
         study_session: {
           inSession: false,
-          currentSessionID: null
-        }
+          currentSessionID: null,
+        },
       },
       $inc: {
-        total_study_hours: duration
-      }
+        total_study_hours: duration,
+      },
     }
   );
   res.redirect("/home_page");
