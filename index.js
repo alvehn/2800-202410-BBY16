@@ -124,7 +124,7 @@ function accountValidation() {
 
       const errorQueryString = errorMessage.join("&");
 
-      return res.redirect(`/signup${errorQueryString}`);
+      return res.redirect(`/signup?${errorQueryString}`);
     }
     next();
   };
@@ -152,7 +152,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-  res.render("signup");
+  const { emailInUse, nameInUse } = req.query;
+  const errors = {};
+
+  if (emailInUse) errors.emailInUse = "Email is already in use";
+  if (nameInUse) errors.nameInUse = "Username is already in use";
+
+  res.render("signup", { errors });
 });
 
 app.post("/signupSubmit", accountValidation(), async (req, res) => {
@@ -185,7 +191,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
     error.displayName = true;
   }
   if (error.username || error.email || error.password || error.displayName) {
-    return res.render("signup", { error });
+    return res.render("signup", { validation: error });
   } else {
     let hashedPassword = await bcrypt.hash(password, saltRounds);
     try {
@@ -315,7 +321,7 @@ app.post("/loggingin", async (req, res) => {
   }
   console.log(error);
 
-  res.render("login", { error: error});
+  res.render("login", { error: error });
 });
 
 /*
