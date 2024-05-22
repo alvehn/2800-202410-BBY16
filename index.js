@@ -620,10 +620,6 @@ app.get("/logout", async (req, res) => {
   res.redirect("/?loggedout=true");
 });
 
-app.get("/friends", (req, res) => {
-  res.render("friends");
-});
-
 app.post("/friends/check", async (req, res) => {
   let username = req.body.username; // Inputted username
   let usernameSchema = Joi.string().alphanum().max(20).required();
