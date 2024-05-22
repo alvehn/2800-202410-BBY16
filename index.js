@@ -271,6 +271,7 @@ app.post("/loggingin", async (req, res) => {
       req.session.authenticated = true;
       req.session.userID = result[0]._id.toString();
       req.session.username = result[0].username;
+      req.session.display_name = result[0].display_name;
       req.session.friends = result[0].friends;
       req.session.incoming_requests = result[0].incoming_requests;
       req.session.groups = result[0].groups;
