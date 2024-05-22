@@ -1,24 +1,32 @@
 <%- include("templates/header") %>
 
-<a href="/home_page" class="absolute top-5 left-5 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-700">
-    Back
+<a
+  href="/home_page"
+  class="absolute top-5 left-5 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
+>
+  Back
 </a>
 
 <div class="flex flex-col items-center justify-center h-screen">
-    <!-- Pet Image -->
-    <div class="w-full max-w-xs mb-2">
-        <img src="gorilla.jpg" alt="Pet Image" class="w-full">
-    </div>
+  <h1 class="text-2xl font-bold">Current Pet</h1>
+  <!-- Pet Image -->
+  <div
+    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet animate-idle"
+  ></div>
 
-    <!-- Inventory Grid -->
-    <div class="relative w-full max-w-xs">
-        <h1 class="text-2xl font-bold text-center mb-4">Pet Inventory</h1>
-        <div class="relative grid grid-cols-2 gap-4">
-            <!-- Example Items -->
-            <div class="bg-white p-4 rounded-lg shadow-md text-center">
-                <img src="path_to_item1.jpg" alt="Item 1" class="w-full h-24 object-cover mb-2">
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+  <!-- Inventory Grid -->
+  <div class="relative w-full max-w-xs bg-gray-200 p-4 rounded-lg">
+    <h1 class="text-2xl font-bold text-center mb-4">Pets Owned</h1>
+    <div class="relative grid grid-cols-2 gap-4">
+      <!-- Example Items -->
+      <div class="bg-white p-1 rounded-lg shadow-md text-center">
+        <img
+          src="path_to_item1.jpg"
+          alt="Item 1"
+          class="w-full h-24 object-cover mb-2"
+        />
+      </div>
+      <!-- <div class="bg-white p-4 rounded-lg shadow-md text-center">
                 <img src="path_to_item2.jpg" alt="Item 2" class="w-full h-24 object-cover mb-2">
             </div>
             <div class="bg-white p-4 rounded-lg shadow-md text-center">
@@ -26,9 +34,20 @@
             </div>
             <div class="bg-white p-4 rounded-lg shadow-md text-center">
                 <img src="path_to_item4.jpg" alt="Item 4" class="w-full h-24 object-cover mb-2">
-            </div>
-            <!-- Add more items as needed -->
-        </div>
+            </div> -->
+      <!-- Add more items as needed -->
     </div>
-</div><br><br><br>
+  </div>
+
+  <!-- An inventory for all the items owned -->
+  <div></div>
+</div>
+<br /><br /><br />
+<script>
+  window.onload = () => {
+    document.querySelector(
+      ".pet"
+    ).style.backgroundImage = `url(../sprite_sheets/<%= currentPet.name %>.png)`;
+  };
+</script>
 <%- include("templates/navbar") %>
