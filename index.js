@@ -60,6 +60,7 @@ const petsCollection = studyPals.collection("pets");
 const resetCodeCollection = studyPals.collection("reset_code");
 const individual_sessionsCollection = studyPals.collection("individual_sessions");
 const sessionsCollection = studyPals.collection("sessions");
+const groupsCollection = studyPals.collection("groups");
 
 /* Validating that when you try to update the database, it ensures that it doesn't violate these properties. */
 studyPals.command({
@@ -640,6 +641,23 @@ app.post('/groups/check', async (req, res) => {
   if (groupNameValidation.error != null) { // If validation fails, return an error response
     message = groupName + " is not valid!";
   } else {
+    let users = [];
+    for (let one of selected) {
+      let user = await usersCollection.findOne(
+        { username: one },
+        { projection: { _id: 1 } }
+      );
+      let id = user._id;
+      console.log(id);
+      let objId = new ObjectId(id);
+      console.log(objId);
+      users.push(id);
+    }
+    /* let result = await groupsCollection.insertOne({
+      group_name: groupName, // Assuming group_sessions for sessions
+      members: ,
+      sessions: [],
+    }); */
     /* let user = req.session.username; // Get current session user
     let friend = await usersCollection.find({ username: username }).project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 }).toArray();
     let result = await usersCollection.find({ username: user }).project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 }).toArray();
