@@ -363,11 +363,8 @@ app.post("/set_new_password", async (req, res) => {
 */
 
 app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
-  const user = await usersCollection.findOne({
-    _id: new ObjectId(req.session.userID),
-  });
-  const inSession = user && user.study_session.inSession;
-  res.render("home_page", { inSession: inSession });
+  const user = await usersCollection.findOne({_id: new ObjectId(req.session.userID)});
+  res.render("home_page", {user: user});
 });
 
 /*
@@ -380,12 +377,12 @@ app.post(
     const userID = new ObjectId(req.session.userID);
     const startTime = new Date();
 
-    const newSession = {
-      user_id: userID,
-      start_time: startTime,
-      end_time: null,
-      duration: 0,
-    };
+  const newSession = {
+    user_id: userID,
+    start_time: startTime,
+    end_time: null,
+    duration: 0,
+  };
 
     const result = await individual_sessionsCollection.insertOne(newSession);
     const newSessionId = result.insertedId;
@@ -400,16 +397,24 @@ app.post(
           },
         },
       }
-    );
-    res.render("study_session", { duration: 0, sessionId: newSessionId });
-  }
-);
+  )
+  res.render("study_session",  {sessionId: newSessionId, startTime: startTime.toISOString()});
+});
+
+app.post("/view_study_session", sessionValidation("view_study_session"), async(req, res) => {
+  const sessionId = new ObjectId(req.body.sessionId);
+  const studySession = await individual_sessionsCollection.findOne({_id: sessionId})
+  const startTime = studySession.start_time;
+  res.render("study_session", {startTime: startTime.toISOString(), sessionId: sessionId});
+})
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const userId = new ObjectId(req.session.userID);
   const sessionId = new ObjectId(req.body.sessionId);
-  const duration = parseInt(req.body.duration, 10);
+  const startTime = new Date(req.body.startTime);
   const endTime = new Date();
+
+  const duration = Math.floor((endTime - startTime) / 1000);
 
   await individual_sessionsCollection.updateOne(
     { _id: sessionId },
@@ -432,9 +437,8 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
       },
     }
   );
-
   res.redirect("/home_page");
-});
+})
 /*
   The End of study session handler
 */
