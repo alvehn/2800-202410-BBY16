@@ -219,11 +219,7 @@ app.post("/loggingin", async (req, res) => {
     if (result.length != 1) {
       error = "User not found.";
     } else if (await bcrypt.compare(password, result[0].password)) {
-      // Updates friends current status
-      /* for (let friend of result[0].friends) {
-        await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "online" } });
-      } */
-      // Creates a session
+      await usersCollection.updateOne({ username: username }, { $set: { status: "online" } });
       req.session.authenticated = true;
       req.session.username = result[0].username;
       req.session.friends = result[0].friends;
@@ -385,11 +381,7 @@ app.get('/logout', async (req, res) => {
     .find({ email: email })
     .project({ friends: 1 })
     .toArray();
-  /* if (result[0] && result[0].friends) {
-    for (let friend of result[0].friends) {
-      await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
-    }
-  } */
+  await usersCollection.updateOne({ username: username}, { $set: { status: "offline" } });
   req.session.destroy();
   res.render("logout");
 });

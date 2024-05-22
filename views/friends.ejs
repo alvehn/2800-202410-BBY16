@@ -28,7 +28,7 @@
 
         </div>
 
-        <!--New Improved Modal-->
+        <!--New Improved Modal for adding friends-->
         <div id="addFriends" onclick="hideAddFriends()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
             opacity-0 hidden transition-opacity duration-500">
             <div onclick="event.stopImmediatePropagation()"
@@ -44,12 +44,23 @@
                 </div>
             </div>
         </div>
+
+        <!--Modal for showing friend's profile-->
+        <div id="friendProfile" onclick="hideProfile()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
+            opacity-0 hidden transition-opacity duration-500">
+            <div onclick="event.stopImmediatePropagation()"
+                class="bg-white rounded shadow-md w-full flex overflow-hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+                    <button id="close_adding" onclick="hideProfile()" class="mt-4 text-red-500 w-full">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
-        <div class="p-4 border rounded-lg shadow-md mb-4">
+        <div id="profile" class="p-4 border rounded-lg shadow-md mb-4">
             <p id="friend_username" class="font-bold"></p>
             <p id="friend_status" class="text-gray-600"></p>
         </div>
@@ -83,6 +94,23 @@
 
         function hideAddFriends() {
             let popup = document.getElementById("addFriends");
+            popup.classList.add("opacity-0");
+            popup.classList.remove("opacity-100");
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 500);
+        }
+
+        function openProfile(username) {
+            let popup = document.getElementById("friendProfile");
+            popup.classList.remove("hidden");
+            setTimeout(() => {
+                popup.classList.add("opacity-100");
+            }, 20);
+        }
+
+        function hideProfile() {
+            let popup = document.getElementById("friendProfile");
             popup.classList.add("opacity-0");
             popup.classList.remove("opacity-100");
             setTimeout(() => {
@@ -179,8 +207,10 @@
                         // Handle network errors or errors from the server
                         console.error('Error:', error);
                     });
+                
                 newcard.getElementById("friend_username").innerHTML = username;
                 newcard.getElementById("friend_status").innerHTML = status;
+                newcard.getElementById("profile").setAttribute('onclick', `openProfile('${username}')`);
                 document.getElementById("friends_container").appendChild(newcard);
             }
         }
