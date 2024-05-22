@@ -53,21 +53,6 @@ const user_schema = {
         },
         description: "must be an array of user usernames",
       },
-      individual_sessions: {
-        bsonType: "array",
-        items: {
-          bsonType: "objectId",
-        },
-        description:
-          "must be an array of session IDs for individual study sessions",
-      },
-      group_sessions: {
-        bsonType: "array",
-        items: {
-          bsonType: "objectId",
-        },
-        description: "must be an array of session IDs for group study sessions",
-      },
       current_pet: {
         bsonType: "objectId",
         description: "must be an ObjectId",
