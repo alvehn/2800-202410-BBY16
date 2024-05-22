@@ -58,6 +58,7 @@ const studyPals = database.db(mongodb_database); // The actual database we will 
 const usersCollection = studyPals.collection("users");
 const petsCollection = studyPals.collection("pets");
 const resetCodeCollection = studyPals.collection("reset_code");
+const individual_sessionsCollection = studyPals.collection("individual_sessions");
 const sessionsCollection = studyPals.collection("sessions");
 
 /* Validating that when you try to update the database, it ensures that it doesn't violate these properties. */
@@ -169,6 +170,10 @@ app.post("/signupSubmit", async (req, res) => {
         achievements: [], // Initialize with default values
         individual_sessions: [], // Assuming individual_sessions for sessions
         group_sessions: [], // Assuming group_sessions for sessions
+        study_session: {
+          inSession: false,
+          currentSessionID: null
+        },
         status: "online", // Assuming the user sign_up normally
       });
 
@@ -256,6 +261,7 @@ app.post("/loggingin", async (req, res) => {
     } else if (await bcrypt.compare(password, result[0].password)) {
       await usersCollection.updateOne({ username: username }, { $set: { status: "online" } });
       req.session.authenticated = true;
+      req.session.userID = result[0]._id.toString();
       req.session.username = result[0].username;
       req.session.friends = result[0].friends;
       req.session.incoming_requests = result[0].incoming_requests;
@@ -348,21 +354,73 @@ app.post("/set_new_password", async (req, res) => {
   End of Password Resetting Section
 */
 
-app.get("/home_page", sessionValidation("home_page"), (req, res) => {
-  console.log("home_page route handler started");
-  res.render("home_page");
+app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
+  const user = await usersCollection.findOne({_id: new ObjectId(req.session.userID)});
+  const inSession = user && user.study_session.inSession;
+  res.render("home_page", {inSession: inSession});
 });
+
 
 /*
   The following handler are for starting individual stuy session.
 */
-app.get(
-  "/start_study_session",
-  sessionValidation("start_study_session"),
-  (req, res) => {
-    res.render("study_session", { startTime: Date.now });
+app.post("/start_study_session", sessionValidation("start_study_session"), async(req, res) => {
+  const userID = new ObjectId(req.session.userID);
+  const startTime = new Date();
+
+  const newSession = {
+    user_id: userID,
+    start_time: startTime,
+    end_time: null,
+    duration: 0
+  };
+
+  const result = await individual_sessionsCollection.insertOne(newSession);
+  const newSessionId = result.insertedId;
+
+  await usersCollection.updateOne(
+    {_id: userID}, 
+    {$set: {
+      study_session: {
+        inSession: true,
+        currentSessionID: newSessionId
+      }
+    }}
+  )
+  res.render("study_session",  {duration: 0, sessionId: newSessionId});
   }
 );
+
+app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
+  const userId = new ObjectId(req.session.userID);
+  const sessionId = new ObjectId(req.body.sessionId);
+  const duration = parseInt(req.body.duration, 10);
+  const endTime = new Date();
+
+  await individual_sessionsCollection.updateOne(
+    {_id: sessionId }, 
+    {$set: {
+      end_time: endTime,
+      duration: duration
+    }}
+  )
+
+  await usersCollection.updateOne(
+    {_id: userId},
+    {$set: {
+      study_session: {
+        inSession: false,
+        currentSessionID: null
+      }
+    }}
+  )
+
+  res.redirect("/home_page");
+  
+})
+/*
+  The End of study session handler
+*/
 
 app.get("/friends", (req, res) => {
   console.log("friend route handler started");

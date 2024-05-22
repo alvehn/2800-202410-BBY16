@@ -8,10 +8,18 @@
         alt="Placeholder image"
       />
       <div class="absolute inset-x-0 top-16 flex justify-center">
-        <a href="/start_study_session">Start Timer</a>
+        <% if (inSession) { %>
+          <form action="/view_study_session" method="POST">
+            <button type="submit">View My Session</button>
+          </form>
+        <% } else { %>
+          <form action="/start_study_session" method="POST">
+            <button type="submit">Start Study Session</button>
+          </form>
+        <% } %>
       </div>
-      <div class="absolute inset-x-0 top-16 flex justify-center">
-        <span>Test input</span>
+      <div class="absolute inset-x-0 top-24 flex justify-center">
+        <span>Time</span>
       </div>
     </div>
   </div>
