@@ -117,7 +117,9 @@ function accountValidation() {
     const emailInUse = await usersCollection.findOne({ email: email });
 
     if (emailInUse || nameInUse) {
-      if (emailInUse) error.emailInUse = true;
+      let errorMessage = [];
+
+      if (emailInUse) errorMessages.push('emailInUse=true');
       if (nameInUse) error.nameInUse = true;
 
       res.redirect(`/signup`);
