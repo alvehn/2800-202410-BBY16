@@ -1645,3 +1645,12 @@ video {
     color: rgb(255 255 255 / var(--tw-text-opacity));
   }
 }
+
+/*
+Extra added for groups.ejs
+*/
+
+#friends_container input:checked + label {
+  background-color: rgb(146 160 103 / var(--tw-bg-opacity));
+  color:#fff;
+}
