@@ -1,7 +1,46 @@
 <%- include("templates/default_header") %>
-
-<div class="flex items-center justify-center h-screen">
-    <%= error %> <br>
-<a href='/login'>Try again</a>
+<a href="/" class="absolute top-5 left-5 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-700">
+    Back
+  </a>
+<!-- <div class="absolute inset-0 w-full h-full bg-cover bg-center" style="background-image: url('pets_background.jpg');"> -->
+    <div class="flex items-center justify-center h-screen">
+        <div class="w-full bg-white max-w-xs shadow-md rounded px-8 pt-6 pb-8 mb-4"><br>
+            <img src="pets_background.jpg" alt="Pets Background" class="w-full"><br>
+            <h1 class="text-2xl font-bold text-center mb-3">Log In</h1>
+            <form action='/loggingin' method='post' >
+                <div class="mb-3 text-center text-red-500">
+                    <%= error %>
+                </div>
+                <div class="mb-3">
+                    <input name='username' type='text' placeholder='Username' required
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                </div>
+                <div class="mb-3">
+                    <input name='password' type='password' placeholder='Password' required
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <input type="checkbox" class="mr-2 leading-tight">
+                        Remember me
+                    </label>
+                </div>
+                <div class="mb-4 text-center">
+                    <a href="/forget_password"
+                        class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+                        Forgot Password?
+                    </a>
+                </div>
+                <div class="flex items-center justify-center">
+                    <button
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <%- include("templates/default_footer") %>
