@@ -119,11 +119,12 @@ function accountValidation() {
     if (emailInUse || nameInUse) {
       let errorMessage = [];
 
-      if (emailInUse) errorMessages.push('emailInUse=true');
-      if (nameInUse) error.nameInUse = true;
+      if (emailInUse) errorMessage.push("emailInUse=true");
+      if (nameInUse) errorMessage.push("nameInUse=true");
 
-      res.redirect(`/signup`);
-      return;
+      const errorQueryString = errorMessage.join("&");
+
+      return res.redirect(`/signup${errorQueryString}`);
     }
     next();
   };
