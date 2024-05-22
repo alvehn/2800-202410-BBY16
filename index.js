@@ -374,6 +374,18 @@ app.get("/friends", (req, res) => {
   res.render("friends");
 });
 
+app.get("/buy_cosmetics", (req, res) => {
+  res.render("buy_cosmetics");
+});
+
+app.get("/buy_pets", (req, res) => {
+  res.render("buy_pets");
+});
+
+app.get("/buy_dlcs", (req, res) => {
+  res.render("buy_dlcs");
+});
+
 app.get('/logout', async (req, res) => {
   let username = req.session.username;
   let email = req.session.email;
