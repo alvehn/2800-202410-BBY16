@@ -1735,3 +1735,11 @@ Extra added for groups.ejs
   background-color: rgb(146 160 103 / var(--tw-bg-opacity));
   color:#fff;
 }
+
+:root {
+  --light-coral: #e58c8aff;
+  --beige: #ebebd3ff;
+  --argentinian-blue: #5aaff0ff;
+  --celadon: #a7e7b8ff;
+  --space-cadet: #27243bff; 
+}

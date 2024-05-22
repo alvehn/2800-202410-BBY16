@@ -280,7 +280,7 @@ app.post("/loggingin", async (req, res) => {
   let passwordSchema = Joi.string().max(20).required();
   let usernameValidation = usernameSchema.validate(username);
   let passwordValidation = passwordSchema.validate(password);
-  var error = "Invalid username/password.";
+  let error;
   if (usernameValidation.error == null && passwordValidation.error == null) {
     const result = await usersCollection
       .find({ username: username })
@@ -312,8 +312,9 @@ app.post("/loggingin", async (req, res) => {
       return res.redirect("/home_page");
     }
   }
+  console.log(error);
 
-  res.render("login_error", { error: error });
+  res.render("login", { error: error});
 });
 
 /*
