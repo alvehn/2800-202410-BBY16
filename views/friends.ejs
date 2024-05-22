@@ -1,5 +1,10 @@
 <%- include("templates/default") %>
     <div class="flex flex-col items-center h-screen select-none bg-white">
+        <div class="bg-celadon w-full p-4 flex flex-col items-center justify-center text-white">
+            <img class="w-24 h-24 rounded-full object-cover border-4 border-white" src="https://via.placeholder.com/150" alt="profile picture">
+            <h1 id="userDisplayName" class="text-2xl font-bold mt-2"></h1>
+
+        </div>
         <ul class="nav nav-tabs flex justify-center space-x-2 mt-4 ">
             <!-- friends button -->
             <li class="nav-item">
@@ -17,7 +22,7 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage">
             </div>
 
-            <div id="friends_container" class="bg-white rounded-lg shadow-md p-4">
+            <div id="friends_container" class="bg-white rounded-lg">
 
             </div>
 
@@ -49,8 +54,8 @@
         <div id="friendProfile" onclick="hideProfile()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
             opacity-0 hidden transition-opacity duration-500">
             <div onclick="event.stopImmediatePropagation()"
-                class="bg-white rounded shadow-md w-full flex overflow-hidden">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+                class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-full">
                     <button id="close_adding" onclick="hideProfile()" class="mt-4 text-red-500 w-full">Close</button>
                 </div>
             </div>
@@ -60,13 +65,43 @@
 
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
-        <div id="profile" class="p-4 border rounded-lg shadow-md mb-4">
-            <p id="friend_username" class="font-bold"></p>
-            <p id="friend_status" class="text-gray-600"></p>
+        <div id="profile" class="p-3 border rounded-lg shadow-md mb-2 flex items-center hover:bg-light-sage transition-colors duration-100">
+            <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover">
+            <div class="flex justify-between w-full items-center ml-4">
+                <div id="friend_username" class="font-bold"></div>
+                <div id="friend_status" class="text-gray-600"></div>
+            </div>
         </div>
     </template>
 
     <script>
+        async function fetchDisplayName() {
+            try {
+                const response = await fetch('/users/display_name');
+                if (response.ok) {
+                    const userData = await response.json();
+                    return userData.display_name;
+                } else {
+                    console.error('Failed to fetch display name');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching display name:', error);
+                return null;
+            }
+        }
+
+        async function updateDisplayName() {
+            const userDisplayName = document.getElementById('userDisplayName');
+            const displayName= await fetchDisplayName();
+            if (displayName) {
+                userDisplayName.textContent = displayName;
+            } else {
+                userDisplayName.textContent = 'Name';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateDisplayName);
+
         const eventSearch = document.getElementById("searchField");
 
         eventSearch.addEventListener("keyup", e => {
@@ -196,21 +231,42 @@
                         } else {
                             throw new Error('Form submission failed');
                         }
-                    })
+            //         })
+            //         .then(data => {
+            //             console.log(data.username);
+            //             console.log(data.status);
+            //             username = data.username;
+            //             status = data.status;
+            //         })
+            //         .catch(error => {
+            //             // Handle network errors or errors from the server
+            //             console.error('Error:', error);
+            //         });
+                
+            //     newcard.getElementById("friend_username").innerHTML = username;
+            //     newcard.getElementById("friend_status").innerHTML = status;
+            //     newcard.getElementById("profile").setAttribute('onclick', `openProfile('${username}')`);
+            //     document.getElementById("friends_container").appendChild(newcard);
+                    // }
+                })
                     .then(data => {
-                        console.log(data.username);
-                        console.log(data.status);
-                        username = data.username;
-                        status = data.status;
+                        newcard.getElementById("friend_username").textContent = data.username || 'Unknown';
+                        const statusElement = newcard.getElementById("friend_status");
+                        statusElement.textContent = data.status || 'offline';
+                        if (data.status === 'online') {
+                            statusElement.classList.add('text-green-600');
+                        } else {
+                            statusElement.classList.add('text-red-500');
+                        }
                     })
                     .catch(error => {
-                        // Handle network errors or errors from the server
                         console.error('Error:', error);
+                        newcard.getElementById("friend_username").textContent = 'Unknown';
+                        const statusElement = newcard.getElementById("friend_status");
+                        statusElement.textContent = 'offline';
+                        statusElement.classList.add('text-red-500');
                     });
-                
-                newcard.getElementById("friend_username").innerHTML = username;
-                newcard.getElementById("friend_status").innerHTML = status;
-                newcard.getElementById("profile").setAttribute('onclick', `openProfile('${username}')`);
+
                 document.getElementById("friends_container").appendChild(newcard);
             }
         }
@@ -218,4 +274,4 @@
         displayFriendsDynamically();
 
     </script>
-    <%- include("templates/navbar") %>
+ <%- include("templates/navbar") %>

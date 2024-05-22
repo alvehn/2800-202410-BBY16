@@ -319,8 +319,6 @@ app.get('/start_study_session', sessionValidation("start_study_session"), (req, 
 
 })
 
-
-
 app.get("/friends", (req, res) => {
   console.log("friend route handler started");
   res.render("friends");
@@ -384,6 +382,13 @@ app.get('/logout', async (req, res) => {
   await usersCollection.updateOne({ username: username}, { $set: { status: "offline" } });
   req.session.destroy();
   res.render("logout");
+});
+
+app.post('/users/display_name', async (req, res) => {
+  let username = req.session.username;
+  let result = await usersCollection.findOne({ username: username });
+  let displayName = result.display_name;
+  res.json({ display_name: displayName });
 });
 
 app.post('/friends/check', async (req, res) => {

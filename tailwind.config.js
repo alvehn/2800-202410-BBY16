@@ -22,6 +22,11 @@ module.exports = {
         "evergreen": "#2b4e39",
         "lemon-grass": "##969b87",
         "orange": "#ef9b55",
+        "light-coral": "#e58c8aff",
+        "beige": "#ebebd3ff",
+        "argentinian-blue": "#5aaff0ff",
+        "celadon": "#a7e7b8ff",
+        "space-cadet": "#27243bff"
       },
     },
   },
