@@ -1,25 +1,20 @@
 <%- include("templates/default") %>
     <div class="flex flex-col items-center h-screen select-none bg-white">
-        <div class="bg-celadon w-full p-4 flex flex-col items-center justify-center text-white">
+        <div class="bg-celadon w-full p-4 flex flex-col items-center justify-center text-white rounded-b-3xl">
             <img class="w-24 h-24 rounded-full object-cover border-4 border-white" src="https://via.placeholder.com/150" alt="profile picture">
-            <h1 id="userDisplayName" class="text-2xl font-bold mt-2"></h1>
-
+            <h1 class="text-2xl font-bold mt-2"><%= displayName %>Name</h1>
         </div>
-        <ul class="nav nav-tabs flex justify-center space-x-2 mt-4 ">
+        <div class="flex justify-center mt-4">
             <!-- friends button -->
-            <li class="nav-item">
-                <a class="nav-link text-gray-700 hover:text-blue-500" aria-current="page" href="/friends">Friends</a>
-            </li>
-            <!-- group button -->
-            <li class="nav-item">
-                <a class="nav-link text-gray-700 hover:text-blue-500" href="/groups">Groups</a>
-            </li>
-        </ul>
+            <a class="<%= currentPage === 'friends' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline mr-3" href="/friends">Friends</a>
+            <!-- groups button -->
+            <a class="<%= currentPage === 'groups' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline ml-3" href="/groups">Groups</a>
+        </div>        
         <div class="pt-4 w-full max-w-md px-4">
             <!-- search field-->
             <div class="mb-4">
                 <input id="searchField" type="text" placeholder=" 🔍 Search..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage">
+                    class="w-full px-4 py-2 border border-gray-300 text-font rounded-3xl focus:outline-none focus:ring-2 focus:ring-celadon">
             </div>
 
             <div id="friends_container" class="bg-white rounded-lg">
@@ -28,7 +23,7 @@
 
             <div>
                 <button id="open_adding" onclick="openAddFriends()"
-                    class="fixed w-12 h-12 bottom-1/5 right-4 bg-blue-500 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+                    class="fixed w-12 h-12 bottom-20 right-4 bg-celadon hover:bg-green-400 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
             </div>
 
         </div>
@@ -41,14 +36,16 @@
                 <div class="bg-white p-6 rounded-lg shadow-lg w-full">
                     <form id="form">
                         <input name='username' id='username' type='text' placeholder='Add Friend'
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage mb-4">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-celadon mb-4">
                         <button type="button" onclick="return addFriend()"
-                            class="w-full px-4 py-2 bg-dark-olive text-white rounded-lg">Add</button>
+                            class="w-full px-4 py-2 rounded-3xl bg-celadon hover:bg-green-400 text-white">Add</button>
                     </form>
-                    <button id="close_adding" onclick="hideAddFriends()" class="mt-4 text-dark-olive w-full">Close</button>
+                   <div class="flex justify-center mt-4">
+                    <button id="close_adding" onclick="hideAddFriends()" class="px-4 py-2 rounded-3xl bg-celadon hover:bg-green-400 text-white">Close</button>
+                   </div>
                 </div>
             </div>
-        </div>
+        </
 
         <!--Modal for showing friend's profile-->
         <div id="friendProfile" onclick="hideProfile()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
@@ -75,33 +72,6 @@
     </template>
 
     <script>
-        async function fetchDisplayName() {
-            try {
-                const response = await fetch('/users/display_name');
-                if (response.ok) {
-                    const userData = await response.json();
-                    return userData.display_name;
-                } else {
-                    console.error('Failed to fetch display name');
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error fetching display name:', error);
-                return null;
-            }
-        }
-
-        async function updateDisplayName() {
-            const userDisplayName = document.getElementById('userDisplayName');
-            const displayName= await fetchDisplayName();
-            if (displayName) {
-                userDisplayName.textContent = displayName;
-            } else {
-                userDisplayName.textContent = 'Name';
-            }
-        }
-        document.addEventListener('DOMContentLoaded', updateDisplayName);
-
         const eventSearch = document.getElementById("searchField");
 
         eventSearch.addEventListener("keyup", e => {

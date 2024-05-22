@@ -13,11 +13,8 @@ const pet_schema = {
       },
       cost: {
         bsonType: "int",
-        description: "must be a number of the required amount of points and is required",
-      },
-      image: {
-        bsonType: "string",
-        description: "must be a string and is required",
+        description:
+          "must be a number of the required amount of points and is required",
       },
       costume: {
         bsonType: "string",

@@ -4,9 +4,57 @@
         <!-- Leave this part blank for animation -->
     </div>
     <div class="flex-1 flex flex-col items-center justify-center bg-white">
-        <div class="mb-4">Place for displaying how long you have studied</div>
-        <div class="mb-4">Place for displaying the currency you have earned</div>
-        <a href="#" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">End session</a>
+        <div>
+            <span id="hr">00</span>
+            <span>Hr</span>
+            <span id="min">00</span>
+            <span>Min</span>
+            <span id="sec">00</span>
+            <span>Sec</span>
+        </div>
+        <div>
+            Placeholder for currency
+        </div>
+        <div>
+            <form id="endSessionForm" action="/end_session" method="POST">
+                <input type="hidden" name="startTime" value="<%= startTime %>">
+                <input type="hidden" name="sessionId" value="<%= sessionId %>">
+                <button type="submit">End Session</button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+    const startTime = new Date("<%= startTime %>")
+    const currentTime = new Date();
+    let duration = Math.floor(currentTime - startTime) / 1000;
+
+    const hrSpan = document.getElementById('hr');
+    const minSpan = document.getElementById('min');
+    const secSpan = document.getElementById("sec");
+    const durationInput = document.getElementById("durationInput");
+    let timerInterval;
+
+
+    function updateDisplay() {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        const seconds = Math.floor(duration % 60);
+
+        hrSpan.textContent = String(hours).padStart(2, '0');
+        minSpan.textContent = String(minutes).padStart(2, '0');
+        secSpan.textContent = String(seconds).padStart(2, '0');
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            duration++;
+            updateDisplay();
+        }, 1000);
+    }
+    // Initialize display
+    updateDisplay();
+    startTimer(); // Start the timer initially
+</script>
 <%- include("templates/default_footer") %>
