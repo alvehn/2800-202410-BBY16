@@ -400,8 +400,11 @@ app.post(
           study_session: {
             inSession: true,
             currentSessionID: newSessionId,
-          },
+          }
         },
+        $push: {
+          individual_sessions: newSessionId
+        }
       }
     );
     res.render("study_session", {
@@ -451,9 +454,12 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
       $set: {
         study_session: {
           inSession: false,
-          currentSessionID: null,
-        },
+          currentSessionID: null
+        }
       },
+      $inc: {
+        total_study_hours: duration
+      }
     }
   );
   res.redirect("/home_page");
