@@ -108,7 +108,7 @@ const user_schema = {
       },
       groups: {
         bsonType: "array",
-        properties: {
+        items: {
           bsonType: "objectId",
           description: "refers to the group",
         },
