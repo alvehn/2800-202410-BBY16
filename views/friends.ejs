@@ -1,68 +1,122 @@
-<%- include("templates/header") %>
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/friends">Friends</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/groups">Groups</a>
-        </li>
-    </ul>
-    <div>Search Bar Here</div>
-    <br>
-    <div id="friends_container">
-        <p>Friends List Displays Here</p>
-        <button id="open_friends">Daniel Wang</button>
-        <div class="friend_profile" id="friend_profile">
-            <div>Daniel Wang</div>
-            <button id="close_friends">Close</button>
-        </div>
-    </div>
-    <br>
-    <div>
-        <p>Add friend button and function here</p>
-        <button id="open_adding">+</button>
-        <div class="add_popup" id="add_popup">
-            <div>
-                <form id="form">
-                    <input name='username' id='username' type='text' placeholder='Add Friend'>
-                    <button type="button" onclick="return addFriend()">Add</button>
-                </form>
+<%- include("templates/default") %>
+    <div class="flex flex-col items-center h-screen select-none bg-white">
+        <ul class="nav nav-tabs flex justify-center space-x-2 mt-4 ">
+            <!-- friends button -->
+            <li class="nav-item">
+                <a class="nav-link text-gray-700 hover:text-blue-500" aria-current="page" href="/friends">Friends</a>
+            </li>
+            <!-- group button -->
+            <li class="nav-item">
+                <a class="nav-link text-gray-700 hover:text-blue-500" href="/groups">Groups</a>
+            </li>
+        </ul>
+        <div class="pt-4 w-full max-w-md px-4">
+            <!-- search field-->
+            <div class="mb-4">
+                <input id="searchField" type="text" placeholder=" 🔍 Search..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage">
             </div>
-            <button id="close_adding">Close</button>
+
+            <div id="friends_container" class="bg-white rounded-lg shadow-md p-4">
+
+            </div>
+
+            <div>
+                <button id="open_adding" onclick="openAddFriends()"
+                    class="fixed w-12 h-12 bottom-1/5 right-4 bg-blue-500 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+            </div>
+
+        </div>
+
+        <!--New Improved Modal for adding friends-->
+        <div id="addFriends" onclick="hideAddFriends()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
+            opacity-0 hidden transition-opacity duration-500">
+            <div onclick="event.stopImmediatePropagation()"
+                class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-full">
+                    <form id="form">
+                        <input name='username' id='username' type='text' placeholder='Add Friend'
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage mb-4">
+                        <button type="button" onclick="return addFriend()"
+                            class="w-full px-4 py-2 bg-dark-olive text-white rounded-lg">Add</button>
+                    </form>
+                    <button id="close_adding" onclick="hideAddFriends()" class="mt-4 text-dark-olive w-full">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!--Modal for showing friend's profile-->
+        <div id="friendProfile" onclick="hideProfile()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
+            opacity-0 hidden transition-opacity duration-500">
+            <div onclick="event.stopImmediatePropagation()"
+                class="bg-white rounded shadow-md w-full flex overflow-hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+                    <button id="close_adding" onclick="hideProfile()" class="mt-4 text-red-500 w-full">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
+
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
-        <div>
-            <p id="friend_username"></p>
-            <p id="friend_status"></p>
+        <div id="profile" class="p-4 border rounded-lg shadow-md mb-4">
+            <p id="friend_username" class="font-bold"></p>
+            <p id="friend_status" class="text-gray-600"></p>
         </div>
     </template>
 
     <script>
-        const openProfile = document.getElementById("open_friends");
-        const closeProfile = document.getElementById("close_friends");
-        const profile = document.getElementById("friend_profile");
-        const openAdd = document.getElementById("open_adding");
-        const closeAdd = document.getElementById("close_adding");
-        const Add = document.getElementById("add_popup");
+        const eventSearch = document.getElementById("searchField");
 
-        openProfile.addEventListener("click", () => {
-            profile.classList.add("open");
-        });
+        eventSearch.addEventListener("keyup", e => {
+            //gets value of search bar and puts it to lowercase
+            let currentValue = e.target.value.toLowerCase();
+            //gets all the card titles
+            let names = document.querySelectorAll('[id^="friend_username"]');
+            names.forEach(name => {
+                if (name.textContent.toLowerCase().includes(currentValue)) {
+                    //accesses the variable that determines whether a name is visible or not
+                    name.parentNode.style.display = "block";
+                } else {
+                    name.parentNode.style.display = "none";
+                }
+            })
+        })
 
-        closeProfile.addEventListener("click", () => {
-            profile.classList.remove("open");
-        });
+        function openAddFriends() {
+            let popup = document.getElementById("addFriends");
+            popup.classList.remove("hidden");
+            setTimeout(() => {
+                popup.classList.add("opacity-100");
+            }, 20);
+        }
 
-        openAdd.addEventListener("click", () => {
-            Add.classList.add("open");
-        });
+        function hideAddFriends() {
+            let popup = document.getElementById("addFriends");
+            popup.classList.add("opacity-0");
+            popup.classList.remove("opacity-100");
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 500);
+        }
 
-        closeAdd.addEventListener("click", () => {
-            Add.classList.remove("open");
-        });
+        function openProfile(username) {
+            let popup = document.getElementById("friendProfile");
+            popup.classList.remove("hidden");
+            setTimeout(() => {
+                popup.classList.add("opacity-100");
+            }, 20);
+        }
+
+        function hideProfile() {
+            let popup = document.getElementById("friendProfile");
+            popup.classList.add("opacity-0");
+            popup.classList.remove("opacity-100");
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 500);
+        }
 
         function addFriend() {
             let form = document.getElementById("form");
@@ -153,8 +207,10 @@
                         // Handle network errors or errors from the server
                         console.error('Error:', error);
                     });
+                
                 newcard.getElementById("friend_username").innerHTML = username;
                 newcard.getElementById("friend_status").innerHTML = status;
+                newcard.getElementById("profile").setAttribute('onclick', `openProfile('${username}')`);
                 document.getElementById("friends_container").appendChild(newcard);
             }
         }

@@ -219,11 +219,7 @@ app.post("/loggingin", async (req, res) => {
     if (result.length != 1) {
       error = "User not found.";
     } else if (await bcrypt.compare(password, result[0].password)) {
-      // Updates friends current status
-      /* for (let friend of result[0].friends) {
-        await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "online" } });
-      } */
-      // Creates a session
+      await usersCollection.updateOne({ username: username }, { $set: { status: "online" } });
       req.session.authenticated = true;
       req.session.username = result[0].username;
       req.session.friends = result[0].friends;
@@ -378,6 +374,18 @@ app.get("/friends", (req, res) => {
   res.render("friends");
 });
 
+app.get("/buy_cosmetics", (req, res) => {
+  res.render("buy_cosmetics");
+});
+
+app.get("/buy_pets", (req, res) => {
+  res.render("buy_pets");
+});
+
+app.get("/buy_dlcs", (req, res) => {
+  res.render("buy_dlcs");
+});
+
 app.get('/logout', async (req, res) => {
   let username = req.session.username;
   let email = req.session.email;
@@ -385,11 +393,7 @@ app.get('/logout', async (req, res) => {
     .find({ email: email })
     .project({ friends: 1 })
     .toArray();
-  /* if (result[0] && result[0].friends) {
-    for (let friend of result[0].friends) {
-      await usersCollection.updateOne({ username: friend.username, 'friends.username': username }, { $set: { 'friends.$.status': "offline" } });
-    }
-  } */
+  await usersCollection.updateOne({ username: username}, { $set: { status: "offline" } });
   req.session.destroy();
   res.render("logout");
 });
@@ -408,7 +412,11 @@ app.post('/friends/check', async (req, res) => {
     if (friend.length != 1) {
       message = "User not found.";
     } else {
-      if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
+      const friendIds = friend[0].friends.map(id => id.toString()); // Convert all ObjectIds to strings
+      const resultIdString = result[0]._id.toString();
+      if (friendIds.includes(resultIdString)) { // check if users are already friends
+        message = "Already friends.";
+      } else if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
         // Adds current user as a friend of the requested user in database
         try {
           await usersCollection.updateOne({ username: username }, { $push: { friends: result[0]._id } });

@@ -1,7 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-}
+
 
 /* footer {
     width: 100vw;
@@ -40,7 +37,7 @@
     padding-right:10vw;
 } */
 
-.friend_profile {
+/* .friend_profile {
     background-color: grey !important; 
     opacity: 0 !important;
     position: fixed !important;
@@ -64,9 +61,9 @@
 
 .profile {
     width: 50vw;
-}
+} */
 
-.add_popup {
+/* .add_popup {
     background-color: grey !important; 
     opacity: 0 !important;
     position: fixed !important;
@@ -86,4 +83,4 @@
 .add_popup.open {
     opacity: 1 !important;
     z-index: 999 !important;
-}
+}  */
