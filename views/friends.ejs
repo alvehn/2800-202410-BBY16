@@ -13,40 +13,23 @@
         <div class="pt-4 mx-auto max-w-screen-lg px-4">
             <!-- search field-->
             <div class="mb-4">
-                <input type="text" placeholder="Search..."
+                <input id="searchField" type="text" placeholder="Search..."
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
+
             <div id="friends_container">
-                <!-- fix-->
-                <button id="open_friends">Daniel Wang</button>
-                <div class="friend_profile" id="friend_profile">
-                    <button id="close_friends">Close</button>
-                </div>
+
             </div>
 
             <div>
                 <button id="open_adding" onclick="openAddFriends()"
-                    class="fixed w-12 h-12 bottom-4 right-4 z-10 bg-blue-500 text-white rounded-full text-2xl flex items-center justify-center">+</button>
-            </div>
-            <!--fix-->
-            <div id="add_popup"
-                class=" hidden fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 transition-opacity duration-300">
-                <!-- <div class="bg-white p-6 rounded-lg shadow-lg w-80">
-                    <form id="form">
-                        <input name='username' id='username' type='text' placeholder='Add Friend'
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
-                        <button type="button" onclick="return addFriend()"
-                            class="w-full px-4 py-2 bg-green-500 text-white rounded-lg">Add</button>
-                    </form>
-                    <button id="close_adding" class="mt-4 text-red-500 w-full">Close</button>
-                </div> -->
+                    class="fixed w-12 h-12 bottom-4 right-4 bg-blue-500 text-white rounded-full text-2xl flex items-center justify-center">+</button>
             </div>
 
         </div>
 
         <!--New Improved Modal-->
-        <div id="addFriends" onclick="hideAddFriends()"
-            class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
+        <div id="addFriends" onclick="hideAddFriends()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
             opacity-0 hidden transition-opacity duration-500">
             <div onclick="event.stopImmediatePropagation()"
                 class="bg-white rounded shadow-md w-full flex overflow-hidden">
@@ -73,28 +56,22 @@
     </template>
 
     <script>
-        /* const openProfile = document.getElementById("open_friends");
-        const closeProfile = document.getElementById("close_friends");
-        const profile = document.getElementById("friend_profile");
-        const openAdd = document.getElementById("open_adding");
-        const closeAdd = document.getElementById("close_adding");
-        const Add = document.getElementById("add_popup");
+        const eventSearch = document.getElementById("searchField");
 
-        openProfile.addEventListener("click", () => {
-            profile.classList.add("open");
-        });
-
-        closeProfile.addEventListener("click", () => {
-            profile.classList.remove("open");
-        });
-
-        openAdd.addEventListener("click", () => {
-            addPopup.classList.add("opacity-100", "z-50");
-        });
-
-        closeAdd.addEventListener("click", () => {
-            addPopup.classList.remove("opacity-100", "z-50");
-        }); */
+        eventSearch.addEventListener("keyup", e => {
+            //gets value of search bar and puts it to lowercase
+            let currentValue = e.target.value.toLowerCase();
+            //gets all the card titles
+            let names = document.querySelectorAll('[id^="friend_username"]');
+            names.forEach(name => {
+                if (name.textContent.toLowerCase().includes(currentValue)) {
+                    //accesses the variable that determines whether a name is visible or not
+                    name.parentNode.style.display = "block";
+                } else {
+                    name.parentNode.style.display = "none";
+                }
+            })
+        })
 
         function openAddFriends() {
             let popup = document.getElementById("addFriends");
@@ -211,4 +188,4 @@
         displayFriendsDynamically();
 
     </script>
-<%- include("templates/navbar") %>
+    <%- include("templates/navbar") %>
