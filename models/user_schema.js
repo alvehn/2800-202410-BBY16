@@ -91,20 +91,29 @@ const user_schema = {
         bsonType: "string",
         description: "must be a string of either 'online' or 'offline'",
       },
-      studu_session: {
+      study_session: {
         bsonType: "object",
         properties: {
           inSession: {
             bsonType: "bool",
-            description: "indicates if the user is currently in a study session",
+            description:
+              "indicates if the user is currently in a study session",
           },
           currentSessionID: {
             bsonType: "objectId",
             description: "stores the ID of the current study session",
-          }
+          },
         },
         description: "contains the current study session information",
-      }
+      },
+      groups: {
+        bsonType: "array",
+        properties: {
+          bsonType: "objectId",
+          description: "refers to the group",
+        },
+        description: "an array that holds the groups the user is in.",
+      },
     },
   },
 };
