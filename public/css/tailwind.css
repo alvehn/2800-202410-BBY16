@@ -1947,6 +1947,8 @@ video {
     color: rgb(255 255 255 / var(--tw-text-opacity));
   }
 }
+<<<<<<< HEAD
+=======
 
 /*
 Extra added for groups.ejs
@@ -1964,3 +1966,4 @@ Extra added for groups.ejs
   --celadon: #a7e7b8ff;
   --space-cadet: #27243bff; 
 }
+>>>>>>> dev
