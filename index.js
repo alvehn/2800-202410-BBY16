@@ -133,10 +133,12 @@ app.get("/signup", (req, res) => {
 });
 
 app.post("/signupSubmit", async (req, res) => {
+  let user;
   let username = req.body.username;
   let email = req.body.email;
   let password = req.body.password;
   let displayname = req.body.displayname;
+  let current_pet = req.body.current_pet;
   let usernameSchema = Joi.string().alphanum().max(20).required();
   let emailSchema = Joi.string().email().required();
   let passwordSchema = Joi.string().max(20).required();
@@ -157,7 +159,7 @@ app.post("/signupSubmit", async (req, res) => {
   } else {
     let hashedPassword = await bcrypt.hash(password, saltRounds);
     try {
-      await usersCollection.insertOne({
+      user = await usersCollection.insertOne({
         username: username,
         email: email,
         password: hashedPassword,
@@ -178,8 +180,6 @@ app.post("/signupSubmit", async (req, res) => {
           currentSessionID: null,
         },
         status: "online", // Assuming the user sign_up normally
-        study_session: 0,
-        groups: [],
       });
 
       req.session.authenticated = true;
@@ -188,6 +188,8 @@ app.post("/signupSubmit", async (req, res) => {
       req.session.groups = [];
       req.session.cookie.maxAge = expireTime;
       req.session.current_pet = current_pet;
+      req.session.userID = user.insertedId.toString();
+
       res.redirect("/home_page");
       return;
     } catch (err) {
@@ -195,6 +197,7 @@ app.post("/signupSubmit", async (req, res) => {
         console.log("Document validation error");
         return res.redirect("/sign_up");
       } else {
+        console.log(err);
         return res.render("signuperror", {
           error: "Unexpected error occurred",
         });
@@ -364,8 +367,10 @@ app.post("/set_new_password", async (req, res) => {
 */
 
 app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
-  const user = await usersCollection.findOne({_id: new ObjectId(req.session.userID)});
-  res.render("home_page", {user: user});
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(req.session.userID),
+  });
+  res.render("home_page", { user: user });
 });
 
 /*
@@ -378,12 +383,12 @@ app.post(
     const userID = new ObjectId(req.session.userID);
     const startTime = new Date();
 
-  const newSession = {
-    user_id: userID,
-    start_time: startTime,
-    end_time: null,
-    duration: 0,
-  };
+    const newSession = {
+      user_id: userID,
+      start_time: startTime,
+      end_time: null,
+      duration: 0,
+    };
 
     const result = await individual_sessionsCollection.insertOne(newSession);
     const newSessionId = result.insertedId;
@@ -398,16 +403,29 @@ app.post(
           },
         },
       }
-  )
-  res.render("study_session",  {sessionId: newSessionId, startTime: startTime.toISOString()});
-});
+    );
+    res.render("study_session", {
+      sessionId: newSessionId,
+      startTime: startTime.toISOString(),
+    });
+  }
+);
 
-app.post("/view_study_session", sessionValidation("view_study_session"), async(req, res) => {
-  const sessionId = new ObjectId(req.body.sessionId);
-  const studySession = await individual_sessionsCollection.findOne({_id: sessionId})
-  const startTime = studySession.start_time;
-  res.render("study_session", {startTime: startTime.toISOString(), sessionId: sessionId});
-})
+app.post(
+  "/view_study_session",
+  sessionValidation("view_study_session"),
+  async (req, res) => {
+    const sessionId = new ObjectId(req.body.sessionId);
+    const studySession = await individual_sessionsCollection.findOne({
+      _id: sessionId,
+    });
+    const startTime = studySession.start_time;
+    res.render("study_session", {
+      startTime: startTime.toISOString(),
+      sessionId: sessionId,
+    });
+  }
+);
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const userId = new ObjectId(req.session.userID);
@@ -439,7 +457,7 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
     }
   );
   res.redirect("/home_page");
-})
+});
 /*
   The End of study session handler
 */
