@@ -107,6 +107,26 @@ function sessionValidation(endRoute) {
   };
 }
 
+// Used in the signup page to check if the unique username or email is already in use.
+function accountValidation() {
+  return async function (req, res, next) {
+    let username = req.body.username;
+    let email = req.body.email;
+    const nameInUse = await usersCollection.findOne({ username: username });
+
+    const emailInUse = await usersCollection.findOne({ email: email });
+
+    if (emailInUse || nameInUse) {
+      if (emailInUse) error.emailInUse = true;
+      if (nameInUse) error.nameInUse = true;
+
+      res.redirect(`/signup`);
+      return;
+    }
+    next();
+  };
+}
+
 /*
   This part is for mail transpoter
 */
@@ -132,7 +152,7 @@ app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
-app.post("/signupSubmit", async (req, res) => {
+app.post("/signupSubmit", accountValidation(), async (req, res) => {
   let user;
   let username = req.body.username;
   let email = req.body.email;
