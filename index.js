@@ -620,7 +620,7 @@ app.get("/logout", async (req, res) => {
     { $set: { status: "offline" } }
   );
   req.session.destroy();
-  res.render("logout");
+  res.redirect("/?loggedout=true");
 });
 
 app.post("/friends/check", async (req, res) => {
