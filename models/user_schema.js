@@ -99,10 +99,6 @@ const user_schema = {
             description:
               "indicates if the user is currently in a study session",
           },
-          currentSessionID: {
-            bsonType: "objectId",
-            description: "stores the ID of the current study session",
-          },
         },
         description: "contains the current study session information",
       },

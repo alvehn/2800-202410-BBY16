@@ -53,7 +53,9 @@
     </div>
     <!-- This is the template for popup when veiwing user profile -->
     <template id="groupCardTemplate">
-        <div></div>
+        <div id="group" class="p-4 border rounded-lg shadow-md mb-4">
+            <p id="group_name" class="font-bold"></p>
+        </div>
     </template>
 
     <!-- This is the template for popup when veiwing user profile -->
@@ -186,7 +188,6 @@
             // Creates the friends card
             let cardTemplate = document.getElementById("friendCardTemplate");
             let username = "test";
-            let status = "test";
             for (let friend of friends) {
                 let newcard = cardTemplate.content.cloneNode(true);
                 // Serialize friend data into a JSON object
@@ -208,17 +209,13 @@
                         }
                     })
                     .then(data => {
-                        console.log(data.username);
-                        console.log(data.status);
                         username = data.username;
-                        status = data.status;
                     })
                     .catch(error => {
                         // Handle network errors or errors from the server
                         console.error('Error:', error);
                     });
 
-                //<label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"><input id="select" type="checkbox" value=""></label>
                 newcard.getElementById("select").setAttribute('value', `${username}`);
                 newcard.getElementById("select").setAttribute('id', `${username}`);
                 newcard.getElementById("selectLabel").innerHTML += `<span>${username}</span>`;
@@ -227,6 +224,66 @@
                 document.getElementById("friends_container").appendChild(newcard);
             }
         }
+
+        async function displayGroupsDynamically() {
+            let groups;
+            // fetch the groups list from database
+            await fetch('/groups/get_groups', {
+                method: 'post',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    groups = data.groups;
+                    console.log(groups);
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+            // Creates the friends card
+            let cardTemplate = document.getElementById("groupCardTemplate");
+            let groupName = "test";
+            for (let group of groups) {
+                let newcard = cardTemplate.content.cloneNode(true);
+                // Serialize friend data into a JSON object
+                let jsonObject = {};
+                jsonObject["group_id"] = group;
+                // fetch friend username and status from the database
+                await fetch('/groups/get_group_name', {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json' // Set Content-Type to JSON
+                    },
+                    body: JSON.stringify(jsonObject) // Send JSON data in the body
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json(); // Get the response as JSON
+                        } else {
+                            throw new Error('Form submission failed');
+                        }
+                    })
+                    .then(data => {
+                        groupName = data.groupName;
+                    })
+                    .catch(error => {
+                        // Handle network errors or errors from the server
+                        console.error('Error:', error);
+                    });
+
+                //<label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"><input id="select" type="checkbox" value=""></label>
+                newcard.getElementById("group_name").innerHTML += groupName;
+                document.getElementById("groups_container").appendChild(newcard);
+            }
+        }
+
+        displayGroupsDynamically();
 
         displayFriendsDynamically();
 
