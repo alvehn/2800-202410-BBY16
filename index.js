@@ -7,7 +7,7 @@ const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const cron = require('node-cron');
+const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
@@ -151,7 +151,7 @@ app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   const validSession = req.session.authenticated;
-  res.render("index", {hasValidSession: validSession});
+  res.render("index", { hasValidSession: validSession });
 });
 
 app.get("/signup", (req, res) => {
@@ -248,7 +248,10 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
 });
 
 app.get("/groups", (req, res) => {
-  res.render("groups", { currentPage: "groups", displayName: req.session.display_name });
+  res.render("groups", {
+    currentPage: "groups",
+    displayName: req.session.display_name,
+  });
 });
 
 app.get("/petinv", async (req, res) => {
@@ -281,8 +284,8 @@ app.get("/petshop", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  if(req.session.authenticated){
-    res.redirect('/home_page')
+  if (req.session.authenticated) {
+    res.redirect("/home_page");
     return;
   }
   res.render("login");
@@ -453,8 +456,14 @@ app.post(
         },
       }
     );
+
+    const pet = await petsCollection.findOne({
+      _id: new ObjectId(req.session.current_pet),
+    });
+
     res.render("study_session", {
       sessionId: newSessionId,
+      petName: pet.name,
       startTime: startTime.toISOString(),
     });
   }
@@ -469,24 +478,31 @@ app.post(
       _id: sessionId,
     });
     const startTime = studySession.start_time;
+    
+    const pet = await petsCollection.findOne({
+      _id: new ObjectId(req.session.current_pet),
+    });
+
     res.render("study_session", {
       startTime: startTime.toISOString(),
+      petName: pet.name,
       sessionId: sessionId,
     });
   }
 );
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
-  console.log("end_session handler")
+  console.log("end_session handler");
   const userId = new ObjectId(req.session.userID);
   const sessionId = new ObjectId(req.body.sessionId);
   const startTime = new Date(req.body.startTime);
   const endTime = new Date();
 
-  const startDay = startTime.toISOString().split('T')[0];
+  const startDay = startTime.toISOString().split("T")[0];
   const endDay = endTime.toISOString().split("T")[0];
 
-  if(startDay === endDay){ // if startTime and endTime is in the same day
+  if (startDay === endDay) {
+    // if startTime and endTime is in the same day
     const duration = Math.floor((endTime - startTime) / 1000);
 
     await individual_sessionsCollection.updateOne(
@@ -510,11 +526,12 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
         },
         $inc: {
           total_study_hours: duration,
-          hours_per_day: duration
+          hours_per_day: duration,
         },
       }
     );
-  } else { // it they are not in the same day
+  } else {
+    // it they are not in the same day
     const midnight = new Date(startTime);
     midnight.setHours(24, 0, 0, 0);
     const duration1 = Math.floor((midnight - startTime) / 1000);
@@ -542,11 +559,11 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
         $inc: {
           total_study_hours: duration1 + duration2,
           hours_per_day: duration2,
-          "study_history.$[elem].total_hours": duration1
-        }
+          "study_history.$[elem].total_hours": duration1,
+        },
       },
       {
-        arrayFilters: [{"elem.date": startDay}]
+        arrayFilters: [{ "elem.date": startDay }],
       }
     );
   }
@@ -559,7 +576,10 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
 app.get("/friends", (req, res) => {
   console.log("friend route handler started");
   console.log("Session Display Name:", req.session.display_name);
-  res.render("friends", { currentPage: "friends", displayName: req.session.display_name });
+  res.render("friends", {
+    currentPage: "friends",
+    displayName: req.session.display_name,
+  });
 });
 
 app.get("/profile", sessionValidation("profile"), async (req, res) => {
@@ -904,7 +924,7 @@ app.post("/notifications/accept", async (req, res) => {
       { username: user },
       { $pull: { incoming_requests: username } }
     );
-    message = "Friend request from "+ username + " has been accepted!";
+    message = "Friend request from " + username + " has been accepted!";
   } catch (err) {
     message = err;
   }
@@ -921,7 +941,7 @@ app.post("/notifications/decline", async (req, res) => {
       { username: user },
       { $pull: { incoming_requests: username } }
     );
-    message = "Friend request from "+ username + " has been declined!";
+    message = "Friend request from " + username + " has been declined!";
   } catch (err) {
     message = err;
   }
@@ -931,37 +951,34 @@ app.post("/notifications/decline", async (req, res) => {
 /*
   This part are scheduled task that will run ar a specific time.
 */
-cron.schedule('0 0 * * *', async() => {
-  console.log("Updating users study history at midnight")
+cron.schedule("0 0 * * *", async () => {
+  console.log("Updating users study history at midnight");
   const today = new Date();
   today.setDate(today.getDate() - 1);
-  const formattedDate = today.toISOString().split('T')[0];
+  const formattedDate = today.toISOString().split("T")[0];
 
-  try{
+  try {
     const users = await usersCollection.find({}).toArray();
-    const updatePromises = users.map(user => {
+    const updatePromises = users.map((user) => {
       const entry = {
         date: formattedDate,
-        total_hours: user.hours_per_day || 0
-      }
+        total_hours: user.hours_per_day || 0,
+      };
 
       return usersCollection.updateOne(
-        {_id: user._id},
+        { _id: user._id },
         {
           $push: { study_history: entry },
         }
-      )
+      );
     });
     await Promise.all(updatePromises);
-    await usersCollection.updateMany(
-      {},
-      { $set: { hours_per_day: 0} }
-    )
-    console.log("successful updating users study history")
-  }catch(error){
+    await usersCollection.updateMany({}, { $set: { hours_per_day: 0 } });
+    console.log("successful updating users study history");
+  } catch (error) {
     console.log("error updating users study history:", error);
   }
-})
+});
 /*
   End of cron
 */

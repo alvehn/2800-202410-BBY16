@@ -7,23 +7,6 @@
 2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
 */
 
-@keyframes idle {
-  from {
-    background-position: 0 -160px; /* Start at the beginning of the first row */
-  }
-  to {
-    background-position: -1280px -160px; /* End at the last frame of the first row */
-  }
-}
-
-.animate-idle {
-  animation: idle 1s steps(4) infinite;
-}
-
-.pet {
-  background-image: url('../sprite_sheets/fox.png');
-}
-
 *,
 ::before,
 ::after {
@@ -571,6 +554,40 @@ video {
   --tw-contain-style:  ;
 }
 
+.container {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -683,6 +700,10 @@ video {
   left: 50%;
 }
 
+.left-4 {
+  left: 1rem;
+}
+
 .left-5 {
   left: 1.25rem;
 }
@@ -729,6 +750,10 @@ video {
 
 .z-10 {
   z-index: 10;
+}
+
+.z-20 {
+  z-index: 20;
 }
 
 .z-50 {
@@ -913,6 +938,10 @@ video {
 
 .h-2\.5 {
   height: 0.625rem;
+}
+
+.h-2\/3 {
+  height: 66.666667%;
 }
 
 .h-2\/5 {
@@ -1127,6 +1156,10 @@ video {
 
 .flex-wrap {
   flex-wrap: wrap;
+}
+
+.items-end {
+  align-items: flex-end;
 }
 
 .items-center {
@@ -1477,6 +1510,10 @@ video {
   background-color: rgb(243 239 233 / var(--tw-bg-opacity));
 }
 
+.bg-light-coral {
+  background-color: #e58c8aff;
+}
+
 .bg-light-sage {
   --tw-bg-opacity: 1;
   background-color: rgb(169 192 161 / var(--tw-bg-opacity));
@@ -1559,6 +1596,10 @@ video {
 
 .bg-no-repeat {
   background-repeat: no-repeat;
+}
+
+.bg-repeat-x {
+  background-repeat: repeat-x;
 }
 
 .object-cover {
@@ -1749,6 +1790,10 @@ video {
 
 .leading-tight {
   line-height: 1.25;
+}
+
+.text-argentinian-blue {
+  color: #5aaff0ff;
 }
 
 .text-blue-500 {
@@ -1988,6 +2033,11 @@ video {
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-green-400:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(74 222 128 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-green-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(21 128 61 / var(--tw-bg-opacity));
@@ -2124,10 +2174,6 @@ video {
   }
 }
 
-.rtl\:space-x-reverse:where([dir="rtl"], [dir="rtl"] *) > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 1;
-}
-
 @media (prefers-color-scheme: dark) {
   .dark\:border-gray-600 {
     --tw-border-opacity: 1;
@@ -2144,45 +2190,13 @@ video {
     background-color: rgb(55 65 81 / var(--tw-bg-opacity));
   }
 
-  .dark\:bg-gray-900 {
-    --tw-bg-opacity: 1;
-    background-color: rgb(17 24 39 / var(--tw-bg-opacity));
-  }
-
   .dark\:text-gray-400 {
     --tw-text-opacity: 1;
     color: rgb(156 163 175 / var(--tw-text-opacity));
-  }
-
-  .dark\:text-white {
-    --tw-text-opacity: 1;
-    color: rgb(255 255 255 / var(--tw-text-opacity));
   }
 
   .dark\:hover\:bg-light-beige:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(243 239 233 / var(--tw-bg-opacity));
   }
-}
-
-:root {
-  --light-coral: #e58c8aff;
-  --beige: #ebebd3ff;
-  --argentinian-blue: #5aaff0ff;
-  --celadon: #a7e7b8ff;
-  --space-cadet: #27243bff; 
-}
-
-.bg-light-coral {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 140 138 / var(--tw-bg-opacity));
-}
-
-/*
-Extra added for groups.ejs
-*/
-
-#friends_container input:checked + label {
-  background-color: rgb(146 160 103 / var(--tw-bg-opacity));
-  color:#fff;
 }

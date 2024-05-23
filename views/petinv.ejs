@@ -11,7 +11,7 @@
   <h1 class="text-2xl font-bold">Current Pet</h1>
   <!-- Pet Image -->
   <div
-    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet animate-idle"
+    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet animate-idle z-50"
   ></div>
 
   <!-- Inventory Grid -->
@@ -47,7 +47,7 @@
   window.onload = () => {
     document.querySelector(
       ".pet"
-    ).style.backgroundImage = `url(../sprite_sheets/<%= currentPet.name %>.png)`;
+    ).style.backgroundImage = `url(/sprite_sheets/<%= currentPet.name %>.png)`;
   };
 </script>
 <%- include("templates/navbar") %>

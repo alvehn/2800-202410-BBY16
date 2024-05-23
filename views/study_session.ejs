@@ -1,95 +1,136 @@
 <%- include("templates/default_header") %>
 <div class="flex flex-col h-screen relative">
-    <div class="flex items-end justify-center bg-gray-200 relative h-2/3 overflow-hidden">
-        <!-- Background layers for parallax effect -->
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x layer1"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x layer2"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer3"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer4"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer5"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer6"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer7"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer8"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer9"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer10"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer11"></div>
-        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer12"></div>
+  <div
+    class="flex items-end justify-center bg-gray-200 relative h-2/3 overflow-hidden"
+  >
+    <!-- Background layers for parallax effect -->
+    <div class="absolute top-0 left-0 w-full h-full bg-repeat-x layer1"></div>
+    <div class="absolute top-0 left-0 w-full h-full bg-repeat-x layer2"></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer3"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer4"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer5"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer6"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer7"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer8"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer9"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer10"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer11"
+    ></div>
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer12"
+    ></div>
 
-        <!-- animal sprite -->
-        <div class="animal"></div>
+    <!-- animal sprite -->
+    <div class="w-[320px] h-[160px] pet z-50"></div>
+  </div>
+  <div
+    class="flex flex-col items-center justify-center bg-white p-4 z-20 relative"
+  >
+    <div class="text-4xl font-bold text-gray-700 mb-4">
+      <span id="hr">00</span>
+      <span class="text-sm">Hr</span>
+      <span id="min">00</span>
+      <span class="text-sm">Min</span>
+      <span id="sec">00</span>
+      <span class="text-sm">Sec</span>
     </div>
-    <div class="flex flex-col items-center justify-center bg-white p-4 z-20 relative">
-        <div class="text-4xl font-bold text-gray-700 mb-4">
-            <span id="hr">00</span>
-            <span class="text-sm">Hr</span>
-            <span id="min">00</span>
-            <span class="text-sm">Min</span>
-            <span id="sec">00</span>
-            <span class="text-sm">Sec</span>
-        </div>
-        <div class="text-lg text-gray-500 mb-4">
-            Placeholder for currency
-        </div>
-        <div>
-            <form id="endSessionForm" action="/end_session" method="POST" class="flex flex-col items-center space-y-4">
-                <input type="hidden" name="startTime" value="<%= startTime %>">
-                <input type="hidden" name="sessionId" value="<%= sessionId %>">
-                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">End Session</button>
-            </form>
-        </div>
+    <div class="text-lg text-gray-500 mb-4">Placeholder for currency</div>
+    <div>
+      <form
+        id="endSessionForm"
+        action="/end_session"
+        method="POST"
+        class="flex flex-col items-center space-y-4"
+      >
+        <input type="hidden" name="startTime" value="<%= startTime %>" />
+        <input type="hidden" name="sessionId" value="<%= sessionId %>" />
+        <button
+          type="submit"
+          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+        >
+          End Session
+        </button>
+      </form>
     </div>
+  </div>
 </div>
 
 <script>
-    const startTime = new Date("<%= startTime %>")
-    const currentTime = new Date();
-    let duration = Math.floor((currentTime - startTime) / 1000);
+  // Handles the pet
+  window.onload = () => {
+    document.querySelector(
+      ".pet"
+    ).style.backgroundImage = `url(/sprite_sheets/<%= petName %>.png)`;
+  };
 
-    const hrSpan = document.getElementById('hr');
-    const minSpan = document.getElementById('min');
-    const secSpan = document.getElementById("sec");
-    const durationInput = document.getElementById("durationInput");
-    let timerInterval;
+  document.querySelector(".pet").classList.add(`animate-run-<%= petName %>`);
 
-    function updateDisplay() {
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        const seconds = Math.floor(duration % 60);
+  const startTime = new Date("<%= startTime %>");
+  const currentTime = new Date();
+  let duration = Math.floor((currentTime - startTime) / 1000);
 
-        hrSpan.textContent = String(hours).padStart(2, '0');
-        minSpan.textContent = String(minutes).padStart(2, '0');
-        secSpan.textContent = String(seconds).padStart(2, '0');
-    }
+  const hrSpan = document.getElementById("hr");
+  const minSpan = document.getElementById("min");
+  const secSpan = document.getElementById("sec");
+  const durationInput = document.getElementById("durationInput");
+  let timerInterval;
 
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            duration++;
-            updateDisplay();
-        }, 1000);
-    }
-    
-    updateDisplay();
-    startTimer(); 
+  function updateDisplay() {
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor((duration % 3600) / 60);
+    const seconds = Math.floor(duration % 60);
 
-    // Animation logic for the animal
-    const animal = document.querySelector('.animal');
-    const frames = [
-        { backgroundPosition: '-50px -500px', width: '220px', height: '130px' },
-        { backgroundPosition: '-340px -510px', width: '250px', height: '120px' },
-        { backgroundPosition: '-650px -510px', width: '280px', height: '100px' },
-        { backgroundPosition: '-990px -520px', width: '240px', height: '110px' },
-        { backgroundPosition: '-1330px -520px', width: '220px', height: '110px' },
-        { backgroundPosition: '-1650px -500px', width: '220px', height: '130px' }
-    ];
-    let currentFrame = 0;
+    hrSpan.textContent = String(hours).padStart(2, "0");
+    minSpan.textContent = String(minutes).padStart(2, "0");
+    secSpan.textContent = String(seconds).padStart(2, "0");
+  }
 
-    function updateFrame() {
-        const frame = frames[currentFrame];
-        animal.style.backgroundPosition = frame.backgroundPosition;
-        animal.style.width = frame.width;
-        animal.style.height = frame.height;
-        currentFrame = (currentFrame + 1) % frames.length;
-    }
-    setInterval(updateFrame, 100);
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      duration++;
+      updateDisplay();
+    }, 1000);
+  }
+
+  updateDisplay();
+  startTimer();
+
+  // Animation logic for the animal
+  const animal = document.querySelector(".pet");
+  // const frames = [
+  //     { backgroundPosition: '-50px -500px', width: '220px', height: '130px' },
+  //     { backgroundPosition: '-340px -510px', width: '250px', height: '120px' },
+  //     { backgroundPosition: '-650px -510px', width: '280px', height: '100px' },
+  //     { backgroundPosition: '-990px -520px', width: '240px', height: '110px' },
+  //     { backgroundPosition: '-1330px -520px', width: '220px', height: '110px' },
+  //     { backgroundPosition: '-1650px -500px', width: '220px', height: '130px' }
+  // ];
+  // let currentFrame = 0;
+
+  // function updateFrame() {
+  //     const frame = frames[currentFrame];
+  //     animal.style.backgroundPosition = frame.backgroundPosition;
+  //     animal.style.width = frame.width;
+  //     animal.style.height = frame.height;
+  //     currentFrame = (currentFrame + 1) % frames.length;
+  // }
+  // setInterval(updateFrame, 100);
 </script>
 <%- include("templates/default_footer") %>

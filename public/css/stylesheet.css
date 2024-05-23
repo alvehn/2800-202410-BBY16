@@ -85,6 +85,35 @@
     z-index: 999 !important;
 }  */
 
+@keyframes idle {
+    from {
+        background-position: 0 -160px; /* Start at the beginning of the first row */
+    }
+    to {
+        background-position: -1280px -160px; /* End at the last frame of the first row */
+    }
+}
+
+@keyframes run_fox {
+    from {
+        background-position: 0 -480px;
+    } to {
+        background-position: -1280px -460px;
+    }
+}
+
+.animate-run-fox {
+animation: run_fox 1s steps(4) infinite;
+}
+
+.animate-idle {
+animation: idle 1s steps(4) infinite;
+}
+
+.pet {
+background-image: url('../sprite_sheets/fox.png');
+}
+
 
 .tippy-box[data-theme~='celadon'] {
     background-color: #F3CAC9;
@@ -177,13 +206,13 @@
     animation-duration: 10s;
 }
 
-.animal {
+/* .animal {
     z-index: 15;
     background-image: url('/sprite_sheets/MiniBear.png');
     background-repeat: no-repeat;
 
     transform: scale(0.3);
-}
+} */
 /**
     The End of the session
 */
