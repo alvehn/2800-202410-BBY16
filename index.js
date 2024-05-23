@@ -231,6 +231,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
       req.session.current_pet = await petsCollection.findOne({
         _id: new ObjectId("664d3a5cfd6cca06e79cc641"),
       });
+      req.session.current_pet_name = "fox";
       req.session.userID = user.insertedId.toString();
 
       res.redirect("/home_page");
@@ -283,7 +284,10 @@ app.get("/petinv", async (req, res) => {
     });
 
     if (currentPet) {
-      res.render("petinv", { currentPet, ownedPets });
+      res.render("petinv", {
+        current_pet_name: req.session.current_pet.name,
+        ownedPets,
+      });
     } else {
       console.error("No pet found with the given ID");
       res.status(404).send("No pet found with the given ID");
@@ -325,6 +329,7 @@ app.post("/loggingin", async (req, res) => {
         groups: 1,
         _id: 1,
         current_pet: 1,
+        display_name: 1,
       })
       .toArray();
     if (result.length != 1) {
@@ -342,7 +347,9 @@ app.post("/loggingin", async (req, res) => {
       req.session.incoming_requests = result[0].incoming_requests;
       req.session.groups = result[0].groups;
       req.session.cookie.maxAge = expireTime;
-      req.session.current_pet = result[0].current_pet;
+      req.session.current_pet = await petsCollection.findOne({
+        _id: result[0].current_pet,
+      });
       return res.redirect("/home_page");
     }
   }

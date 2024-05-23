@@ -124,21 +124,6 @@ html, body {
     background-image: url('../sprite_sheets/fox.png');
 }
 
-.animate-run-fox {
-animation: run_fox 1s steps(4) infinite;
-}
-
-.animate-idle {
-animation: idle 1s steps(4) infinite;
-}
-
-.pet {
-    z-index: 20;
-    position:absolute;
-    bottom: -12px;
-    transform: scale(0.3);
-}
-
 /** 
 This section is the css for the navbar 
 */
