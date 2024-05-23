@@ -1,5 +1,8 @@
-
-
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
 /* footer {
     width: 100vw;
     display: flex;
@@ -111,7 +114,10 @@ animation: idle 1s steps(4) infinite;
 }
 
 .pet {
-background-image: url('../sprite_sheets/fox.png');
+    position:absolute;
+    bottom: -12px;
+    background-image: url('../sprite_sheets/fox.png');
+    transform: scale(0.3);
 }
 
 
@@ -135,75 +141,82 @@ background-image: url('../sprite_sheets/fox.png');
 
 .parallax-layer {
     position: absolute;
+    top: 0;
+    left: 0;
     background-size: contain;
-    width: 200%;
+    background-repeat: repeat-x;
+    width: 250%;
     height: 100%;
     animation: parallaxScroll 20s linear infinite;
 }
 
 .layer1 {
     background-image: url('/animation_background/Forest/Layer_0011_0.png');
+    animation-duration: 85s;
     z-index: 1;
 }
 
 .layer2 {
     background-image: url('/animation_background/Forest/Layer_0010_1.png');
+    animation-duration: 80s;
     z-index: 2;
 }
 
 .layer3 {
     background-image: url('/animation_background/Forest/Layer_0009_2.png');
     z-index: 3;
-    animation-duration: 30s;
+    animation-duration: 75s;
 }
 
 .layer4 {
     background-image: url('/animation_background/Forest/Layer_0008_3.png');
     z-index: 4;
-    animation-duration: 40s;
+    animation-duration: 70s;
 }
 .layer5 {
     background-image: url('/animation_background/Forest/Layer_0007_Lights.png');
     z-index: 5;
-    animation-duration: 60s;
+    animation-duration: 65s;
 }
 
 .layer6 {
     background-image: url('/animation_background/Forest/Layer_0006_4.png');
+    animation-duration: 60s;
     z-index: 6;
 }
 
 .layer7 {
     background-image: url('/animation_background/Forest/Layer_0005_5.png');
     z-index: 7;
-    animation-duration: 30s;
+    animation-duration: 55s;
 }
 
 .layer8 {
     background-image: url('/animation_background/Forest/Layer_0004_Lights.png');
     z-index: 8;
-    animation-duration: 40s;
+    animation-duration: 50s;
 }
 .layer9 {
     background-image: url('/animation_background/Forest/Layer_0003_6.png');
+    animation-duration: 45s;
     z-index: 9;
 }
 
 .layer10 {
     background-image: url('/animation_background/Forest/Layer_0002_7.png');
     z-index: 10;
-    animation-duration: 30s;
+    animation-duration: 40s;
 }
 
 .layer11 {
     background-image: url('/animation_background/Forest/Layer_0001_8.png');
     z-index: 11;
-    animation-duration: 10s;
+    animation-duration: 35s;
 }
 .layer12 {
     background-image: url('/animation_background/Forest/Layer_0000_9.png');
     z-index: 12;
-    animation-duration: 10s;
+    animation-duration: 30s;
 }
 
 /* .animal {
