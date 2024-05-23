@@ -165,12 +165,10 @@ app.get("/signup", (req, res) => {
 });
 
 app.post("/signupSubmit", accountValidation(), async (req, res) => {
-  let user;
   let username = req.body.username;
   let email = req.body.email;
   let password = req.body.password;
   let displayname = req.body.displayname;
-  let current_pet = req.body.current_pet;
   let usernameSchema = Joi.string().alphanum().max(20).required();
   let emailSchema = Joi.string().email().required();
   let passwordSchema = Joi.string().max(20).required();
@@ -198,7 +196,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
   } else {
     let hashedPassword = await bcrypt.hash(password, saltRounds);
     try {
-      user = await usersCollection.insertOne({
+      let user = await usersCollection.insertOne({
         username: username,
         email: email,
         password: hashedPassword,
@@ -207,6 +205,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
         friends: [],
         incoming_requests: [],
         groups: [],
+        pets_owned: [new ObjectId("664d3a5cfd6cca06e79cc641")],
         total_study_hours: 0, // Initialize with default values
         points: 0, // Initialize with default values
         study_streak: 0, // Initialize with default values
@@ -228,7 +227,9 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
       req.session.friends = [];
       req.session.groups = [];
       req.session.cookie.maxAge = expireTime;
-      req.session.current_pet = current_pet;
+      req.session.current_pet = await petsCollection.findOne({
+        _id: new ObjectId("664d3a5cfd6cca06e79cc641"),
+      });
       req.session.userID = user.insertedId.toString();
 
       res.redirect("/home_page");
@@ -256,7 +257,7 @@ app.get("/groups", (req, res) => {
 
 app.get("/petinv", async (req, res) => {
   try {
-    const currentPetId = req.session.current_pet;
+    const currentPetId = req.session.current_pet._id;
 
     if (!currentPetId) {
       console.error("No current pet ID in session");
@@ -457,13 +458,13 @@ app.post(
       }
     );
 
-    const pet = await petsCollection.findOne({
-      _id: new ObjectId(req.session.current_pet),
-    });
+    // const pet = await petsCollection.findOne({
+    //   _id: new ObjectId(req.session.current_pet),
+    // });
 
     res.render("study_session", {
       sessionId: newSessionId,
-      petName: pet.name,
+      petName: req.session.current_pet.name,
       startTime: startTime.toISOString(),
     });
   }
@@ -478,14 +479,14 @@ app.post(
       _id: sessionId,
     });
     const startTime = studySession.start_time;
-    
-    const pet = await petsCollection.findOne({
-      _id: new ObjectId(req.session.current_pet),
-    });
+
+    // const pet = await petsCollection.findOne({
+    //   _id: new ObjectId(req.session.current_pet),
+    // });
 
     res.render("study_session", {
       startTime: startTime.toISOString(),
-      petName: pet.name,
+      petName: req.session.current_pet.name,
       sessionId: sessionId,
     });
   }

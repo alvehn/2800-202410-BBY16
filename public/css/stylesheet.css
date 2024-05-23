@@ -106,15 +106,19 @@ html, body {
 }
 
 .animate-run-fox {
-animation: run_fox 1s steps(4) infinite;
+    animation: run_fox 1s steps(4) infinite;
 }
 
 .animate-idle {
-animation: idle 1s steps(4) infinite;
+    animation: idle 1s steps(4) infinite;
+}
+
+.pet-inv {
+    background-image: url('../sprite_sheets/fox.png');
 }
 
 .pet {
-    position:absolute;
+    position: absolute;
     bottom: -12px;
     background-image: url('../sprite_sheets/fox.png');
     transform: scale(0.3);
