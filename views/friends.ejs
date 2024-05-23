@@ -23,7 +23,7 @@
 
             <div>
                 <button id="open_adding" onclick="openAddFriends()"
-                    class="fixed w-12 h-12 bottom-20 right-4 bg-celadon hover:bg-green-400 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+                    class="fixed w-12 h-12 bottom-24 right-8 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
             </div>
 
         </div>
@@ -38,10 +38,10 @@
                         <input name='username' id='username' type='text' placeholder='Add Friend'
                             class="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-celadon mb-4">
                         <button type="button" onclick="return addFriend()"
-                            class="w-full px-4 py-2 rounded-3xl bg-celadon hover:bg-green-400 text-white">Add</button>
+                            class="w-full px-4 py-2 rounded-3xl bg-celadon hover:bg-dark-celadon text-white">Add</button>
                     </form>
                    <div class="flex justify-center mt-4">
-                    <button id="close_adding" onclick="hideAddFriends()" class="px-4 py-2 rounded-3xl bg-celadon hover:bg-green-400 text-white">Close</button>
+                    <button id="close_adding" onclick="hideAddFriends()" class="px-4 py-2 rounded-3xl bg-celadon hover:bg-dark-celadon text-white">Close</button>
                    </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
 
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
-        <div id="profile" class="p-3 border rounded-lg shadow-md mb-2 flex items-center hover:bg-light-sage transition-colors duration-100">
+        <div id="profile" class="p-3 border rounded-lg shadow-md mb-2 flex items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover">
             <div class="flex justify-between w-full items-center ml-4">
                 <div id="friend_username" class="font-bold"></div>
@@ -222,7 +222,7 @@
                     .then(data => {
                         newcard.getElementById("friend_username").textContent = data.username || 'Unknown';
                         const statusElement = newcard.getElementById("friend_status");
-                        statusElement.textContent = data.status || 'offline';
+                        statusElement.textContent = data.status || 'away';
                         if (data.status === 'online') {
                             statusElement.classList.add('text-green-600');
                         } else {
@@ -233,7 +233,7 @@
                         console.error('Error:', error);
                         newcard.getElementById("friend_username").textContent = 'Unknown';
                         const statusElement = newcard.getElementById("friend_status");
-                        statusElement.textContent = 'offline';
+                        statusElement.textContent = 'away';
                         statusElement.classList.add('text-red-500');
                     });
 

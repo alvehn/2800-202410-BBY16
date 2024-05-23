@@ -84,3 +84,15 @@
     opacity: 1 !important;
     z-index: 999 !important;
 }  */
+
+
+.tippy-box[data-theme~='celadon'] {
+    background-color: #F3CAC9;
+    color: #717171;
+    border-radius: 12px;
+    padding: 8px;
+}
+.tippy-box[data-theme~='celadon'] .tippy-arrow {
+    color: #F3CAC9;
+}
+
