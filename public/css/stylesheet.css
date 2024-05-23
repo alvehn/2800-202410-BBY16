@@ -114,9 +114,9 @@ html, body {
 }
 
 .pet {
-    position: absolute;
+    z-index: 20;
+    position:absolute;
     bottom: -12px;
-    background-image: url('../sprite_sheets/fox.png');
     transform: scale(0.3);
 }
 
@@ -124,6 +124,24 @@ html, body {
     background-image: url('../sprite_sheets/fox.png');
 }
 
+.animate-run-fox {
+animation: run_fox 1s steps(4) infinite;
+}
+
+.animate-idle {
+animation: idle 1s steps(4) infinite;
+}
+
+.pet {
+    z-index: 20;
+    position:absolute;
+    bottom: -12px;
+    transform: scale(0.3);
+}
+
+/** 
+This section is the css for the navbar 
+*/
 .tippy-box[data-theme~='celadon'] {
     background-color: #F3CAC9;
     color: #717171;
@@ -133,6 +151,26 @@ html, body {
 .tippy-box[data-theme~='celadon'] .tippy-arrow {
     color: #F3CAC9;
 }
+
+@media (max-width: 640px) {
+    .navbar-container {
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 80% !important;
+        transform: none !important;
+    }
+    .navbar-inner {
+        width: 80% !important;
+        border-radius: 1.5rem !important; /* Maintain rounded shape */
+    }
+    .navbar-icons {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+}
+/**
+End of the section
+*/
 
 /**
     This section is the css for animation on the timer page (study_session.ejs)
@@ -153,6 +191,18 @@ html, body {
     animation: parallaxScroll 20s linear infinite;
 }
 
+.static-background-home {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-image: url('/animation_background/Forest/Background.png');
+    background-size: cover;
+    overflow: hidden;
+}
 .layer1 {
     background-image: url('/animation_background/Forest/Layer_0011_0.png');
     animation-duration: 85s;
@@ -230,6 +280,16 @@ html, body {
     transform: scale(0.3);
 } */
 /**
-    The End of the session
+    The End of the section
 */
 
+
+
+/*
+Extra added for groups.ejs
+*/
+
+#friends_container input:checked + label {
+    background-color: rgb(146 160 103 / var(--tw-bg-opacity));
+    color:#fff;
+}
