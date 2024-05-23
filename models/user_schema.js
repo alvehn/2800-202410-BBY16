@@ -72,6 +72,10 @@ const user_schema = {
         bsonType: "objectId",
         description: "must be an ObjectId",
       },
+      current_pet_name: {
+        bsonType: "string",
+        description: "must be a string.",
+      },
       study_streak: {
         bsonType: "int",
         description: "must be a number",

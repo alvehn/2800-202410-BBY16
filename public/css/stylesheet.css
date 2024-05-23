@@ -113,10 +113,6 @@ html, body {
     animation: idle 1s steps(4) infinite;
 }
 
-.pet-inv {
-    background-image: url('../sprite_sheets/fox.png');
-}
-
 .pet {
     position: absolute;
     bottom: -12px;
@@ -124,6 +120,9 @@ html, body {
     transform: scale(0.3);
 }
 
+.pet-inv {
+    background-image: url('../sprite_sheets/fox.png');
+}
 
 .tippy-box[data-theme~='celadon'] {
     background-color: #F3CAC9;

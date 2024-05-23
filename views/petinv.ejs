@@ -19,13 +19,24 @@
     <h1 class="text-2xl font-bold text-center mb-4">Pets Owned</h1>
     <div class="relative grid grid-cols-2 gap-4">
       <!-- Example Items -->
+      <% for (let i = 0; i < ownedPets.length; i++) { %>
       <div class="bg-white p-1 rounded-lg shadow-md text-center">
+        <img
+          src="/assets/icons/icon-<%= ownedPets[i].name %>.png"
+          alt="Item 1"
+          class="w-full h-24 object-cover mb-2"
+        />
+      </div>
+      <% } %>
+      <!-- Template for a card. -->
+
+      <!-- <div class="bg-white p-1 rounded-lg shadow-md text-center">
         <img
           src="path_to_item1.jpg"
           alt="Item 1"
           class="w-full h-24 object-cover mb-2"
         />
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -36,7 +47,7 @@
 <script>
   window.onload = () => {
     document.querySelector(
-      ".pet"
+      ".pet-inv"
     ).style.backgroundImage = `url(/sprite_sheets/<%= currentPet.name %>.png)`;
   };
 </script>

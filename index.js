@@ -202,6 +202,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
         password: hashedPassword,
         display_name: displayname,
         current_pet: new ObjectId("664d3a5cfd6cca06e79cc641"),
+        current_pet_name: "fox",
         friends: [],
         incoming_requests: [],
         groups: [],
@@ -259,6 +260,19 @@ app.get("/petinv", async (req, res) => {
   try {
     const currentPetId = req.session.current_pet._id;
 
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(req.session.userID),
+    });
+
+    const ownedPets = [];
+
+    for (let i = 0; i < user.pets_owned.length; i++) {
+      let pet = await petsCollection.findOne({
+        _id: user.pets_owned[i],
+      });
+      ownedPets.push(pet);
+    }
+
     if (!currentPetId) {
       console.error("No current pet ID in session");
       return res.status(400).send("No current pet ID in session");
@@ -269,7 +283,7 @@ app.get("/petinv", async (req, res) => {
     });
 
     if (currentPet) {
-      res.render("petinv", { currentPet });
+      res.render("petinv", { currentPet, ownedPets });
     } else {
       console.error("No pet found with the given ID");
       res.status(404).send("No pet found with the given ID");
