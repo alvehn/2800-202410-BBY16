@@ -815,6 +815,68 @@ app.post("/groups/get_group_name", async (req, res) => {
   }
 });
 
+app.post("/get_notifications", async (req, res) => {
+  let user = req.session.username;
+  let incomingRequestsObject = await usersCollection.findOne(
+    { username: user },
+    { projection: { incoming_requests: 1 } }
+  );
+  let incomingRequests = incomingRequestsObject.incoming_requests;
+  res.json({ incomingRequests });
+});
+
+app.post("/notifications/accept", async (req, res) => {
+  let username = req.body.username; // Inputted username
+  console.log(username);
+  let message;
+  let user = req.session.username; // Get current session user
+  let friend = await usersCollection
+    .find({ username: username })
+    .project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 })
+    .toArray();
+  let result = await usersCollection
+    .find({ username: user })
+    .project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 })
+    .toArray();
+  try {
+    await usersCollection.updateOne(
+      { username: username },
+      { $push: { friends: result[0]._id } }
+    );
+    // Adds requested user as a friend of the current user in database
+    await usersCollection.updateOne(
+      { username: user },
+      { $push: { friends: friend[0]._id } }
+    );
+    // Removes the incoming request from the newly added friend
+    await usersCollection.updateOne(
+      { username: user },
+      { $pull: { incoming_requests: username } }
+    );
+    message = "Friend request from "+ username + " has been accepted!";
+  } catch (err) {
+    message = err;
+  }
+  res.json({ message });
+});
+
+app.post("/notifications/decline", async (req, res) => {
+  let username = req.body.username; // Inputted username
+  let message;
+  let user = req.session.username; // Get current session user
+  try {
+    // Removes the incoming request from the newly added friend
+    await usersCollection.updateOne(
+      { username: user },
+      { $pull: { incoming_requests: username } }
+    );
+    message = "Friend request from "+ username + " has been declined!";
+  } catch (err) {
+    message = err;
+  }
+  res.json({ message });
+});
+
 app.get("*", (req, res) => {
   res.status(404);
   res.render("404");
