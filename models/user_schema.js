@@ -102,6 +102,17 @@ const user_schema = {
         },
         description: "contains the current study session information",
       },
+      hours_per_day: {    // I add this
+        bsonType: "int",
+        description: "stores the total hours study per day, must be a number"
+      },
+      study_history: {
+        bsonType: "array",
+        description: "Store the hours study per day in an array",
+        items: {
+          bsonType: "object"
+        }
+      },
       groups: {
         bsonType: "array",
         items: {

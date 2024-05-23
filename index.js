@@ -7,6 +7,7 @@ const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const cron = require('node-cron');
 const nodemailer = require("nodemailer");
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
@@ -48,6 +49,7 @@ const email_password = process.env.EMAIL_PASSWORD;
 // retryWrites: write operation will retry if it fail for any reasons.
 const atlasURL = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/?retryWrites=true`;
 const mongoStore = require("connect-mongo"); // Use for storing session only.
+const { start } = require("repl");
 const mongoClient = require("mongodb").MongoClient; // Use for CRUD with the database.
 
 // instance of mongoClient, similiar to express and app.
@@ -148,7 +150,8 @@ const gmailTransporter = nodemailer.createTransport({
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-  res.render("index");
+  const validSession = req.session.authenticated;
+  res.render("index", {hasValidSession: validSession});
 });
 
 app.get("/signup", (req, res) => {
@@ -215,6 +218,8 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
           inSession: false,
           currentSessionID: null,
         },
+        hours_per_day: 0,
+        study_history: [],
         status: "online", // Assuming the user sign_up normally
       });
 
@@ -276,6 +281,10 @@ app.get("/petshop", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
+  if(req.session.authenticated){
+    res.redirect('/home_page')
+    return;
+  }
   res.render("login");
 });
 
@@ -473,32 +482,73 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const startTime = new Date(req.body.startTime);
   const endTime = new Date();
 
-  const duration = Math.floor((endTime - startTime) / 1000);
+  const startDay = startTime.toISOString().split('T')[0];
+  const endDay = endTime.toISOString().split("T")[0];
 
-  await individual_sessionsCollection.updateOne(
-    { _id: sessionId },
-    {
-      $set: {
-        end_time: endTime,
-        duration: duration,
-      },
-    }
-  );
+  if(startDay === endDay){ // if startTime and endTime is in the same day
+    const duration = Math.floor((endTime - startTime) / 1000);
 
-  await usersCollection.updateOne(
-    { _id: userId },
-    {
-      $set: {
-        study_session: {
-          inSession: false,
-          currentSessionID: null,
+    await individual_sessionsCollection.updateOne(
+      { _id: sessionId },
+      {
+        $set: {
+          end_time: endTime,
+          duration: duration,
         },
+      }
+    );
+
+    await usersCollection.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          study_session: {
+            inSession: false,
+            currentSessionID: null,
+          },
+        },
+        $inc: {
+          total_study_hours: duration,
+          hours_per_day: duration
+        },
+      }
+    );
+  } else { // it they are not in the same day
+    const midnight = new Date(startTime);
+    midnight.setHours(24, 0, 0, 0);
+    const duration1 = Math.floor((midnight - startTime) / 1000);
+    const duration2 = Math.floor((endTime - midnight) / 1000);
+
+    await individual_sessionsCollection.updateOne(
+      { _id: sessionId },
+      {
+        $set: {
+          end_time: endTime,
+          duration: duration1 + duration2,
+        },
+      }
+    );
+
+    await usersCollection.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          study_session: {
+            inSession: false,
+            currentSessionID: null,
+          },
+        },
+        $inc: {
+          total_study_hours: duration1 + duration2,
+          hours_per_day: duration2,
+          "study_history.$[elem].total_hours": duration1
+        }
       },
-      $inc: {
-        total_study_hours: duration,
-      },
-    }
-  );
+      {
+        arrayFilters: [{"elem.date": startDay}]
+      }
+    );
+  }
   res.redirect("/home_page");
 });
 /*
@@ -876,6 +926,44 @@ app.post("/notifications/decline", async (req, res) => {
   }
   res.json({ message });
 });
+
+/*
+  This part are scheduled task that will run ar a specific time.
+*/
+cron.schedule('0 0 * * *', async() => {
+  console.log("Updating users study history at midnight")
+  const today = new Date();
+  today.setDate(today.getDate() - 1);
+  const formattedDate = today.toISOString().split('T')[0];
+
+  try{
+    const users = await usersCollection.find({}).toArray();
+    const updatePromises = users.map(user => {
+      const entry = {
+        date: formattedDate,
+        total_hours: user.hours_per_day || 0
+      }
+
+      return usersCollection.updateOne(
+        {_id: user._id},
+        {
+          $push: { study_history: entry },
+        }
+      )
+    });
+    await Promise.all(updatePromises);
+    await usersCollection.updateMany(
+      {},
+      { $set: { hours_per_day: 0} }
+    )
+    console.log("successful updating users study history")
+  }catch(error){
+    console.log("error updating users study history:", error);
+  }
+})
+/*
+  End of cron
+*/
 
 app.get("*", (req, res) => {
   res.status(404);
