@@ -120,7 +120,41 @@ animation: idle 1s steps(4) infinite;
     transform: scale(0.3);
 }
 
+@keyframes idle {
+    from {
+        background-position: 0 -160px; /* Start at the beginning of the first row */
+    }
+    to {
+        background-position: -1280px -160px; /* End at the last frame of the first row */
+    }
+}
 
+@keyframes run_fox {
+    from {
+        background-position: 0 -480px;
+    } to {
+        background-position: -1280px -460px;
+    }
+}
+
+.animate-run-fox {
+animation: run_fox 1s steps(4) infinite;
+}
+
+.animate-idle {
+animation: idle 1s steps(4) infinite;
+}
+
+.pet {
+    z-index: 20;
+    position:absolute;
+    bottom: -12px;
+    transform: scale(0.3);
+}
+
+/** 
+This section is the css for the navbar 
+*/
 .tippy-box[data-theme~='celadon'] {
     background-color: #F3CAC9;
     color: #717171;
@@ -130,6 +164,26 @@ animation: idle 1s steps(4) infinite;
 .tippy-box[data-theme~='celadon'] .tippy-arrow {
     color: #F3CAC9;
 }
+
+@media (max-width: 640px) {
+    .navbar-container {
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 80% !important;
+        transform: none !important;
+    }
+    .navbar-inner {
+        width: 80% !important;
+        border-radius: 1.5rem !important; /* Maintain rounded shape */
+    }
+    .navbar-icons {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+}
+/**
+End of the section
+*/
 
 /**
     This section is the css for animation on the timer page (study_session.ejs)
@@ -239,6 +293,8 @@ animation: idle 1s steps(4) infinite;
     transform: scale(0.3);
 } */
 /**
-    The End of the session
+    The End of the section
 */
+
+
 
