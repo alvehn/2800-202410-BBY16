@@ -1,15 +1,20 @@
 <%- include("templates/default") %>
     <div class="flex flex-col items-center h-screen select-none bg-white">
         <div class="bg-celadon w-full p-4 flex flex-col items-center justify-center text-white rounded-b-3xl">
-            <img class="w-24 h-24 rounded-full object-cover border-4 border-white" src="https://via.placeholder.com/150" alt="profile picture">
-            <h1 class="text-2xl font-bold mt-2"><%= displayName %>Name</h1>
+            <img class="w-24 h-24 rounded-full object-cover border-4 border-white" src="https://via.placeholder.com/150"
+                alt="profile picture">
+            <h1 class="text-2xl font-bold mt-2">
+                <%= displayName %>Name
+            </h1>
         </div>
         <div class="flex justify-center mt-4">
             <!-- friends button -->
-            <a class="<%= currentPage === 'friends' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline mr-3" href="/friends">Friends</a>
+            <a class="<%= currentPage === 'friends' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline mr-3"
+                href="/friends">Friends</a>
             <!-- groups button -->
-            <a class="<%= currentPage === 'groups' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline ml-3" href="/groups">Groups</a>
-        </div>        
+            <a class="<%= currentPage === 'groups' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline ml-3"
+                href="/groups">Groups</a>
+        </div>
         <div class="pt-4 w-full max-w-md px-4">
             <!-- search field-->
             <div class="mb-4">
@@ -23,7 +28,12 @@
 
             <div>
                 <button id="open_adding" onclick="openAddFriends()"
-                    class="fixed w-12 h-12 bottom-24 right-8 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+                    class="fixed w-12 h-12 bottom-20 right-4 bg-celadon hover:bg-green-400 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+            </div>
+
+            <div>
+                <button id="open_notification" onclick="openNotifications()"
+                    class="fixed w-12 h-12 bottom-20 left-4 bg-celadon hover:bg-green-400 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">🔔</button>
             </div>
 
         </div>
@@ -45,7 +55,7 @@
                    </div>
                 </div>
             </div>
-        </
+        </div>
 
         <!--Modal for showing friend's profile-->
         <div id="friendProfile" onclick="hideProfile()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
@@ -60,13 +70,27 @@
     </div>
 
 
-    <!-- This is the template for popup when veiwing user profile -->
+    <!-- This is the template for displaying friends -->
     <template id="friendCardTemplate">
         <div id="profile" class="p-3 border rounded-lg shadow-md mb-2 flex items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover">
             <div class="flex justify-between w-full items-center ml-4">
                 <div id="friend_username" class="font-bold"></div>
                 <div id="friend_status" class="text-gray-600"></div>
+            </div>
+        </div>
+    </template>
+
+    <!-- This is the template for displaying notifications in popup -->
+    <template id="notificationCardTemplate">
+        <div id="notificationCard" class="p-3 border rounded-lg shadow-md mb-2 flex items-center">
+            <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover">
+            <div class="flex justify-between w-full items-center ml-4">
+                <p id="request"></p>
+                <button id="accept"
+                    class="w-12 h-12 bg-celadon hover:bg-green-400 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">✓</button>
+                <button id="decline"
+                    class="w-12 h-12 bg-celadon hover:bg-green-400 text-white rounded-full text-2xl flex items-center justify-center shadow-lg">×</button>
             </div>
         </div>
     </template>
@@ -90,6 +114,15 @@
         })
 
         function openAddFriends() {
+            let form = document.getElementById("form");
+            // Get the next sibling of the form
+            var nextElement = form.nextElementSibling;
+            // Loop through and remove all adjacent <p> elements
+            if (nextElement && nextElement.tagName === 'P') {
+                var elementToRemove = nextElement;
+                nextElement = nextElement.nextElementSibling;
+                elementToRemove.remove();
+            }
             let popup = document.getElementById("addFriends");
             popup.classList.remove("hidden");
             setTimeout(() => {
@@ -99,6 +132,23 @@
 
         function hideAddFriends() {
             let popup = document.getElementById("addFriends");
+            popup.classList.add("opacity-0");
+            popup.classList.remove("opacity-100");
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 500);
+        }
+
+        function openNotifications() {
+            let popup = document.getElementById("notifications");
+            popup.classList.remove("hidden");
+            setTimeout(() => {
+                popup.classList.add("opacity-100");
+            }, 20);
+        }
+
+        function hideNotifications() {
+            let popup = document.getElementById("notifications");
             popup.classList.add("opacity-0");
             popup.classList.remove("opacity-100");
             setTimeout(() => {
@@ -121,6 +171,52 @@
             setTimeout(() => {
                 popup.classList.add("hidden");
             }, 500);
+        }
+
+        function handleNotification(name, choice) {
+            let jsonObject = {};
+            console.log(name);
+            jsonObject["username"] = name;
+            fetch('/notifications/' + choice, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json' // Set Content-Type to JSON
+                },
+                body: JSON.stringify(jsonObject) // Send JSON data in the body
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    if (choice == "accepts") {
+                        // Clear friends container and updates it if friend request is accepted
+                        let container = document.getElementById('friends_container');
+                        container.innerHTML = '';
+                        displayFriendsDynamically();
+                    }
+                    // Clear notification container and updates it
+                    let notifications = document.getElementById('notifications_container');
+                    notifications.innerHTML = '';
+                    displayNotificationsDynamically()
+                    // Get the next sibling of the notification container
+                    var nextElement = notifications.nextElementSibling;
+                    // If adjacent is <p> element remove it
+                    if (nextElement && nextElement.tagName === 'P') {
+                        var elementToRemove = nextElement;
+                        nextElement = nextElement.nextElementSibling;
+                        elementToRemove.remove();
+                    }
+                    // Insert the new <p> message
+                    notifications.insertAdjacentHTML('afterend', `<p>${data.message}</p>`);
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
         }
 
         function addFriend() {
@@ -149,8 +245,17 @@
                     }
                 })
                 .then(data => {
-                    console.log(data.message);
+                    // Get the next sibling of the form
+                    var nextElement = form.nextElementSibling;
+                    // Loop through and remove all adjacent <p> elements
+                    if (nextElement && nextElement.tagName === 'P') {
+                        var elementToRemove = nextElement;
+                        nextElement = nextElement.nextElementSibling;
+                        elementToRemove.remove();
+                    }
+                    // Insert the new <p> message
                     form.insertAdjacentHTML('afterend', `<p>${data.message}</p>`);
+
                 })
                 .catch(error => {
                     // Handle network errors or errors from the server
@@ -201,24 +306,24 @@
                         } else {
                             throw new Error('Form submission failed');
                         }
-            //         })
-            //         .then(data => {
-            //             console.log(data.username);
-            //             console.log(data.status);
-            //             username = data.username;
-            //             status = data.status;
-            //         })
-            //         .catch(error => {
-            //             // Handle network errors or errors from the server
-            //             console.error('Error:', error);
-            //         });
-                
-            //     newcard.getElementById("friend_username").innerHTML = username;
-            //     newcard.getElementById("friend_status").innerHTML = status;
-            //     newcard.getElementById("profile").setAttribute('onclick', `openProfile('${username}')`);
-            //     document.getElementById("friends_container").appendChild(newcard);
-                    // }
-                })
+                        //         })
+                        //         .then(data => {
+                        //             console.log(data.username);
+                        //             console.log(data.status);
+                        //             username = data.username;
+                        //             status = data.status;
+                        //         })
+                        //         .catch(error => {
+                        //             // Handle network errors or errors from the server
+                        //             console.error('Error:', error);
+                        //         });
+
+                        //     newcard.getElementById("friend_username").innerHTML = username;
+                        //     newcard.getElementById("friend_status").innerHTML = status;
+                        //     newcard.getElementById("profile").setAttribute('onclick', `openProfile('${username}')`);
+                        //     document.getElementById("friends_container").appendChild(newcard);
+                        // }
+                    })
                     .then(data => {
                         newcard.getElementById("friend_username").textContent = data.username || 'Unknown';
                         const statusElement = newcard.getElementById("friend_status");
@@ -241,7 +346,40 @@
             }
         }
 
+        async function displayNotificationsDynamically() {
+            let incomingRequests;
+            // fetch the friends list from database
+            await fetch('/get_notifications', {
+                method: 'post',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    incomingRequests = data.incomingRequests;
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+            // Creates the notification card
+            let cardTemplate = document.getElementById("notificationCardTemplate");
+            for (let incomingRequest of incomingRequests) {
+                let newcard = cardTemplate.content.cloneNode(true);
+                newcard.getElementById("request").innerHTML = incomingRequest;
+                newcard.getElementById("accept").setAttribute('onclick', `return handleNotification("${incomingRequest}", "accept")`);
+                newcard.getElementById("decline").setAttribute('onclick', `return handleNotification("${incomingRequest}", "decline")`);
+                document.getElementById("notifications_container").appendChild(newcard);
+            }
+        }
+
         displayFriendsDynamically();
 
+        displayNotificationsDynamically()
+
     </script>
- <%- include("templates/navbar") %>
+    <%- include("templates/navbar") %>

@@ -712,65 +712,6 @@ app.post("/friends/get_friend_status", async (req, res) => {
   }
 });
 
-app.post("/groups/check", async (req, res) => {
-  let groupName = req.body.group_name; // Inputted username
-  let selected = req.body.selected;
-  let groupNameSchema = Joi.string().alphanum().max(20).required();
-  let groupNameValidation = groupNameSchema.validate(groupName); // Validate inputted username with joi
-  let message;
-  if (groupNameValidation.error != null) {
-    // If validation fails, return an error response
-    message = groupName + " is not valid!";
-  } else {
-    /* let user = req.session.username; // Get current session user
-    let friend = await usersCollection.find({ username: username }).project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 }).toArray();
-    let result = await usersCollection.find({ username: user }).project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 }).toArray();
-    if (friend.length != 1) {
-      message = "User not found.";
-    } else {
-      const friendIds = friend[0].friends.map(id => id.toString()); // Convert all ObjectIds to strings
-      const resultIdString = result[0]._id.toString();
-      if (friendIds.includes(resultIdString)) { // check if users are already friends
-        message = "Already friends.";
-      } else if (result[0].incoming_requests.includes(username)) { //checks if requested user has also requested current user to be friends
-        // Adds current user as a friend of the requested user in database
-        try {
-          await usersCollection.updateOne(
-            { username: username },
-            { $push: { friends: result[0]._id } }
-          );
-          // Adds requested user as a friend of the current user in database
-          await usersCollection.updateOne(
-            { username: user },
-            { $push: { friends: friend[0]._id } }
-          );
-          // Removes the incoming request from the newly added friend
-          await usersCollection.updateOne(
-            { username: user },
-            { $pull: { incoming_requests: username } }
-          );
-          message = username + " has been added!";
-        } catch (err) {
-          message = err;
-        }
-      } else if (friend[0].incoming_requests.includes(user)) {
-        // checks if request to other user to be friends exists
-        message = "Already sent friend request to " + username + ".";
-      } else {
-        // If no prior requests exist from either side, send friend request
-        await usersCollection.updateOne(
-          { username: username },
-          { $push: { incoming_requests: user } }
-        );
-        //await usersCollection.updateOne({ username: username }, { $set: { incoming_requests: { $concatArrays: [ "$incoming_requests", [ user ]]}}}); potentially another way to update array
-        message = "Friend request sent to " + username + "!";
-      }
-    } */
-    // If validation succeeds, return a success response
-  }
-  res.json({ message });
-});
-
 app.post("/friends/get_friends", async (req, res) => {
   let user = req.session.username;
   let friendsObject = await usersCollection.findOne(
@@ -872,6 +813,68 @@ app.post("/groups/get_group_name", async (req, res) => {
     res.json(err);
     return;
   }
+});
+
+app.post("/get_notifications", async (req, res) => {
+  let user = req.session.username;
+  let incomingRequestsObject = await usersCollection.findOne(
+    { username: user },
+    { projection: { incoming_requests: 1 } }
+  );
+  let incomingRequests = incomingRequestsObject.incoming_requests;
+  res.json({ incomingRequests });
+});
+
+app.post("/notifications/accept", async (req, res) => {
+  let username = req.body.username; // Inputted username
+  console.log(username);
+  let message;
+  let user = req.session.username; // Get current session user
+  let friend = await usersCollection
+    .find({ username: username })
+    .project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 })
+    .toArray();
+  let result = await usersCollection
+    .find({ username: user })
+    .project({ friends: 1, incoming_requests: 1, status: 1, _id: 1 })
+    .toArray();
+  try {
+    await usersCollection.updateOne(
+      { username: username },
+      { $push: { friends: result[0]._id } }
+    );
+    // Adds requested user as a friend of the current user in database
+    await usersCollection.updateOne(
+      { username: user },
+      { $push: { friends: friend[0]._id } }
+    );
+    // Removes the incoming request from the newly added friend
+    await usersCollection.updateOne(
+      { username: user },
+      { $pull: { incoming_requests: username } }
+    );
+    message = "Friend request from "+ username + " has been accepted!";
+  } catch (err) {
+    message = err;
+  }
+  res.json({ message });
+});
+
+app.post("/notifications/decline", async (req, res) => {
+  let username = req.body.username; // Inputted username
+  let message;
+  let user = req.session.username; // Get current session user
+  try {
+    // Removes the incoming request from the newly added friend
+    await usersCollection.updateOne(
+      { username: user },
+      { $pull: { incoming_requests: username } }
+    );
+    message = "Friend request from "+ username + " has been declined!";
+  } catch (err) {
+    message = err;
+  }
+  res.json({ message });
 });
 
 app.get("*", (req, res) => {
