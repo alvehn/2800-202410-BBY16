@@ -114,9 +114,9 @@ animation: idle 1s steps(4) infinite;
 }
 
 .pet {
+    z-index: 20;
     position:absolute;
     bottom: -12px;
-    background-image: url('../sprite_sheets/fox.png');
     transform: scale(0.3);
 }
 
@@ -150,6 +150,18 @@ animation: idle 1s steps(4) infinite;
     animation: parallaxScroll 20s linear infinite;
 }
 
+.static-background-home {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-image: url('/animation_background/Forest/Background.png');
+    background-size: cover;
+    overflow: hidden;
+}
 .layer1 {
     background-image: url('/animation_background/Forest/Layer_0011_0.png');
     animation-duration: 85s;
