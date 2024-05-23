@@ -477,6 +477,7 @@ app.post(
 );
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
+  console.log("end_session handler")
   const userId = new ObjectId(req.session.userID);
   const sessionId = new ObjectId(req.body.sessionId);
   const startTime = new Date(req.body.startTime);

@@ -96,3 +96,95 @@
     color: #F3CAC9;
 }
 
+/**
+    This section is the css for animation on the timer page (study_session.ejs)
+*/
+@keyframes parallaxScroll {
+    0% { transform: translateX(0);}
+    100% { transform: translateX(-50%);}
+}
+
+.parallax-layer {
+    position: absolute;
+    background-size: contain;
+    width: 200%;
+    height: 100%;
+    animation: parallaxScroll 20s linear infinite;
+}
+
+.layer1 {
+    background-image: url('/animation_background/Forest/Layer_0011_0.png');
+    z-index: 1;
+}
+
+.layer2 {
+    background-image: url('/animation_background/Forest/Layer_0010_1.png');
+    z-index: 2;
+}
+
+.layer3 {
+    background-image: url('/animation_background/Forest/Layer_0009_2.png');
+    z-index: 3;
+    animation-duration: 30s;
+}
+
+.layer4 {
+    background-image: url('/animation_background/Forest/Layer_0008_3.png');
+    z-index: 4;
+    animation-duration: 40s;
+}
+.layer5 {
+    background-image: url('/animation_background/Forest/Layer_0007_Lights.png');
+    z-index: 5;
+    animation-duration: 60s;
+}
+
+.layer6 {
+    background-image: url('/animation_background/Forest/Layer_0006_4.png');
+    z-index: 6;
+}
+
+.layer7 {
+    background-image: url('/animation_background/Forest/Layer_0005_5.png');
+    z-index: 7;
+    animation-duration: 30s;
+}
+
+.layer8 {
+    background-image: url('/animation_background/Forest/Layer_0004_Lights.png');
+    z-index: 8;
+    animation-duration: 40s;
+}
+.layer9 {
+    background-image: url('/animation_background/Forest/Layer_0003_6.png');
+    z-index: 9;
+}
+
+.layer10 {
+    background-image: url('/animation_background/Forest/Layer_0002_7.png');
+    z-index: 10;
+    animation-duration: 30s;
+}
+
+.layer11 {
+    background-image: url('/animation_background/Forest/Layer_0001_8.png');
+    z-index: 11;
+    animation-duration: 10s;
+}
+.layer12 {
+    background-image: url('/animation_background/Forest/Layer_0000_9.png');
+    z-index: 12;
+    animation-duration: 10s;
+}
+
+.animal {
+    z-index: 15;
+    background-image: url('/sprite_sheets/MiniBear.png');
+    background-repeat: no-repeat;
+
+    transform: scale(0.3);
+}
+/**
+    The End of the session
+*/
+

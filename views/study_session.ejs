@@ -1,9 +1,24 @@
 <%- include("templates/default_header") %>
-<div class="flex flex-col h-screen">
-    <div class="flex-1 flex items-center justify-center bg-gray-200">
-        <!-- Leave this part blank for animation -->
+<div class="flex flex-col h-screen relative">
+    <div class="flex items-end justify-center bg-gray-200 relative h-2/3 overflow-hidden">
+        <!-- Background layers for parallax effect -->
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x layer1"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x layer2"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer3"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer4"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer5"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer6"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer7"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer8"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer9"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer10"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer11"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-repeat-x parallax-layer layer12"></div>
+
+        <!-- animal sprite -->
+        <div class="animal"></div>
     </div>
-    <div class="flex-1 flex flex-col items-center justify-center bg-white p-4">
+    <div class="flex flex-col items-center justify-center bg-white p-4 z-20 relative">
         <div class="text-4xl font-bold text-gray-700 mb-4">
             <span id="hr">00</span>
             <span class="text-sm">Hr</span>
@@ -52,8 +67,29 @@
             updateDisplay();
         }, 1000);
     }
-    // Initialize display
+    
     updateDisplay();
-    startTimer(); // Start the timer initially
+    startTimer(); 
+
+    // Animation logic for the animal
+    const animal = document.querySelector('.animal');
+    const frames = [
+        { backgroundPosition: '-50px -500px', width: '220px', height: '130px' },
+        { backgroundPosition: '-340px -510px', width: '250px', height: '120px' },
+        { backgroundPosition: '-650px -510px', width: '280px', height: '100px' },
+        { backgroundPosition: '-990px -520px', width: '240px', height: '110px' },
+        { backgroundPosition: '-1330px -520px', width: '220px', height: '110px' },
+        { backgroundPosition: '-1650px -500px', width: '220px', height: '130px' }
+    ];
+    let currentFrame = 0;
+
+    function updateFrame() {
+        const frame = frames[currentFrame];
+        animal.style.backgroundPosition = frame.backgroundPosition;
+        animal.style.width = frame.width;
+        animal.style.height = frame.height;
+        currentFrame = (currentFrame + 1) % frames.length;
+    }
+    setInterval(updateFrame, 100);
 </script>
 <%- include("templates/default_footer") %>
