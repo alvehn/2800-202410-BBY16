@@ -2141,7 +2141,6 @@ video {
     --tw-text-opacity: 1;
     color: rgb(255 255 255 / var(--tw-text-opacity));
   }
-}
 
   .dark\:hover\:bg-light-beige:hover {
     --tw-bg-opacity: 1;
@@ -2155,6 +2154,11 @@ video {
   --argentinian-blue: #5aaff0ff;
   --celadon: #a7e7b8ff;
   --space-cadet: #27243bff; 
+}
+
+.bg-light-coral {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 140 138 / var(--tw-bg-opacity));
 }
 
 /*

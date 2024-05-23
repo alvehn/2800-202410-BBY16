@@ -1,15 +1,13 @@
 <%- include("templates/default") %>
-    <div class="flex flex-col items-center h-screen select-none bg-white">
-        <ul class="nav nav-tabs flex justify-center space-x-2 mt-4 ">
+    <div class="flex flex-col items-center h-screen select-none">
+        <div class="flex justify-center mt-4">
             <!-- friends button -->
-            <li class="nav-item">
-                <a class="nav-link text-gray-700 hover:text-blue-500" aria-current="page" href="/friends">Friends</a>
-            </li>
-            <!-- group button -->
-            <li class="nav-item">
-                <a class="nav-link text-gray-700 hover:text-blue-500" href="/groups">Groups</a>
-            </li>
-        </ul>
+            <a class="<%= currentPage === 'friends' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline mr-3"
+                href="/friends">Friends</a>
+            <!-- groups button -->
+            <a class="<%= currentPage === 'groups' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline ml-3"
+                href="/groups">Groups</a>
+        </div>
 
         <div class="pt-4 w-full max-w-md px-4">
             <!-- search field-->
@@ -30,7 +28,7 @@
 
         <!--Modal for adding groups-->
         <div id="createGroup" onclick="hideCreateGroups()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
-            opacity-0 hidden transition-opacity duration-500">
+        opacity-0 hidden transition-opacity duration-500">
             <div onclick="event.stopImmediatePropagation()"
                 class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
                 <div class="bg-white p-6 rounded-lg shadow-lg w-full">
