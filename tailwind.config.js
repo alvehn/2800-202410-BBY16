@@ -32,6 +32,7 @@ module.exports = {
         "orange": "#ef9b55",
         "light-beige": "#f3efe9",
         "font": "#717171",
+        
       },
       keyframes: {
         idle: {
