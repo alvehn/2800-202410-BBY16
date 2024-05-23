@@ -298,3 +298,11 @@ End of the section
 
 
 
+/*
+Extra added for groups.ejs
+*/
+
+#friends_container input:checked + label {
+    background-color: rgb(146 160 103 / var(--tw-bg-opacity));
+    color:#fff;
+}
