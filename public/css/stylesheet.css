@@ -181,11 +181,11 @@ End of the section
     z-index: 1;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 250%;
     height: 100%;
-    background-repeat: no-repeat;
+    background-repeat: repeat-x;
     background-image: url('/animation_background/Forest/Background.png');
-    background-size: cover;
+    background-size: contain;
     overflow: hidden;
 }
 .layer1 {

@@ -9,6 +9,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
+const { Int32 } = require('bson');
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
 
@@ -451,73 +452,67 @@ app.post(
   "/start_study_session",
   sessionValidation("start_study_session"),
   async (req, res) => {
+    
+    const isInSession = req.body.inSession === 'true';
     const userID = new ObjectId(req.session.userID);
-    const startTime = new Date();
 
-    const newSession = {
-      user_id: userID,
-      start_time: startTime,
-      end_time: null,
-      duration: 0,
-    };
+    if(isInSession){
+      res.redirect(`/study_session`);
+      return;
+    }else {
 
-    const result = await individual_sessionsCollection.insertOne(newSession);
-    const newSessionId = result.insertedId;
+      const startTime = new Date();
+      const newSession = {
+        user_id: userID,
+        start_time: startTime,
+        end_time: null,
+        duration: 0,
+      };
+  
+      const result = await individual_sessionsCollection.insertOne(newSession);
+      const newSessionId = result.insertedId;
 
-    await usersCollection.updateOne(
-      { _id: userID },
-      {
-        $set: {
-          study_session: {
-            inSession: true,
-            currentSessionID: newSessionId,
+      await usersCollection.updateOne(
+        { _id: userID },
+        {
+          $set: {
+            study_session: {
+              inSession: true,
+              currentSessionID: newSessionId,
+            },
           },
-        },
-        $push: {
-          individual_sessions: newSessionId,
-        },
-      }
-    );
-
-    // const pet = await petsCollection.findOne({
-    //   _id: new ObjectId(req.session.current_pet),
-    // });
-
-    res.render("study_session", {
-      sessionId: newSessionId,
-      petName: req.session.current_pet.name,
-      startTime: startTime.toISOString(),
-    });
+          $push: {
+            individual_sessions: newSessionId,
+          },
+        }
+      );
+      res.redirect(`/study_session`)
+    }
   }
 );
 
-app.post(
-  "/view_study_session",
-  sessionValidation("view_study_session"),
-  async (req, res) => {
-    const sessionId = new ObjectId(req.body.sessionId);
-    const studySession = await individual_sessionsCollection.findOne({
-      _id: sessionId,
-    });
+app.get("/study_session", sessionValidation("study_session"), async(req, res) => {
+  const user = await usersCollection.findOne({_id: new ObjectId(req.session.userID)});
+  if(!user.study_session.inSession){
+    res.redirect('/home_page');
+  }else{
+    const petName = user.current_pet_name;
+    const sessionId = new ObjectId(user.study_session.currentSessionID);
+    const studySession = await individual_sessionsCollection.findOne({_id: sessionId});
     const startTime = studySession.start_time;
-
-    // const pet = await petsCollection.findOne({
-    //   _id: new ObjectId(req.session.current_pet),
-    // });
-
     res.render("study_session", {
       startTime: startTime.toISOString(),
-      petName: req.session.current_pet.name,
-      sessionId: sessionId,
-    });
+      petName: petName,
+      sessionId: sessionId
+    })
   }
-);
+})
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
-  console.log("end_session handler");
   const userId = new ObjectId(req.session.userID);
   const sessionId = new ObjectId(req.body.sessionId);
   const startTime = new Date(req.body.startTime);
+  const points = new Int32(parseInt(req.body.pointsEarned, 10));
   const endTime = new Date();
 
   const startDay = startTime.toISOString().split("T")[0];
@@ -549,6 +544,7 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
         $inc: {
           total_study_hours: duration,
           hours_per_day: duration,
+          points: points
         },
       }
     );
@@ -581,6 +577,7 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
         $inc: {
           total_study_hours: duration1 + duration2,
           hours_per_day: duration2,
+          points: points,
           "study_history.$[elem].total_hours": duration1,
         },
       },
@@ -606,7 +603,7 @@ app.get("/friends", (req, res) => {
 
 app.get("/profile", sessionValidation("profile"), async (req, res) => {
   const result = await usersCollection.findOne({
-    username: req.session.username,
+    _id: new ObjectId(req.session.userID)
   });
   res.render("profile", { user: result });
 });
@@ -616,7 +613,7 @@ app.get(
   sessionValidation("update_profile"),
   async (req, res) => {
     const result = await usersCollection.findOne({
-      username: req.session.username,
+      _id: new ObjectId(req.session.userID)
     });
     res.render("update_profile", { user: result });
   }
@@ -628,7 +625,7 @@ app.post(
   async (req, res) => {
     const { display_name, username, email } = req.body;
     await usersCollection.updateOne(
-      { username: req.session.username },
+      { _id: new ObjectId(req.session.userID) },
       {
         $set: {
           display_name: display_name,
@@ -655,7 +652,7 @@ app.post(
   async (req, res) => {
     const { current_password, new_password, confirm_password } = req.body;
     const { password: user_password } = await usersCollection.findOne({
-      username: req.session.username,
+      _id: new ObjectId(req.session.userID)
     });
     if (await bcrypt.compare(current_password, user_password)) {
       if (new_password === confirm_password) {
