@@ -55,13 +55,14 @@
 
       pet.addEventListener("click", () => {
         const newPetId = ownedPets[i]._id;
+        const newPetName = ownedPets[i].name;
 
         fetch("/update-pet", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ newPetId }),
+          body: JSON.stringify({ newPetId, newPetName }),
         })
           .then(response => response.json())
           .then(data => {

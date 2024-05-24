@@ -103,19 +103,25 @@ const user_schema = {
             description:
               "indicates if the user is currently in a study session",
           },
+          intervalId: {
+            bsonType: "int",
+            description:
+              "used to keep track of points for user study sessions.",
+          },
         },
         description: "contains the current study session information",
       },
-      hours_per_day: {    // I add this
+      hours_per_day: {
+        // I add this
         bsonType: "int",
-        description: "stores the total hours study per day, must be a number"
+        description: "stores the total hours study per day, must be a number",
       },
       study_history: {
         bsonType: "array",
         description: "Store the hours study per day in an array",
         items: {
-          bsonType: "object"
-        }
+          bsonType: "object",
+        },
       },
       groups: {
         bsonType: "array",
