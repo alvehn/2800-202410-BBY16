@@ -11,7 +11,8 @@
   <h1 class="text-2xl font-bold">Current Pet</h1>
   <!-- Pet Image -->
   <div
-    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet-inv animate-idle z-50" style="background-image:url('/sprite_sheets/<%= current_pet_name %>.png')"
+    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet-inv animate-idle z-50"
+    style="background-image: url('/sprite_sheets/<%= current_pet_name %>.png')"
   ></div>
 
   <!-- Inventory Grid -->
@@ -25,6 +26,7 @@
           src="/assets/icons/icon-<%= ownedPets[i].name %>.png"
           alt="Item 1"
           class="w-full h-24 object-cover mb-2"
+          id="<%= ownedPets[i].name %>"
         />
       </div>
       <% } %>
@@ -45,6 +47,36 @@
 </div>
 <br /><br /><br />
 <script>
+  document.addEventListener("DOMContentLoaded", (event) => {
+    const ownedPets = <%- JSON.stringify(ownedPets) %>;
 
+    for (let i = 0; i < ownedPets.length; i++) {
+      const pet = document.getElementById(ownedPets[i].name);
+
+      pet.addEventListener("click", () => {
+        const newPetId = ownedPets[i]._id;
+        const newPetName = ownedPets[i].name;
+
+        fetch("/update-pet", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ newPetId, newPetName }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              console.log(data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error: " + error);
+          });
+      });
+    }
+  });
 </script>
 <%- include("templates/navbar") %>

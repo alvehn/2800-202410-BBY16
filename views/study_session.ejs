@@ -1,6 +1,6 @@
 <%- include("templates/default_header") %>
 <div class="h-screen relative mb-0 pb-0">
-  <div class="relative h-2/3 overflow-hidden">
+  <div class="flex relative h-2/3 overflow-hidden justify-center">
     <!-- Background layers for parallax effect -->
     <div class="parallax-layer layer1"></div>
     <div class="parallax-layer layer2"></div>
@@ -36,10 +36,10 @@
     ></div>
 
     <!-- animal sprite -->
-    <div class="w-[320px] h-[160px] pet z-50"></div>
+    <div class="w-[320px] h-[160px] pet z-50 animate-run-<%= petName %>" style="background-image: url('/sprite_sheets/<%= petName %>.png');"></div>
   </div>
   <div class="flex flex-col items-center justify-evenly bg-white p-4 z-20 relative h-1/3">
-    <div class="text-4xl grow font-bold text-gray-700 mb-4">
+    <div class="text-4xl font-bold text-gray-700">
       <span id="hr">00</span>
       <span class="text-sm">Hr</span>
       <span id="min">00</span>
@@ -47,8 +47,11 @@
       <span id="sec">00</span>
       <span class="text-sm">Sec</span>
     </div>
-    <div class="text-lg grow text-gray-500 mb-4">Placeholder for currency</div>
-    <div class="grow">
+    <div class="flex justify-center text-4xl font-bold text-gray-700 items-center w-full">
+        <img src="/assets/Favicon.png" class="w-6 h-auto">
+        <span id="points" class="ml-5"></span>
+    </div>    
+    <div class="">
       <form
         id="endSessionForm"
         action="/end_session"
@@ -57,11 +60,9 @@
       >
         <input type="hidden" name="startTime" value="<%= startTime %>" />
         <input type="hidden" name="sessionId" value="<%= sessionId %>" />
+        <input type="hidden" id="pointsInput" name="pointsEarned" value=""/>
         <input type="hidden" name="intervalId" value="<%= intervalId %>" />
-        <button
-          type="submit"
-          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-        >
+        <button type="submit" class="px-4 py-2 bg-light-coral text-white rounded hover:bg-light-coral-700 transition">
           End Session
         </button>
       </form>
@@ -70,64 +71,62 @@
 </div>
 
 <script>
-  // Handles the pet
-  window.onload = () => {
-    document.querySelector(
-      ".pet"
-    ).style.backgroundImage = `url(/sprite_sheets/<%= petName %>.png)`;
-  };
-
-  document.querySelector(".pet").classList.add(`animate-run-<%= petName %>`);
-
   const startTime = new Date("<%= startTime %>");
+const hrSpan = document.getElementById("hr");
+const minSpan = document.getElementById("min");
+const secSpan = document.getElementById("sec");
+const pointsSpan = document.getElementById("points");
+const pointsInput = document.getElementById("pointsInput");
+let timerInterval;
+let points = parseInt(localStorage.getItem('points') || '0', 10);
+let formSubmitted = false;
+
+function calculatePoints(duration) {
+  const base = 10;
+  const proportionalFactor = duration / 3600;
+  const randomFactor = Math.random();
+  return Math.floor(base * proportionalFactor * randomFactor);
+}
+
+function updateDisplay() {
   const currentTime = new Date();
   let duration = Math.floor((currentTime - startTime) / 1000);
+  const hours = Math.floor(duration / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+  const seconds = Math.floor(duration % 60);
 
-  const hrSpan = document.getElementById("hr");
-  const minSpan = document.getElementById("min");
-  const secSpan = document.getElementById("sec");
-  const durationInput = document.getElementById("durationInput");
-  let timerInterval;
+  points += calculatePoints(duration);
 
-  function updateDisplay() {
-    const hours = Math.floor(duration / 3600);
-    const minutes = Math.floor((duration % 3600) / 60);
-    const seconds = Math.floor(duration % 60);
+  hrSpan.textContent = String(hours).padStart(2, "0");
+  minSpan.textContent = String(minutes).padStart(2, "0");
+  secSpan.textContent = String(seconds).padStart(2, "0");
+  pointsSpan.textContent = points;
 
-    hrSpan.textContent = String(hours).padStart(2, "0");
-    minSpan.textContent = String(minutes).padStart(2, "0");
-    secSpan.textContent = String(seconds).padStart(2, "0");
+  if (!formSubmitted) {
+    localStorage.setItem('points', points);
   }
+}
 
-  function startTimer() {
-    timerInterval = setInterval(() => {
-      duration++;
-      updateDisplay();
-    }, 1000);
-  }
+function startTimer() {
+  timerInterval = setInterval(() => {
+    updateDisplay();
+  }, 1000);
+}
 
-  updateDisplay();
-  startTimer();
+document.getElementById('endSessionForm').addEventListener("submit", (e) => {
+  e.preventDefault(); 
+  console.log("The points earned is: " + points);
+  pointsInput.value = points;
+  formSubmitted = true;
+  localStorage.removeItem('points');
+  
+  setTimeout(() => {
+    e.target.submit();  
+  }, 100);  
+});
 
-  // Animation logic for the animal
-  const animal = document.querySelector(".pet");
-  // const frames = [
-  //     { backgroundPosition: '-50px -500px', width: '220px', height: '130px' },
-  //     { backgroundPosition: '-340px -510px', width: '250px', height: '120px' },
-  //     { backgroundPosition: '-650px -510px', width: '280px', height: '100px' },
-  //     { backgroundPosition: '-990px -520px', width: '240px', height: '110px' },
-  //     { backgroundPosition: '-1330px -520px', width: '220px', height: '110px' },
-  //     { backgroundPosition: '-1650px -500px', width: '220px', height: '130px' }
-  // ];
-  // let currentFrame = 0;
+updateDisplay();
+startTimer();
 
-  // function updateFrame() {
-  //     const frame = frames[currentFrame];
-  //     animal.style.backgroundPosition = frame.backgroundPosition;
-  //     animal.style.width = frame.width;
-  //     animal.style.height = frame.height;
-  //     currentFrame = (currentFrame + 1) % frames.length;
-  // }
-  // setInterval(updateFrame, 100);
 </script>
 <%- include("templates/default_footer") %>
