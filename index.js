@@ -298,6 +298,26 @@ app.get("/petinv", async (req, res) => {
   }
 });
 
+app.post("/update-pet", async (req, res) => {
+  // Changes what pet the user has equipped.
+  const result = await usersCollection.updateOne(
+    { _id: new ObjectId(req.session.userID) },
+    {
+      $set: { current_pet: new ObjectId(req.body.newPetId) },
+    }
+  );
+
+  req.session.current_pet = await petsCollection.findOne({
+    _id: new ObjectId(req.body.newPetId),
+  });
+
+  if (result.acknowledged) {
+    res.json({ success: true, message: "success updating pet" });
+  } else {
+    res.json({ success: false, message: "error updating pet" });
+  }
+});
+
 app.get("/petshop", (req, res) => {
   res.render("petshop");
 });
