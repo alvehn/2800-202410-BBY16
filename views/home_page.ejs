@@ -19,6 +19,7 @@
       <% if (user.study_session.inSession) { %>
         <form action="/view_study_session" method="POST">
           <input type="hidden" name="sessionId" value="<%= user.study_session.currentSessionID %>">
+          <input type="hidden" name="sessionId" value="<%= user.study_session.interval_Id %>">
           <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">View My Session</button>
         </form>
       <% } else { %>

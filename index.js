@@ -464,11 +464,30 @@ app.post(
     const result = await individual_sessionsCollection.insertOne(newSession);
     const newSessionId = result.insertedId;
 
+    // Sets a interval function on server side to give players points periodically
+    const interval = 10 * 60 * 1000; // 10 minutes in milliseconds
+    async function updateCoins(userID) {
+      let amount = Math.floor(Math.random() * 11 + 45.5 ); // random points between 45 and 55
+      try {
+        await usersCollection.updateOne(
+          { _id: userID },
+          { $inc: { points: amount } }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    // Setup and runs interval function
+    const intervalId = setInterval(async () => {
+      await updateCoins(userID);
+    }, interval);
+
     await usersCollection.updateOne(
       { _id: userID },
       {
         $set: {
           study_session: {
+            intervalId: intervalId,
             inSession: true,
             currentSessionID: newSessionId,
           },
@@ -487,6 +506,7 @@ app.post(
       sessionId: newSessionId,
       petName: req.session.current_pet.name,
       startTime: startTime.toISOString(),
+      intervalId: intervalId
     });
   }
 );
@@ -496,6 +516,7 @@ app.post(
   sessionValidation("view_study_session"),
   async (req, res) => {
     const sessionId = new ObjectId(req.body.sessionId);
+    const intervalId = req.body.intervalId;
     const studySession = await individual_sessionsCollection.findOne({
       _id: sessionId,
     });
@@ -509,6 +530,7 @@ app.post(
       startTime: startTime.toISOString(),
       petName: req.session.current_pet.name,
       sessionId: sessionId,
+      intervalId: intervalId
     });
   }
 );
@@ -519,6 +541,10 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const sessionId = new ObjectId(req.body.sessionId);
   const startTime = new Date(req.body.startTime);
   const endTime = new Date();
+
+  // Closes the interval function on server side that gave players points
+  const intervalId = req.body.intervalId;
+  clearInterval(intervalId);
 
   const startDay = startTime.toISOString().split("T")[0];
   const endDay = endTime.toISOString().split("T")[0];
