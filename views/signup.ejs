@@ -1,0 +1,64 @@
+<%- include("templates/default_header") %>
+<a href="/" class="absolute top-5 left-5 bg-light-coral text-white px-3 py-2 rounded-lg hover:bg-light-coral-700">
+    Back
+</a>
+
+<div class="flex items-center justify-center h-screen">
+        <div class="w-full max-w-xs shadow-md bg-white rounded px-8 pt-6 pb-8 mb-4"><br>
+            <img src="pets_background.jpg" alt="Pets Background" class="w-full"><br>
+            <h1 class="text-2xl font-bold text-center mb-3">Create User</h1>
+            <div class="mb-3 text-center text-red-500">
+
+                <!-- Checks for JOI validation errors ie. NoSQL injections. -->
+                <% if (typeof validation !== 'undefined') { %>
+                        <% if (validation.username) { %>
+                            <h3>Invalid Username.</h3>
+                        <% } if (validation.email) { %>
+                            <h3>Invalid Email.</h3>
+                        <% } if (validation.password) { %>
+                            <h3>Invalid Password.</h3>
+                        <% } if (validation.displayName) { %>
+                            <h3>Invalid Display Name.</h3>
+                        <% } %>
+                <% } %>
+
+                <!-- Checks for errors where the unique username or email is already in use. -->
+                <% if (typeof errors !== 'undefined') { %>
+                    <% if (errors.emailInUse) { %>
+                        <h3>Email is already in use.</h3>
+                    <% } if (errors.nameInUse) { %>
+                        <h3>Username is already in use.</h3>
+                    <% } %>
+                <% } %>
+
+            </div>
+            <form action='/signupSubmit' method='post'>
+                <div class="mb-2">
+                    <input name='username' type='text' placeholder='Username' required
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                </div>
+                <div class="mb-2">
+                    <input name='email' type='text' placeholder='Email' required
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight ">
+                </div>
+                <div class="mb-2">
+                    <input name='password' type='password' placeholder='Password' required
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                </div>
+                <div class="mb-2">
+                    <input name='displayname' type='text' placeholder='Display Name' required
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                </div><br>
+                <div class="flex items-center justify-center">
+                    <button
+                        class="bg-light-coral hover:bg-light-coral-700 text-white font-bold py-2 px-4 rounded">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<%- include("templates/default_footer") %>

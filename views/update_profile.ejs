@@ -1,0 +1,61 @@
+<%- include("templates/header") %>
+<div
+  class="min-h-screen pt-16 pb-16 flex items-center justify-center bg-cover bg-center"
+  style="background-image: url('background2.webp')"
+>
+  <!-- Background Image Placeholder -->
+
+  <!-- Profile Information Update Component -->
+  <div
+    class="bg-white bg-opacity-80 rounded-lg shadow-md p-8 max-w-lg w-full mx-4"
+  >
+    <h2 class="text-2xl font-semibold mb-6 text-center">Profile</h2>
+    <form
+      action="/updating_profile"
+      method="post"
+      class="flex flex-col space-y-4"
+    >
+      <div class="flex flex-col">
+        <label class="font-medium">Display Name</label>
+        <input
+          name="display_name"
+          class="bg-gray-200 rounded-md p-2"
+          value="<%= user.display_name %>"
+        />
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-medium">Username</label>
+        <input
+          name="username"
+          class="bg-gray-200 rounded-md p-2"
+          value="<%= user.username %>"
+        />
+      </div>
+
+      <div class="flex flex-col">
+        <label class="font-medium">Email</label>
+        <input
+          name="email"
+          class="bg-gray-200 rounded-md p-2"
+          value="<%= user.email %>"
+        />
+      </div>
+
+      <div class="flex justify-evenly pt-4">
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Save
+        </button>
+        <a href="/profile" class="text-blue-500 hover:underline">Go back</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Add JavaScript code here.
+</script>
+<%- include("templates/navbar") %>

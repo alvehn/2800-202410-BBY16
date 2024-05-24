@@ -1,0 +1,30 @@
+<%- include("templates/default_header") %>
+<div class="relative max-w-full mx-auto">
+    <img class="h-64 w-full object-cover" src="pets_background.jpg" alt="Placeholder image">
+    <div class="absolute inset-0 bg-gray-700 opacity-60"></div>
+    <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <h1 class="text-white text-3xl font-bold mb-6 mt-[-50px]">StudyPals</h1>
+        <h2 class="text-white text-2xl font-boldmb-4">Let's get pawductive!</h2>
+        <% if (hasValidSession) { %>
+            <form action='/home_page' method='get'>
+                <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow mb-2" type='submit'>Go to Home Page</button>
+            </form>
+          <% } else { %>
+            <form action='/signup' method='get'>
+                <button class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow mb-2" type='submit'>Sign up</button>
+            </form>
+            <form action='/login' method='get'>
+                <button class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow" type='submit'>Log in</button>
+            </form>
+          <% } %>
+    </div>
+</div>
+<% for (let i = 0; i < 3; i++) { %>
+    <div class="relative">
+        <img class="h-64 w-full object-cover" src="dummy2.png" alt="Placeholder image">
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <h2 class="text-3xl font-bold">TBD</h2>
+        </div>    
+    </div>
+<% } %>
+<%- include("templates/footer") %>

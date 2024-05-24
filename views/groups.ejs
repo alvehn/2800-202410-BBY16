@@ -1,0 +1,289 @@
+<%- include("templates/default") %>
+    <div class="flex flex-col items-center h-screen select-none">
+        <div class="flex justify-center mt-4">
+            <!-- friends button -->
+            <a class="<%= currentPage === 'friends' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline mr-3"
+                href="/friends">Friends</a>
+            <!-- groups button -->
+            <a class="<%= currentPage === 'groups' ? 'bg-celadon text-white' : 'bg-light-beige text-font hover:bg-celadon hover:text-white' %> font-bold py-2 px-4 rounded-full no-underline ml-3"
+                href="/groups">Groups</a>
+        </div>
+
+        <div class="pt-4 w-full max-w-md px-4">
+            <!-- search field-->
+            <div class="mb-4">
+                <input id="searchField" type="text" placeholder=" 🔍 Search..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage">
+            </div>
+
+            <div id="groups_container" class="bg-white rounded-lg shadow-md p-4">
+            </div>
+
+            <div>
+                <button id="open_create" onclick="openCreateGroups()"
+                    class="fixed w-12 h-12 bottom-28 right-4 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+            </div>
+
+        </div>
+
+        <!--Modal for adding groups-->
+        <div id="createGroup" onclick="hideCreateGroups()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
+        opacity-0 hidden transition-opacity duration-500">
+            <div onclick="event.stopImmediatePropagation()"
+                class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-full">
+                    <form id="form">
+                        <h2>Create Group</h2>
+                        <input name='group_name' id='group_name' type='text' placeholder='Group Name'
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage mb-4">
+                        <h5>Select Friends</h5>
+                        <div id="friends_container" class="bg-white rounded-lg shadow-md p-4">
+
+                        </div>
+                        <button type="button" onclick="return createGroup()"
+                            class="w-full px-4 py-2 bg-dark-olive text-white rounded-lg">Create</button>
+                    </form>
+                    <button id="close_adding" onclick="hideCreateGroups()"
+                        class="mt-4 text-dark-olive w-full">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- This is the template for popup when veiwing user profile -->
+    <template id="groupCardTemplate">
+        <div id="group" class="p-4 border rounded-lg shadow-md mb-4">
+            <p id="group_name" class="font-bold"></p>
+        </div>
+    </template>
+
+    <!-- This is the template for popup when veiwing user profile -->
+    <template id="friendCardTemplate">
+        <input id="select" type="checkbox" value="" class="hidden">
+        <label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"></label>
+    </template>
+
+    <script>
+        // fix up Search bar for groups
+        /* const eventSearch = document.getElementById("searchField");
+
+        eventSearch.addEventListener("keyup", e => {
+            //gets value of search bar and puts it to lowercase
+            let currentValue = e.target.value.toLowerCase();
+            //gets all the card titles
+            let names = document.querySelectorAll('[id^="friend_username"]');
+            names.forEach(name => {
+                if (name.textContent.toLowerCase().includes(currentValue)) {
+                    //accesses the variable that determines whether a name is visible or not
+                    name.parentNode.style.display = "block";
+                } else {
+                    name.parentNode.style.display = "none";
+                }
+            })
+        }) */
+
+        function openCreateGroups() {
+            let popup = document.getElementById("createGroup");
+            popup.classList.remove("hidden");
+            setTimeout(() => {
+                popup.classList.add("opacity-100");
+            }, 20);
+        }
+
+        function hideCreateGroups() {
+            let popup = document.getElementById("createGroup");
+            popup.classList.add("opacity-0");
+            popup.classList.remove("opacity-100");
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 500);
+        }
+
+        function openProfile(username) {
+            let popup = document.getElementById("friendProfile");
+            popup.classList.remove("hidden");
+            setTimeout(() => {
+                popup.classList.add("opacity-100");
+            }, 20);
+        }
+
+        function hideProfile() {
+            let popup = document.getElementById("friendProfile");
+            popup.classList.add("opacity-0");
+            popup.classList.remove("opacity-100");
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 500);
+        }
+
+        function createGroup() {
+            let form = document.getElementById("form");
+
+            // Initialize an array to store selected friends
+            let selectedValues = [];
+
+            // Serialize form data into a JSON object
+            let jsonObject = {};
+            for (let input of form.elements) {
+                if (input.type === 'checkbox' && input.checked) {
+                    // If the input type is a checkbox and it's checked, add its value to the selectedValues array
+                    selectedValues.push(input.value);
+                } else if (input.name) {
+                    jsonObject[input.name] = input.value;
+                }
+            }
+            // Check if any friends are selected, return message if none selected
+            if (selectedValues.length == 0) {
+                form.insertAdjacentHTML('afterend', `<p>Did not select any friends.</p>`);
+                return;
+            }
+            // Finish serializing form data into a JSON object
+            jsonObject["selected"] = selectedValues;
+
+            fetch('/groups/check', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json' // Set Content-Type to JSON
+                },
+                body: JSON.stringify(jsonObject) // Send JSON data in the body
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    console.log(data.message);
+                    form.insertAdjacentHTML('afterend', `<p>${data.message}</p>`);
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+        }
+
+        async function displayFriendsDynamically() {
+            let friends;
+            // fetch the friends list from database
+            await fetch('/friends/get_friends', {
+                method: 'post',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    friends = data.friends;
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+            // Creates the friends card
+            let cardTemplate = document.getElementById("friendCardTemplate");
+            let username = "test";
+            for (let friend of friends) {
+                let newcard = cardTemplate.content.cloneNode(true);
+                // Serialize friend data into a JSON object
+                let jsonObject = {};
+                jsonObject["friend_id"] = friend;
+                // fetch friend username and status from the database
+                await fetch('/friends/get_friend_status', {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json' // Set Content-Type to JSON
+                    },
+                    body: JSON.stringify(jsonObject) // Send JSON data in the body
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json(); // Get the response as JSON
+                        } else {
+                            throw new Error('Form submission failed');
+                        }
+                    })
+                    .then(data => {
+                        username = data.username;
+                    })
+                    .catch(error => {
+                        // Handle network errors or errors from the server
+                        console.error('Error:', error);
+                    });
+
+                newcard.getElementById("select").setAttribute('value', `${username}`);
+                newcard.getElementById("select").setAttribute('id', `${username}`);
+                newcard.getElementById("selectLabel").innerHTML += `<span>${username}</span>`;
+                newcard.getElementById("selectLabel").setAttribute('for', `${username}`);
+                newcard.getElementById("selectLabel").setAttribute('id', `selectLabel${username}`);
+                document.getElementById("friends_container").appendChild(newcard);
+            }
+        }
+
+        async function displayGroupsDynamically() {
+            let groups;
+            // fetch the groups list from database
+            await fetch('/groups/get_groups', {
+                method: 'post',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    groups = data.groups;
+                    console.log(groups);
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
+            // Creates the friends card
+            let cardTemplate = document.getElementById("groupCardTemplate");
+            let groupName = "test";
+            for (let group of groups) {
+                let newcard = cardTemplate.content.cloneNode(true);
+                // Serialize friend data into a JSON object
+                let jsonObject = {};
+                jsonObject["group_id"] = group;
+                // fetch friend username and status from the database
+                await fetch('/groups/get_group_name', {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json' // Set Content-Type to JSON
+                    },
+                    body: JSON.stringify(jsonObject) // Send JSON data in the body
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json(); // Get the response as JSON
+                        } else {
+                            throw new Error('Form submission failed');
+                        }
+                    })
+                    .then(data => {
+                        groupName = data.groupName;
+                    })
+                    .catch(error => {
+                        // Handle network errors or errors from the server
+                        console.error('Error:', error);
+                    });
+
+                //<label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"><input id="select" type="checkbox" value=""></label>
+                newcard.getElementById("group_name").innerHTML += groupName;
+                document.getElementById("groups_container").appendChild(newcard);
+            }
+        }
+
+        displayGroupsDynamically();
+
+        displayFriendsDynamically();
+
+    </script>
+    <%- include("templates/navbar") %>

@@ -1,0 +1,292 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+/* footer {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: grey;
+}
+
+.navbar ul {
+    position: relative;
+    display: flex;
+}
+
+.navbar ul li{
+    position: relative;
+    list-style: none;
+    z-index: 1;
+}
+
+.navbar ul li a {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding-left: 10vw;
+    padding-right:10vw;
+} */
+
+/* .friend_profile {
+    background-color: grey !important; 
+    opacity: 0 !important;
+    position: fixed !important;
+    width: 90% !important;
+    height: 90% !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease-in-out !important;
+    opacity: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: -1 !important;
+}
+
+.friend_profile.open {
+    opacity: 1 !important;
+    z-index: 999 !important;
+}
+
+.profile {
+    width: 50vw;
+} */
+
+/* .add_popup {
+    background-color: grey !important; 
+    opacity: 0 !important;
+    position: fixed !important;
+    width: 90% !important;
+    height: 90% !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease-in-out !important;
+    opacity: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: -1 !important;
+}
+
+.add_popup.open {
+    opacity: 1 !important;
+    z-index: 999 !important;
+}  */
+
+@keyframes idle {
+    from {
+        background-position: 0 -160px; /* Start at the beginning of the first row */
+    }
+    to {
+        background-position: -1280px -160px; /* End at the last frame of the first row */
+    }
+}
+
+@keyframes run_fox {
+    from {
+        background-position: 0 -480px;
+    } to {
+        background-position: -1280px -460px;
+    }
+}
+
+@keyframes run_bunny {
+    from {
+        background-position: 0 -480px;
+    } to {
+        background-position: -1600px -460px;
+    }
+}
+
+.animate-run-fox {
+    animation: run_fox 1s steps(4) infinite;
+}
+
+.animate-run-bunny {
+    animation: run_bunny 1s steps(5) infinite;
+}
+
+.animate-idle {
+    animation: idle 1s steps(4) infinite;
+}
+
+.pet {
+    z-index: 20;
+    position:absolute;
+    bottom: -12px;
+    transform: scale(0.3);
+}
+
+.pet-inv {
+    background-image: url('../sprite_sheets/fox.png');
+}
+
+/** 
+This section is the css for the navbar 
+*/
+.tippy-box[data-theme~='celadon'] {
+    background-color: #F3CAC9;
+    color: #717171;
+    border-radius: 12px;
+    padding: 8px;
+}
+.tippy-box[data-theme~='celadon'] .tippy-arrow {
+    color: #F3CAC9;
+}
+
+@media (max-width: 640px) {
+    .navbar-container {
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 80% !important;
+        transform: none !important;
+    }
+    .navbar-inner {
+        width: 80% !important;
+        border-radius: 1.5rem !important; /* Maintain rounded shape */
+    }
+    .navbar-icons {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+}
+/**
+End of the section
+*/
+
+/**
+    This section is the css for animation on the timer page (study_session.ejs)
+*/
+@keyframes parallaxScroll {
+    0% { transform: translateX(0);}
+    100% { transform: translateX(-50%);}
+}
+
+.parallax-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-size: contain;
+    background-repeat: repeat-x;
+    width: 250%;
+    height: 100%;
+    animation: parallaxScroll 20s linear infinite;
+}
+
+.static-background-home {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 250%;
+    height: 100%;
+    background-repeat: repeat-x;
+    background-image: url('/animation_background/Forest/Background.png');
+    background-size: contain;
+    overflow: hidden;
+}
+.layer1 {
+    background-image: url('/animation_background/Forest/Layer_0011_0.png');
+    animation-duration: 85s;
+    z-index: 1;
+}
+
+.layer2 {
+    background-image: url('/animation_background/Forest/Layer_0010_1.png');
+    animation-duration: 80s;
+    z-index: 2;
+}
+
+.layer3 {
+    background-image: url('/animation_background/Forest/Layer_0009_2.png');
+    z-index: 3;
+    animation-duration: 75s;
+}
+
+.layer4 {
+    background-image: url('/animation_background/Forest/Layer_0008_3.png');
+    z-index: 4;
+    animation-duration: 70s;
+}
+.layer5 {
+    background-image: url('/animation_background/Forest/Layer_0007_Lights.png');
+    z-index: 5;
+    animation-duration: 65s;
+}
+
+.layer6 {
+    background-image: url('/animation_background/Forest/Layer_0006_4.png');
+    animation-duration: 60s;
+    z-index: 6;
+}
+
+.layer7 {
+    background-image: url('/animation_background/Forest/Layer_0005_5.png');
+    z-index: 7;
+    animation-duration: 55s;
+}
+
+.layer8 {
+    background-image: url('/animation_background/Forest/Layer_0004_Lights.png');
+    z-index: 8;
+    animation-duration: 50s;
+}
+.layer9 {
+    background-image: url('/animation_background/Forest/Layer_0003_6.png');
+    animation-duration: 45s;
+    z-index: 9;
+}
+
+.layer10 {
+    background-image: url('/animation_background/Forest/Layer_0002_7.png');
+    z-index: 10;
+    animation-duration: 40s;
+}
+
+.layer11 {
+    background-image: url('/animation_background/Forest/Layer_0001_8.png');
+    z-index: 11;
+    animation-duration: 35s;
+}
+.layer12 {
+    background-image: url('/animation_background/Forest/Layer_0000_9.png');
+    z-index: 12;
+    animation-duration: 30s;
+}
+
+/* .animal {
+    z-index: 15;
+    background-image: url('/sprite_sheets/MiniBear.png');
+    background-repeat: no-repeat;
+
+    transform: scale(0.3);
+} */
+/**
+    The End of the section
+*/
+
+
+
+/*
+Extra added for groups.ejs
+*/
+
+#friends_container input:checked + label {
+    background-color: rgb(146 160 103 / var(--tw-bg-opacity));
+    color:#fff;
+}
