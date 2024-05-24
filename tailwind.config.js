@@ -31,6 +31,7 @@ module.exports = {
         "space-cadet": "#27243bff",
         "orange": "#ef9b55",
         "light-beige": "#f3efe9",
+        "light-blue": "#8AE3E5",
         "font": "#717171",
         
       },
