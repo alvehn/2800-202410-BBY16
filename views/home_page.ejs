@@ -18,7 +18,7 @@
       <span class="text-sm">Sec</span>
     </div>
 
-    <div class="flex justify-center text-4xl font-bold text-gray-700 items-center w-full mt-3 mb-3">
+    <div class="flex justify-center text-4xl font-bold text-gray-700 items-center w-full mt-3 mb-1">
         <img src="/assets/Favicon.png" class="w-6 h-auto">
         <span class="ml-5"><%= user.points %></span>
     </div> 
@@ -32,7 +32,7 @@
       <% } else { %>
         <form action="/start_study_session" method="POST">
           <input type="hidden" name="inSession" value="false">
-          <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">Start Study Session</button>
+          <button type="submit" class="px-4 py-2 bg-argentinian-blue text-white rounded transition">Start Study Session</button>
         </form>
       <% } %>
     </div>
