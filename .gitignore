@@ -131,4 +131,3 @@ dist
 .DS_Store
 
 # Tailwind css build output
-ublic/css/tailwind.css
