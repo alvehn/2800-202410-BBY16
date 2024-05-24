@@ -27,6 +27,17 @@
         </form>
       <% } %>
     </div>
+    <div id="riddleModal" class="hidden fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-75">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-1/3 relative">
+          <h2 class="text-2xl font-bold mb-4">Solve the Riddle</h2>
+          <p class="mb-4">Where do animals go to get their new tails when they're broken?</p>
+          <input type="text" id="riddleAnswer" class="w-full p-2 border border-gray-300 rounded mb-4" placeholder="Your answer">
+          <button onclick="checkAnswer()" class="bg-argentinian-blue text-white py-2 px-4 rounded hover:bg-blue-600">Submit</button>
+          <button onclick="closeModal()" class="bg-light-coral text-white rounded py-2 px-4 hover:bg-red-600">Close</button>
+          <p id="resultMessage" class="mt-4"></p>
+          <button id="claimPrizeButton" onclick="claimPrize()" class="hidden bg-celadon text-white py-2 px-4 rounded mt-4 hover:bg-green-600">Claim Prize</button>
+      </div>
+  </div>
   </div>
 </div>
 <script>
@@ -43,6 +54,45 @@
       hrSpan.textContent = String(hours).padStart(2, '0');
       minSpan.textContent = String(minutes).padStart(2, '0');
       secSpan.textContent = String(seconds).padStart(2, '0');
+    }
+
+    let clickCount = 0;
+
+    // Function to trigger the riddle modal
+    document.addEventListener('click', function(event) {
+        clickCount++;
+        if (clickCount === 5) {
+            document.getElementById('riddleModal').classList.remove('hidden');
+        }
+    });
+
+    // Function to check the riddle answer
+    function checkAnswer() {
+        const answer = document.getElementById('riddleAnswer').value.trim().toLowerCase();
+        const resultMessage = document.getElementById('resultMessage');
+        const claimPrizeButton = document.getElementById('claimPrizeButton');
+        if (answer === 'retail shop') {
+            resultMessage.innerText = 'Congratulations! You have solved the riddle! You won $50';
+            resultMessage.classList.add('text-celadon');
+            // Add code here to handle the prize (e.g., displaying a special message, unlocking content, etc.)
+            claimPrizeButton.classList.remove('hidden');
+        } else {
+            resultMessage.innerText = 'Sorry, that is not correct. Try again!';
+            resultMessage.classList.add('text-light-coral');
+            claimPrizeButton.classList.add('hidden');
+        }
+    }
+
+    // Function to close the riddle modal
+    function closeModal() {
+        document.getElementById('riddleModal').classList.add('hidden');
+        clickCount = 0; // Reset click count if needed
+    }
+
+    function claimPrize() {
+        alert('You have claimed your prize!');
+        // Add code here to handle the prize (e.g., unlocking content, redirecting to a special page, etc.)
+        closeModal();
     }
 
     displayTime();
