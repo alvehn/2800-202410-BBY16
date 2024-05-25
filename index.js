@@ -781,6 +781,7 @@ app.post("/friends/check", async (req, res) => {
   let usernameSchema = Joi.string().alphanum().max(20).required();
   let usernameValidation = usernameSchema.validate(username); // Validate inputted username with joi
   let message;
+  let added = false;
   if (usernameValidation.error != null) {
     // If validation fails, return an error response
     message = username + " is not valid!";
@@ -824,6 +825,7 @@ app.post("/friends/check", async (req, res) => {
         } catch (err) {
           message = err;
         }
+        added = true;
       } else if (friend[0].incoming_requests.includes(user)) {
         // checks if request to other user to be friends exists
         message = "Already sent friend request to " + username + ".";
@@ -839,7 +841,7 @@ app.post("/friends/check", async (req, res) => {
     }
     // If validation succeeds, return a success response
   }
-  res.json({ message });
+  res.json({ message, added });
 });
 
 app.post("/friends/get_friends", async (req, res) => {
