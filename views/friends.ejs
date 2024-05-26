@@ -21,21 +21,16 @@
                 <input id="searchField" type="text" placeholder=" 🔍 Search..."
                     class="w-full px-4 py-2 border border-gray-300 text-font rounded-3xl focus:outline-none focus:ring-2 focus:ring-celadon">
             </div>
-
             <div id="friends_container" class="rounded-lg">
-
             </div>
-
             <div>
                 <button id="open_adding" onclick="openAddFriends()"
                     class="fixed w-12 h-12 bottom-28 right-12 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
             </div>
-
             <div>
                 <button id="open_notification" onclick="openNotifications()"
                     class="fixed w-12 h-12 bottom-28 left-12 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">🔔</button>
             </div>
-
         </div>
 
         <!--New Improved Modal for adding friends-->
@@ -90,11 +85,11 @@
 
     <!-- This is the template for displaying friends -->
     <template id="friendCardTemplate">
-        <div class="profile bg-white p-3 border rounded-2xl shadow-md mb-2 flex items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
+        <div class="profile bg-white p-3 border rounded-2xl mb-2 flex items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover">
             <div class="flex justify-between w-full items-center ml-4">
                 <div id="friend_username" class="font-bold"></div>
-                <div id="friend_status" class="text-gray-600"></div>
+                <div id="friend_status" class="text-sm"></div>
             </div>
         </div>
     </template>

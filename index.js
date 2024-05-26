@@ -973,6 +973,23 @@ app.post("/groups/get_group_name", async (req, res) => {
   }
 });
 
+app.post("/groups/get_group_members_count", async (req, res) => {
+  let group_id = req.body.group_id;
+  let objId = new ObjectId(group_id);
+  try {
+    let group = await groupsCollection.findOne(
+      { _id: objId },
+      { projection: { members: 1 } }
+    );
+    let membersCount = group.members.length;
+    res.json({ membersCount });
+    return;
+  } catch (err) {
+    res.json(err);
+    return;
+  }
+});
+
 app.post("/get_notifications", async (req, res) => {
   let user = req.session.username;
   let incomingRequestsObject = await usersCollection.findOne(
