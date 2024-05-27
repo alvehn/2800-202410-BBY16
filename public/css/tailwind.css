@@ -2420,3 +2420,8 @@ video {
     background-color: rgb(243 239 233 / var(--tw-bg-opacity));
   }
 }
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+}
