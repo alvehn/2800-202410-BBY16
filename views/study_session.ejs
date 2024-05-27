@@ -125,6 +125,27 @@ document.getElementById('endSessionForm').addEventListener("submit", (e) => {
   }, 100);  
 });
 
+// This part of code will redirect the user back to home page at midnight.
+function timeUntilMidnight() {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0); // Set midnight time
+    return midnight.getTime() - now.getTime();
+  }
+
+  // Function to redirect the user to the home page
+  function redirectToHomePage() {
+    window.location.href = "/home_page";
+  }
+
+  // Set a timeout to redirect the user at midnight
+  setTimeout(redirectToHomePage, timeUntilMidnight());
+
+  // Ensure the timeout is set when the window loads
+  window.onload = () => {
+    setTimeout(redirectToHomePage, timeUntilMidnight());
+  };
+
 updateDisplay();
 startTimer();
 
