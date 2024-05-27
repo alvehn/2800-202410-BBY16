@@ -45,9 +45,10 @@
                         <button type="button" onclick="return addFriend()"
                             class="w-full px-4 py-2 rounded-3xl bg-celadon hover:bg-dark-celadon text-white">Add</button>
                     </form>
-                   <div class="flex justify-center mt-4">
-                    <button id="close_adding" onclick="hideAddFriends()" class="px-4 py-2 rounded-3xl bg-celadon hover:bg-dark-celadon text-white">Close</button>
-                   </div>
+                    <div class="flex justify-center mt-4">
+                        <button id="close_adding" onclick="hideAddFriends()"
+                            class="px-4 py-2 rounded-3xl bg-celadon hover:bg-dark-celadon text-white">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -74,8 +75,9 @@
         <div id="friendProfile" onclick="hideProfile()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
             opacity-0 hidden transition-opacity duration-500">
             <div onclick="event.stopImmediatePropagation()"
-                class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
+                class="bg-white rounded shadow-md w-full flex overflow-hidden w-11\/12 mx-4">
                 <div class="bg-white p-6 rounded-lg shadow-lg w-full">
+                    <div id="profile_container"></div>
                     <button id="close_adding" onclick="hideProfile()" class="mt-4 text-red-500 w-full">Close</button>
                 </div>
             </div>
@@ -85,7 +87,8 @@
 
     <!-- This is the template for displaying friends -->
     <template id="friendCardTemplate">
-        <div class="profile bg-white p-3 border rounded-2xl mb-2 flex items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
+        <div id="friend_card"
+            class="profile bg-white p-3 border rounded-2xl mb-2 flex items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover">
             <div class="flex justify-between w-full items-center ml-4">
                 <div id="friend_username" class="font-bold text-font"></div>
@@ -172,11 +175,13 @@
         }
 
         function openProfile(username) {
+            document.getElementById("profile_container").innerHTML = "";
             let popup = document.getElementById("friendProfile");
             popup.classList.remove("hidden");
             setTimeout(() => {
                 popup.classList.add("opacity-100");
             }, 20);
+            displayProfile(username)
         }
 
         function hideProfile() {
@@ -337,6 +342,7 @@
                         } else {
                             statusElement.classList.add('text-red-500');
                         }
+                        newcard.getElementById("friend_card").setAttribute("onclick", `openProfile("${data.username || 'Unknown'}")`);
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -379,6 +385,28 @@
                 newcard.getElementById("decline").setAttribute('onclick', `return handleNotification("${incomingRequest}", "decline")`);
                 document.getElementById("notifications_container").appendChild(newcard);
             }
+        }
+
+        async function displayProfile(username) {
+            fetch('/friend_profile', {
+                method: 'POST', // Send a POST request
+                headers: {
+                    'Content-Type': 'application/json' // Specify the content type as JSON
+                },
+                body: JSON.stringify({ username }) // Send username in the request body
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    document.getElementById('profile_container').insertAdjacentHTML('afterbegin', data);;
+                })
+                .catch(error => {
+                    console.error('Error fetching EJS content:', error);
+                });
         }
 
         displayFriendsDynamically();
