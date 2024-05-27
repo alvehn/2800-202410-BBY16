@@ -24,6 +24,7 @@ const study_group_schema = require("./models/group_schema");
 const costume_schema = require("./models/costume_schema");
 const achievement_schema = require("./models/achievement_schema");
 
+
 /*
     This part are all the static number for our project 
     (session expireTime, saltRounds etc)
@@ -44,6 +45,7 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_host = process.env.MONGODB_HOST;
 const email_account = process.env.EMAIL_ACCOUNT;
 const email_password = process.env.EMAIL_PASSWORD;
+const runScheduledTask = process.env.RUN_SCHEDULED_TASK === 'true';
 
 /*
     This part are for database connection.
@@ -575,84 +577,38 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const userId = new ObjectId(req.session.userID);
   const sessionId = new ObjectId(req.body.sessionId);
   const startTime = new Date(req.body.startTime);
-  const points = new Int32(parseInt(req.body.pointsEarned, 10));
   const endTime = new Date();
+  const duration = Math.floor((endTime - startTime) / 1000);
 
   // Closes the interval function on server side that gave players points
   const intervalId = req.body.intervalId;
   clearInterval(intervalId);
 
-  const startDay = startTime.toISOString().split("T")[0];
-  const endDay = endTime.toISOString().split("T")[0];
+  await individual_sessionsCollection.updateOne(
+    { _id: sessionId },
+    {
+      $set: {
+        end_time: endTime,
+        duration: duration,
+      },
+    }
+  );
 
-  if (startDay === endDay) {
-    // if startTime and endTime is in the same day
-    const duration = Math.floor((endTime - startTime) / 1000);
-
-    await individual_sessionsCollection.updateOne(
-      { _id: sessionId },
-      {
-        $set: {
-          end_time: endTime,
-          duration: duration,
-        },
-      }
-    );
-
-    await usersCollection.updateOne(
-      { _id: userId },
-      {
-        $set: {
-          study_session: {
-            inSession: false,
-            currentSessionID: null,
-          },
-        },
-        $inc: {
-          total_study_hours: duration,
-          hours_per_day: duration,
-          points: points,
-        },
-      }
-    );
-  } else {
-    // it they are not in the same day
-    const midnight = new Date(startTime);
-    midnight.setHours(24, 0, 0, 0);
-    const duration1 = Math.floor((midnight - startTime) / 1000);
-    const duration2 = Math.floor((endTime - midnight) / 1000);
-
-    await individual_sessionsCollection.updateOne(
-      { _id: sessionId },
-      {
-        $set: {
-          end_time: endTime,
-          duration: duration1 + duration2,
-        },
-      }
-    );
-
-    await usersCollection.updateOne(
-      { _id: userId },
-      {
-        $set: {
-          study_session: {
-            inSession: false,
-            currentSessionID: null,
-          },
-        },
-        $inc: {
-          total_study_hours: duration1 + duration2,
-          hours_per_day: duration2,
-          points: points,
-          "study_history.$[elem].total_hours": duration1,
+  await usersCollection.updateOne(
+    { _id: userId },
+    {
+      $set: {
+        study_session: {
+          inSession: false,
+          currentSessionID: null,
         },
       },
-      {
-        arrayFilters: [{ "elem.date": startDay }],
-      }
-    );
-  }
+      $inc: {
+        total_study_hours: duration,
+        hours_per_day: duration
+      },
+    }
+  );
   res.redirect("/home_page");
 });
 /*
@@ -1072,34 +1028,80 @@ app.post("/notifications/decline", async (req, res) => {
 /*
   This part are scheduled task that will run ar a specific time.
 */
-cron.schedule("0 0 * * *", async () => {
-  console.log("Updating users study history at midnight");
-  const today = new Date();
-  today.setDate(today.getDate() - 1);
-  const formattedDate = today.toISOString().split("T")[0];
-
-  try {
-    const users = await usersCollection.find({}).toArray();
-    const updatePromises = users.map((user) => {
-      const entry = {
-        date: formattedDate,
-        total_hours: user.hours_per_day || 0,
-      };
-
-      return usersCollection.updateOne(
-        { _id: user._id },
-        {
-          $push: { study_history: entry },
-        }
-      );
-    });
-    await Promise.all(updatePromises);
-    await usersCollection.updateMany({}, { $set: { hours_per_day: 0 } });
-    console.log("successful updating users study history");
-  } catch (error) {
-    console.log("error updating users study history:", error);
-  }
-});
+if(runScheduledTask){
+  console.log("Schedule a task run at midnight");
+  cron.schedule("0 0 * * *", async () => {
+    console.log("Updating users' study history at midnight");
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    const formattedDate = today.toISOString().split("T")[0];
+  
+    try {
+      // Find all users with active study sessions
+      const activeSessions = await usersCollection.find({ "study_session.inSession": true }).toArray();
+      
+      // End the study session for active users
+      const endSessionPromises = activeSessions.map(async (user) => {
+        const userId = user._id;
+        const sessionId = user.study_session.currentSessionID;
+  
+        // End the study session
+        const endTime = new Date();
+        const session = await individual_sessionsCollection.findOne({ _id: sessionId });
+        const startTime = session.start_time;
+        const duration = Math.floor((endTime - startTime) / 1000);
+  
+        await individual_sessionsCollection.updateOne(
+          { _id: sessionId },
+          { $set: { end_time: endTime, duration: duration } }
+        );
+  
+        // Update the user document
+        await usersCollection.updateOne(
+          { _id: userId },
+          {
+            $set: { 
+              "study_session.inSession": false, 
+              "study_session.currentSessionID": null 
+            },
+            $inc: { 
+              total_study_hours: duration,
+              hours_per_day: duration
+            }
+          }
+        );
+      });
+  
+      // Wait for all end session promises to resolve
+      await Promise.all(endSessionPromises);
+  
+      // Update study history for all users
+      const users = await usersCollection.find({}).toArray();
+      const updateUsersPromises = users.map(async (user) => {
+        const historyEntry = {
+          date: formattedDate,
+          total_hours: user.hours_per_day || 0
+        };
+        await usersCollection.updateOne(
+          { _id: user._id },
+          { $push: { study_history: historyEntry } }
+        );
+      });
+  
+      // Wait for all study history update promises to resolve
+      await Promise.all(updateUsersPromises);
+  
+      // Reset hours_per_day for all users
+      await usersCollection.updateMany({}, { $set: { hours_per_day: 0 } });
+  
+      console.log("Successfully updated users' study history and reset hours_per_day");
+    } catch (error) {
+      console.log("Error updating users' study history:", error);
+    }
+  });
+}else{
+  console.log("The scheduled task will not run on local server");
+}
 /*
   End of cron
 */
