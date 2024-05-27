@@ -776,6 +776,10 @@ video {
   z-index: 20;
 }
 
+.z-30 {
+  z-index: 30;
+}
+
 .z-50 {
   z-index: 50;
 }
@@ -1100,20 +1104,44 @@ video {
   width: 6rem;
 }
 
+.w-28 {
+  width: 7rem;
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+
 .w-4 {
   width: 1rem;
+}
+
+.w-40 {
+  width: 10rem;
 }
 
 .w-44 {
   width: 11rem;
 }
 
+.w-48 {
+  width: 12rem;
+}
+
 .w-5 {
   width: 1.25rem;
 }
 
+.w-56 {
+  width: 14rem;
+}
+
 .w-6 {
   width: 1.5rem;
+}
+
+.w-60 {
+  width: 15rem;
 }
 
 .w-8 {
@@ -1126,6 +1154,10 @@ video {
 
 .w-\[320px\] {
   width: 320px;
+}
+
+.w-auto {
+  width: auto;
 }
 
 .w-full {
@@ -1188,6 +1220,10 @@ video {
 
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 .select-none {
@@ -1742,6 +1778,11 @@ video {
   padding-right: 0.25rem;
 }
 
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
@@ -1974,6 +2015,11 @@ video {
   color: rgb(113 113 113 / var(--tw-text-opacity));
 }
 
+.text-golden-yellow {
+  --tw-text-opacity: 1;
+  color: rgb(219 197 150 / var(--tw-text-opacity));
+}
+
 .text-gray-400 {
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
@@ -2017,6 +2063,11 @@ video {
 .text-green-700 {
   --tw-text-opacity: 1;
   color: rgb(21 128 61 / var(--tw-text-opacity));
+}
+
+.text-light-blue {
+  --tw-text-opacity: 1;
+  color: rgb(138 227 229 / var(--tw-text-opacity));
 }
 
 .text-light-coral {
@@ -2155,6 +2206,10 @@ video {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.will-change-auto {
+  will-change: auto;
+}
+
 .hover\:bg-blue-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity));
@@ -2251,11 +2306,6 @@ video {
 .focus\:ring-celadon:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(181 229 138 / var(--tw-ring-opacity));
-}
-
-.focus\:ring-light-sage:focus {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(169 192 161 / var(--tw-ring-opacity));
 }
 
 .disabled\:opacity-50:disabled {
