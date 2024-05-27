@@ -26,39 +26,42 @@
             </div>
             <div>
                 <button id="open_create" onclick="openCreateGroups()"
-                    class="fixed w-12 h-12 bottom-28 right-4 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+                    class="fixed w-12 h-12 bottom-28 right-12 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
             </div>
         </div>
 
         <!--Modal for adding groups-->
-        <div id="createGroup" onclick="hideCreateGroups()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center
-        opacity-0 hidden transition-opacity duration-500">
-            <div onclick="event.stopImmediatePropagation()"
-                class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
+        <div id="createGroup" onclick="hideCreateGroups()" class="fixed left-0 top-0 bg-black bg-opacity-50 w-full h-screen flex justify-center items-center opacity-0 transition-opacity duration-500">
+            <div onclick="event.stopImmediatePropagation()" class="bg-white rounded shadow-md w-full flex overflow-hidden max-w-md mx-4">
                 <div class="bg-white p-6 rounded-lg shadow-lg w-full">
                     <form id="form">
-                        <h2>Create Group</h2>
-                        <input name='group_name' id='group_name' type='text' placeholder='Group Name'
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-light-sage mb-4">
-                        <h5>Select Friends</h5>
-                        <div id="friends_container" class="bg-white rounded-lg shadow-md p-4">
-
+                        <h3>Create Group</h3>
+                        <div class="mt-4">
+                            <input name='group_name' id='group_name' type='text' placeholder='Group Name' 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-celadon mb-4">
                         </div>
+                        <h5>Select Friends</h5>
+                        <div id="friends_container" class="bg-white rounded-lg border p-4 mb-6"></div>
+                        <h5>Upload Group Image</h5>
+                        <input name="group_image" id="group_image" type="file" accept="image/*" 
+                            class="w-full px-4 py-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-celadon mb-4">
                         <button type="button" onclick="return createGroup()"
-                            class="w-full px-4 py-2 bg-dark-olive text-white rounded-lg">Create</button>
+                            class="w-full px-4 py-2 bg-celadon hover:bg-dark-celadon text-white rounded-3xl">Create group</button>
                     </form>
-                    <button id="close_adding" onclick="hideCreateGroups()"
-                        class="mt-4 text-dark-olive w-full">Close</button>
+                    <div class="flex justify-center mt-4">
+                        <button id="close_adding" onclick="hideCreateGroups()"
+                            class="px-4 py-2 rounded-3xl bg-celadon hover:bg-dark-celadon text-white">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- This is the template for popup when veiwing user profile -->
+    <!-- This is the template for popup when viewing user profile -->
     <template id="groupCardTemplate">
-        <div id="group" class=" flex justify-between bg-white p-3 border rounded-2xl mb-4 items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
+        <div id="group" class=" flex justify-between bg-white p-3 border rounded-2xl mb-2 items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="group picture" class="rounded-full w-12 h-12 object-cover">
             <div class=" w-60 ml-2">
-                <div id="group_name" class="font-bold text-fon"></div>
+                <div id="group_name" class="font-bold text-font"></div>
             </div>
             <div>
                 <div id="members_Count" class="text-sm text-font"></div>
@@ -68,9 +71,13 @@
 
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
-        <input id="select" type="checkbox" value="" class="hidden">
-        <label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"></label>
+        <label id="selectLabel" class="p-3 border rounded-lg mb-2 w-full flex items-center cursor-pointer">
+            <input id="select" type="checkbox" value="" class="hidden">
+            <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover" id="profileImage">
+            <span id="username" class="ml-4"></span>
+        </label>
     </template>
+    
 
     <script>
         // fix up Search bar for groups
@@ -199,8 +206,7 @@
             for (let friend of friends) {
                 let newcard = cardTemplate.content.cloneNode(true);
                 // Serialize friend data into a JSON object
-                let jsonObject = {};
-                jsonObject["friend_id"] = friend;
+                let jsonObject = { friend_id: friend };
                 // fetch friend username and status from the database
                 await fetch('/friends/get_friend_status', {
                     method: 'post',
@@ -209,29 +215,34 @@
                     },
                     body: JSON.stringify(jsonObject) // Send JSON data in the body
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json(); // Get the response as JSON
-                        } else {
-                            throw new Error('Form submission failed');
-                        }
-                    })
-                    .then(data => {
-                        username = data.username;
-                    })
-                    .catch(error => {
-                        // Handle network errors or errors from the server
-                        console.error('Error:', error);
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        return response.json(); // Get the response as JSON
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .then(data => {
+                    username = data.username;
 
-                newcard.getElementById("select").setAttribute('value', `${username}`);
-                newcard.getElementById("select").setAttribute('id', `${username}`);
-                newcard.getElementById("selectLabel").innerHTML += `<span>${username}</span>`;
-                newcard.getElementById("selectLabel").setAttribute('for', `${username}`);
-                newcard.getElementById("selectLabel").setAttribute('id', `selectLabel${username}`);
-                document.getElementById("friends_container").appendChild(newcard);
+                    newcard.getElementById("select").setAttribute('value', `${username}`);
+                    newcard.getElementById("select").setAttribute('id', `${username}`);
+                    newcard.getElementById("selectLabel").setAttribute('for', `${username}`);
+                    newcard.getElementById("selectLabel").setAttribute('id', `selectLabel${username}`);
+                    // newcard.getElementById("profileImage").src = profileImage;
+                    newcard.getElementById("username").textContent = `${username}`;
+
+                    document.getElementById("friends_container").appendChild(newcard);
+
+                })
+                .catch(error => {
+                    // Handle network errors or errors from the server
+                    console.error('Error:', error);
+                });
             }
         }
+
+        displayFriendsDynamically();
 
         async function displayGroupsDynamically() {
             let groups;
@@ -316,8 +327,6 @@
         }
 
         displayGroupsDynamically();
-
-        displayFriendsDynamically();
 
     </script>
     <%- include("templates/navbar") %>
