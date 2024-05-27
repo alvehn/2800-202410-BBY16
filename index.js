@@ -1081,6 +1081,8 @@ if(runScheduledTask){
       console.log("Error updating users' study history:", error);
     }
   });
+}else{
+  console.log("The scheduled task will not run on local server");
 }
 /*
   End of cron
