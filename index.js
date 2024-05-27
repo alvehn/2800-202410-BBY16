@@ -7,6 +7,7 @@ const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const ejs = require('ejs');
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const { Int32 } = require("bson");
@@ -894,6 +895,22 @@ app.post("/friends/get_friend_status", async (req, res) => {
     res.json(err);
     return;
   }
+});
+
+app.post("/friend_profile", async (req, res) => {
+  let username = req.body.username;
+  const result = await usersCollection.findOne({
+    username: username,
+  });
+  // Render the EJS template and send it as the response
+  ejs.renderFile("views/profile.ejs", { user: result }, (err, html) => {
+    if (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+        return;
+    }
+    res.send(html);
+  });
 });
 
 app.get("/groups", (req, res) => {
