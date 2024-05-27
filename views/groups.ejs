@@ -58,7 +58,7 @@
     </div>
     <!-- This is the template for popup when viewing user profile -->
     <template id="groupCardTemplate">
-        <div id="group" class=" flex justify-between bg-white p-3 border rounded-2xl mb-2 items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
+        <div class="group flex justify-between bg-white p-3 border rounded-2xl mb-2 items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="group picture" class="rounded-full w-12 h-12 object-cover">
             <div class=" w-60 ml-2">
                 <div id="group_name" class="font-bold text-font"></div>
@@ -81,22 +81,24 @@
 
     <script>
         // fix up Search bar for groups
-        /* const eventSearch = document.getElementById("searchField");
+        const eventSearch = document.getElementById("searchField");
 
         eventSearch.addEventListener("keyup", e => {
-            //gets value of search bar and puts it to lowercase
+            // gets value of search bar and puts it to lowercase
             let currentValue = e.target.value.toLowerCase();
-            //gets all the card titles
-            let names = document.querySelectorAll('[id^="friend_username"]');
-            names.forEach(name => {
-                if (name.textContent.toLowerCase().includes(currentValue)) {
-                    //accesses the variable that determines whether a name is visible or not
-                    name.parentNode.style.display = "block";
+            // gets all the friend card titles
+            let containers = document.querySelectorAll('.group');
+            containers.forEach(container => {
+                let name = container.querySelector('#group_name').textContent.toLowerCase();
+                // checks if the friend username includes the searched letters
+                if (name.includes(currentValue)) {
+                    // accesses the variable that determines whether a name is visible or not
+                    container.style.display = "flex";
                 } else {
-                    name.parentNode.style.display = "none";
+                    container.style.display = "none";
                 }
             })
-        }) */
+        })
 
         function openCreateGroups() {
             let popup = document.getElementById("createGroup");
