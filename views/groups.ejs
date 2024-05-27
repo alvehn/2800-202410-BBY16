@@ -71,8 +71,8 @@
 
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
+        <input id="select" type="checkbox" value="" class="hidden">
         <label id="selectLabel" class="p-3 border rounded-lg mb-2 w-full flex items-center cursor-pointer">
-            <input id="select" type="checkbox" value="" class="hidden">
             <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover" id="profileImage">
             <span id="username" class="ml-4"></span>
         </label>
@@ -224,109 +224,81 @@
                 })
                 .then(data => {
                     username = data.username;
-
-                    newcard.getElementById("select").setAttribute('value', `${username}`);
-                    newcard.getElementById("select").setAttribute('id', `${username}`);
-                    newcard.getElementById("selectLabel").setAttribute('for', `${username}`);
-                    newcard.getElementById("selectLabel").setAttribute('id', `selectLabel${username}`);
-                    // newcard.getElementById("profileImage").src = profileImage;
-                    newcard.getElementById("username").textContent = `${username}`;
-
-                    document.getElementById("friends_container").appendChild(newcard);
-
                 })
                 .catch(error => {
                     // Handle network errors or errors from the server
                     console.error('Error:', error);
                 });
+                newcard.getElementById("select").setAttribute('value', `${username}`);
+                newcard.getElementById("select").setAttribute('id', `${username}`);
+                newcard.getElementById("selectLabel").setAttribute('for', `${username}`);
+                newcard.getElementById("selectLabel").setAttribute('id', `selectLabel${username}`);
+                // newcard.getElementById("profileImage").src = profileImage;
+                newcard.getElementById("username").textContent = `${username}`;
+                document.getElementById("friends_container").appendChild(newcard);
             }
         }
 
         displayFriendsDynamically();
 
+        async function fetchJson(url, options = {}) {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error('Form submission failed');
+            }
+            return response.json();
+        }
+
         async function displayGroupsDynamically() {
-            let groups;
-            // fetch the groups list from database
-            await fetch('/groups/get_groups', {
-                method: 'post',
-            })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json(); // Get the response as JSON
-                    } else {
-                        throw new Error('Form submission failed');
-                    }
-                })
-                .then(data => {
-                    groups = data.groups;
-                    console.log(groups);
-                })
-                .catch(error => {
-                    // Handle network errors or errors from the server
-                    console.error('Error:', error);
-                });
-            // Creates the friends card
-            let cardTemplate = document.getElementById("groupCardTemplate");
-            let groupName = "test";
-            let membersCount = 0;
-            for (let group of groups) {
-                let newcard = cardTemplate.content.cloneNode(true);
-                // Serialize friend data into a JSON object
-                let jsonObject = {};
-                jsonObject["group_id"] = group;
-                // fetch friend username and status from the database
-                await fetch('/groups/get_group_name', {
-                    method: 'post',
-                    headers: {
-                        'Content-Type': 'application/json' // Set Content-Type to JSON
-                    },
-                    body: JSON.stringify(jsonObject) // Send JSON data in the body
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json(); // Get the response as JSON
-                    } else {
-                        throw new Error('Form submission failed');
-                    }
-                })
-                .then(data => {
-                    groupName = data.groupName;
-                })
-                .catch(error => {
-                    // Handle network errors or errors from the server
-                    console.error('Error:', error);
+            try {
+                // Fetch the groups list from database
+                const groupsData = await fetchJson('/groups/get_groups', { method: 'post' });
+                const groups = groupsData.groups;
+                console.log(groups);
+
+                // Prepare the card template
+                const cardTemplate = document.getElementById("groupCardTemplate");
+                const fragment = document.createDocumentFragment();
+
+                // Fetch all group names and member counts in parallel
+                const groupDetailsPromises = groups.map(group => {
+                    const jsonObject = { group_id: group };
+
+                    const fetchGroupName = fetchJson('/groups/get_group_name', {
+                        method: 'post',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(jsonObject)
+                    });
+
+                    const fetchGroupMembersCount = fetchJson('/groups/get_group_members_count', {
+                        method: 'post',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(jsonObject)
+                    });
+
+                    return Promise.all([fetchGroupName, fetchGroupMembersCount]);
                 });
 
-                await fetch('/groups/get_group_members_count', {
-                    method: 'post',
-                    headers: {
-                        'Content-Type': 'application/json' // Set Content-Type to JSON
-                    },
-                    body: JSON.stringify(jsonObject) // Send JSON data in the body
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json(); // Get the response as JSON
-                    } else {
-                        throw new Error('Form submission failed');
-                    }
-                })
-                .then(data => {
-                    membersCount = data.membersCount;
-                })
-                .catch(error => {
-                    // Handle network errors or errors from the server
-                    console.error('Error:', error);
+                const groupDetails = await Promise.all(groupDetailsPromises);
+
+                // Create and append the cards
+                groupDetails.forEach(([groupNameData, groupMembersCountData], index) => {
+                    const newCard = cardTemplate.content.cloneNode(true);
+                    newCard.getElementById("group_name").textContent = groupNameData.groupName;
+                    newCard.getElementById("members_Count").textContent = `${groupMembersCountData.membersCount} people`;
+                    fragment.appendChild(newCard);
                 });
 
-                //<label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"><input id="select" type="checkbox" value=""></label>
-                newcard.getElementById("group_name").textContent += groupName;
-                newcard.getElementById("members_Count").textContent += membersCount + " people";
-                document.getElementById("groups_container").appendChild(newcard);
+                document.getElementById("groups_container").appendChild(fragment);
+
+            } catch (error) {
+                // Handle network errors or errors from the server
+                console.error('Error:', error);
             }
         }
 
         displayGroupsDynamically();
+
 
     </script>
     <%- include("templates/navbar") %>
