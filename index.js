@@ -330,6 +330,33 @@ app.get("/petshop", (req, res) => {
   res.render("petshop");
 });
 
+app.get('/get-owned-items', async (req, res) => {
+  const userId = new ObjectId(req.session.userID);
+  const user = await usersCollection.findOne({ _id: userId }, { projection: { pets_owned: 1, costumes_owned: 1 } });
+
+  res.status(200).json(user);
+});
+
+app.post('/buy-pet', async (req, res) => {
+  const user = await usersCollection.updateOne(
+    { _id: new ObjectId(req.session.userID) },  // Query to find the document
+    { $push: { pets_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+  );
+
+  res.status(200).send('Item added to account');
+
+});
+
+app.post('/buy-item', async (req, res) => {
+  const user = await usersCollection.updateOne(
+    { _id: new ObjectId(req.session.userID) },  // Query to find the document
+    { $push: { costumes_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+  );
+
+  res.status(200).send('Item added to account');
+
+});
+
 app.get("/login", (req, res) => {
   if (req.session.authenticated) {
     res.redirect("/home_page");
@@ -540,7 +567,7 @@ app.post(
       } catch (err) {
         console.log(err);
       }
-      
+
       res.redirect(`/study_session`);
     }
   }
@@ -725,18 +752,6 @@ app.get("/buy_dlcs", (req, res) => {
   res.render("buy_dlcs");
 });
 
-app.get("/buy_cosmetics", (req, res) => {
-  res.render("buy_cosmetics");
-});
-
-app.get("/buy_pets", (req, res) => {
-  res.render("buy_pets");
-});
-
-app.get("/buy_dlcs", (req, res) => {
-  res.render("buy_dlcs");
-});
-
 app.get("/logout", async (req, res) => {
   let username = req.session.username;
   let email = req.session.email;
@@ -880,9 +895,9 @@ app.post("/friend_profile", async (req, res) => {
   // Render the EJS template and send it as the response
   ejs.renderFile("views/profile.ejs", { user: result }, (err, html) => {
     if (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-        return;
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+      return;
     }
     res.send(html);
   });
@@ -1047,53 +1062,53 @@ app.post("/notifications/decline", async (req, res) => {
 /*
   This part are scheduled task that will run ar a specific time.
 */
-if(runScheduledTask){
+if (runScheduledTask) {
   console.log("Schedule a task run at midnight");
   cron.schedule("0 0 * * *", async () => {
     console.log("Updating users' study history at midnight");
     const today = new Date();
     today.setDate(today.getDate() - 1);
     const formattedDate = today.toISOString().split("T")[0];
-  
+
     try {
       // Find all users with active study sessions
       const activeSessions = await usersCollection.find({ "study_session.inSession": true }).toArray();
-      
+
       // End the study session for active users
       const endSessionPromises = activeSessions.map(async (user) => {
         const userId = user._id;
         const sessionId = user.study_session.currentSessionID;
-  
+
         // End the study session
         const endTime = new Date();
         const session = await individual_sessionsCollection.findOne({ _id: sessionId });
         const startTime = session.start_time;
         const duration = Math.floor((endTime - startTime) / 1000);
-  
+
         await individual_sessionsCollection.updateOne(
           { _id: sessionId },
           { $set: { end_time: endTime, duration: duration } }
         );
-  
+
         // Update the user document
         await usersCollection.updateOne(
           { _id: userId },
           {
-            $set: { 
-              "study_session.inSession": false, 
-              "study_session.currentSessionID": null 
+            $set: {
+              "study_session.inSession": false,
+              "study_session.currentSessionID": null
             },
-            $inc: { 
+            $inc: {
               total_study_hours: duration,
               hours_per_day: duration
             }
           }
         );
       });
-  
+
       // Wait for all end session promises to resolve
       await Promise.all(endSessionPromises);
-  
+
       // Update study history for all users
       const users = await usersCollection.find({}).toArray();
       const updateUsersPromises = users.map(async (user) => {
@@ -1106,19 +1121,19 @@ if(runScheduledTask){
           { $push: { study_history: historyEntry } }
         );
       });
-  
+
       // Wait for all study history update promises to resolve
       await Promise.all(updateUsersPromises);
-  
+
       // Reset hours_per_day for all users
       await usersCollection.updateMany({}, { $set: { hours_per_day: 0 } });
-  
+
       console.log("Successfully updated users' study history and reset hours_per_day");
     } catch (error) {
       console.log("Error updating users' study history:", error);
     }
   });
-}else{
+} else {
   console.log("The scheduled task will not run on local server");
 }
 /*

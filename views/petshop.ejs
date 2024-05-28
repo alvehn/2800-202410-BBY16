@@ -1,47 +1,97 @@
 <%- include("templates/header") %>
 
-<a href="/home_page" class="absolute top-5 left-5 bg-light-coral text-white px-3 py-2 rounded-lg hover:bg-light-coral-700">
+  <a href="/home_page"
+    class="absolute top-5 left-5 bg-light-coral text-white px-3 py-2 rounded-lg hover:bg-light-coral-700">
     Back
-</a>
+  </a>
 
-<div class="flex flex-col items-center justify-center h-screen">
+  <div class="flex flex-col items-center justify-center h-screen">
     <div class="max-w-md w-full bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-center mb-6">Pet Shop</h1>
-        <div class="flex justify-center space-x-4 mb-6">
-            <button onclick="filterItems('all')" class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">All</button>
-            <button onclick="filterItems('cosmetics')" class="bg-light-coral text-white px-3 py-2 rounded-lg">Cosmetics</button>
-            <button onclick="filterItems('pets')" class="bg-light-coral text-white px-3 py-2 rounded-lg">Pets</button>
-            <button onclick="filterItems('dlcs')" class="bg-light-coral text-white px-3 py-2 rounded-lg">DLCs</button>
+      <h1 class="text-2xl font-bold text-center mb-6">Pet Shop</h1>
+      <div class="flex justify-center space-x-4 mb-6">
+        <button onclick="filterItems('all')" class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">All</button>
+        <button onclick="filterItems('cosmetics')"
+          class="bg-light-coral text-white px-3 py-2 rounded-lg">Cosmetics</button>
+        <button onclick="filterItems('pets')" class="bg-light-coral text-white px-3 py-2 rounded-lg">Pets</button>
+        <button onclick="filterItems('dlcs')" class="bg-light-coral text-white px-3 py-2 rounded-lg">DLCs</button>
+      </div>
+      <div id="itemsContainer" class="grid grid-cols-2 gap-4">
+        <!-- Example Items -->
+        <div class="item cosmetics bg-white p-4 rounded-lg shadow-md text-center">
+          <img src="/assets/costumes/luffy_hat.png" alt="Cosmetic 1" class="w-full h-24 object-cover mb-2">
+          <div class="flex items-center justify-center mb-2">
+            <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
+            <span class="price text-lg font-semibold ml-2"> 30</span>
+          </div>
+          <button onclick="buyItem('66550f19d5751c69a81e807f')"
+            class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
         </div>
-        <div id="itemsContainer" class="grid grid-cols-2 gap-4">
-            <!-- Example Items -->
-            <div class="item cosmetics bg-white p-4 rounded-lg shadow-md text-center">
-                <img src="path_to_cosmetic1.jpg" alt="Cosmetic 1" class="w-full h-24 object-cover mb-2">
-                <button class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-            </div>
-            <div class="item pets bg-white p-4 rounded-lg shadow-md text-center">
-                <img src="path_to_pet1.jpg" alt="Pet 1" class="w-full h-24 object-cover mb-2">
-                <button class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-            </div>
-            <div class="item dlcs bg-white p-4 rounded-lg shadow-md text-center">
-                <img src="path_to_dlc1.jpg" alt="DLC 1" class="w-full h-24 object-cover mb-2">
-                <button class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-            </div>
-            <!-- Add more items with appropriate classes as needed -->
+        <div class="item pets bg-white p-4 rounded-lg shadow-md text-center">
+          <img src="/assets/icons/icon-bunny.png" alt="Pet 1" class="w-full h-24 object-cover mb-2">
+          <div class="flex items-center justify-center mb-2">
+            <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
+            <span class="price text-lg font-semibold ml-2"> 1000</span>
+          </div>
+          <button onclick="buyPet('664d38f6fd6cca06e79cc640')"
+            class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
         </div>
+        <div class="item dlcs bg-white p-4 rounded-lg shadow-md text-center">
+          <img src="path_to_dlc1.jpg" alt="DLC 1" class="w-full h-24 object-cover mb-2">
+          <div class="flex items-center justify-center mb-2">
+            <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
+            <span class="price text-lg font-semibold ml-2"> 10</span>
+          </div>
+          <button class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
+        </div>
+        <!-- Add more items with appropriate classes as needed -->
+      </div><br><br>
     </div>
-</div>
-<%- include("templates/navbar") %>
+  </div>
+  <%- include("templates/navbar") %>
 
-<script>
-    function filterItems(category) {
+    <script>
+      function filterItems(category) {
         const items = document.querySelectorAll('.item');
         items.forEach(item => {
-            if (category === 'all') {
-                item.style.display = 'block';
-            } else {
-                item.style.display = item.classList.contains(category) ? 'block' : 'none';
-            }
+          if (category === 'all') {
+            item.style.display = 'block';
+          } else {
+            item.style.display = item.classList.contains(category) ? 'block' : 'none';
+          }
         });
-    }
-</script>
+      }
+
+      function buyPet(itemId) {
+        fetch('/buy-pet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ itemId })
+        })
+          .then(response => response.text())
+          .then(data => {
+            alert(data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      }
+
+      function buyItem(itemId) {
+        fetch('/buy-item', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ itemId })
+        })
+          .then(response => response.text())
+          .then(data => {
+            alert(data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      }
+    </script>
