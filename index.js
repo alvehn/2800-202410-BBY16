@@ -7,7 +7,7 @@ const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const ejs = require('ejs');
+const ejs = require("ejs");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const { Int32 } = require("bson");
@@ -382,10 +382,17 @@ app.get("/petshop", async (req, res) => {
   const user = await usersCollection.findOne({
     _id: new ObjectId(req.session.userID),
   });
-  res.render("petshop", { user: user });
+
+  // Gets all the costumes from the costumes collection.
+  const costumes = await costumesCollection.find({}).toArray();
+  // Gets all the pets from the pets collection.
+  const pets = await petsCollection.find({}).toArray();
+
+  // Passing all the costumes and pets from the database.
+  res.render("petshop", { user: user, costumes, pets });
 });
 
-app.get('/get-user-points', async (req, res) => {
+app.get("/get-user-points", async (req, res) => {
   const userId = req.session.userID;
   const user = await usersCollection.findOne(
     { _id: new ObjectId(userId) },
@@ -393,15 +400,13 @@ app.get('/get-user-points', async (req, res) => {
   );
 
   if (!user) {
-    return res.status(404).send('User not found');
+    return res.status(404).send("User not found");
   }
 
   res.json({ points: user.points });
-
 });
 
-app.get('/get-owned-items', async (req, res) => {
-
+app.get("/get-owned-items", async (req, res) => {
   const user = await usersCollection.findOne(
     { _id: new ObjectId(req.session.userID) },
     { projection: { pets_owned: 1, costumes_owned: 1 } }
@@ -410,10 +415,9 @@ app.get('/get-owned-items', async (req, res) => {
   if (user) {
     res.json({
       pets_owned: user.pets_owned || [],
-      costumes_owned: user.costumes_owned || []
+      costumes_owned: user.costumes_owned || [],
     });
   }
-
 });
 
 // app.post('/buy-pet', async (req, res) => {
@@ -425,47 +429,46 @@ app.get('/get-owned-items', async (req, res) => {
 //   res.status(200).send('Item added to account');
 // });
 
-app.post('/buy-pet', async (req, res) => {
+app.post("/buy-pet", async (req, res) => {
   const userId = req.session.userID;
   const petId = req.body.itemId;
   const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
   const pet = await petsCollection.findOne({ _id: new ObjectId(petId) });
   if (user.points < pet.cost) {
-    return res.status(400).send('Not enough points to buy this pet');
+    return res.status(400).send("Not enough points to buy this pet");
   }
 
   await usersCollection.updateOne(
     { _id: new ObjectId(userId) },
     {
       $inc: { points: -pet.cost },
-      $push: { pets_owned: new ObjectId(petId) }
+      $push: { pets_owned: new ObjectId(petId) },
     }
   );
 
   // res.status(200).send('Pet added to account');
-
 });
 
-
-app.post('/buy-item', async (req, res) => {
+app.post("/buy-item", async (req, res) => {
   const userId = req.session.userID;
   const costumeId = req.body.itemId;
   const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-  const costume = await costumesCollection.findOne({ _id: new ObjectId(costumeId) });
+  const costume = await costumesCollection.findOne({
+    _id: new ObjectId(costumeId),
+  });
   if (user.points < costume.cost) {
-    return res.status(400).send('Not enough points to buy this costume');
+    return res.status(400).send("Not enough points to buy this costume");
   }
 
   await usersCollection.updateOne(
     { _id: new ObjectId(userId) },
     {
       $inc: { points: -costume.cost },
-      $push: { costumes_owned: new ObjectId(costumeId) }
+      $push: { costumes_owned: new ObjectId(costumeId) },
     }
   );
 
-  res.status(200).send('Item added to account');
-
+  res.status(200).send("Item added to account");
 });
 
 app.get("/login", (req, res) => {
@@ -496,6 +499,7 @@ app.post("/loggingin", async (req, res) => {
         _id: 1,
         current_pet: 1,
         display_name: 1,
+        current_costume: 1,
       })
       .toArray();
     if (result.length != 1) {
@@ -516,6 +520,7 @@ app.post("/loggingin", async (req, res) => {
       req.session.current_pet = await petsCollection.findOne({
         _id: result[0].current_pet,
       });
+      req.session.current_costume = await costumesCollection.findOne({ _id: result[0].current_costume });
 
       await usersCollection.updateOne(
         { _id: new ObjectId(req.session.userID) },
@@ -615,7 +620,8 @@ app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
   });
   let equippedCostume = null;
 
-  if (req.session.current_costume) {
+  // Checks if there are any costumes equipped.
+  if (req.session.current_costume !== null && req.session.current_costume !== undefined) {
     equippedCostume = req.session.current_costume.name;
   }
 
@@ -710,7 +716,7 @@ app.get(
         const costume = await costumesCollection.findOne({
           _id: new ObjectId(user.current_costume),
         });
-  
+
         equippedCostume = costume ? costume.name : null;
       }
       const intervalId = user.study_session.intervalId;
@@ -730,24 +736,20 @@ app.get(
   }
 );
 
-app.get(
-  "/get_points",
-  sessionValidation("study_session"),
-  async (req, res) => {
-    const user = await usersCollection.findOne({
-      _id: new ObjectId(req.session.userID),
-    });
-    if (!user.study_session.inSession) {
-      res.redirect("/home_page");
-    } else {
-      let points = await usersCollection.findOne(
-        { _id: new ObjectId(req.session.userID) },
-        { projection: { points: 1 } }
-      );
-      res.send(points);
-    }
+app.get("/get_points", sessionValidation("study_session"), async (req, res) => {
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(req.session.userID),
+  });
+  if (!user.study_session.inSession) {
+    res.redirect("/home_page");
+  } else {
+    let points = await usersCollection.findOne(
+      { _id: new ObjectId(req.session.userID) },
+      { projection: { points: 1 } }
+    );
+    res.send(points);
   }
-);
+});
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const userId = new ObjectId(req.session.userID);
@@ -1026,7 +1028,7 @@ app.post("/friend_profile", async (req, res) => {
   ejs.renderFile("views/profile.ejs", { user: result }, (err, html) => {
     if (err) {
       console.error(err);
-      res.status(500).send('Internal Server Error');
+      res.status(500).send("Internal Server Error");
       return;
     }
     res.send(html);
