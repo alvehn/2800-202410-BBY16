@@ -10,9 +10,11 @@ const crypto = require("crypto");
 const ejs = require("ejs");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
+const axios = require("axios");
 const { Int32 } = require("bson");
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
+const querystring = require("querystring");
 
 /* 
     Importing database schema 
@@ -141,6 +143,18 @@ function accountValidation() {
   };
 }
 
+// This is for verifying the token when a user logs in with their gmail.
+async function verifyToken(idToken) {
+  const { OAuth2Client } = require("google-auth-library");
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const ticket = await client.verifyIdToken({
+    idToken: idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  return payload;
+}
+
 /*
   This part is for mail transpoter
 */
@@ -158,6 +172,68 @@ const gmailTransporter = nodemailer.createTransport({
 */
 app.set("view engine", "ejs");
 
+// Handling google authorization API callback.
+app.get("/oauth2callback", async (req, res) => {
+  const code = req.query.code;
+
+  // Exchange authorization code for access token
+  try {
+    const response = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      querystring.stringify({
+        code: code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      })
+    );
+
+    const tokens = response.data;
+    const idToken = tokens.id_token;
+
+    // Verify the ID token and get user info
+    const userInfo = await verifyToken(idToken);
+    // Handle user info (e.g., create a session, store user data in the database)
+    let user = await usersCollection.findOne({ email: userInfo.email });
+
+    // Handles logging in with your gmail.
+    if (user) {
+      await usersCollection.updateOne(
+        { email: userInfo.email },
+        { $set: { status: "online" } }
+      );
+      req.session.authenticated = true;
+      req.session.userID = user._id.toString();
+      req.session.username = user.username;
+      req.session.display_name = user.display_name;
+      req.session.friends = user.friends;
+      req.session.incoming_requests = user.incoming_requests;
+      req.session.groups = user.groups;
+      req.session.cookie.maxAge = expireTime;
+      req.session.current_pet = await petsCollection.findOne({
+        _id: user.current_pet,
+      });
+      req.session.current_costume = await costumesCollection.findOne({
+        _id: user.current_costume,
+      });
+
+      await usersCollection.updateOne(
+        { _id: new ObjectId(req.session.userID) },
+        { $set: { current_pet_name: req.session.current_pet.name } }
+      );
+
+      return res.redirect("/home_page");
+    } else {
+      // Handles signing up for an account using the users email.
+      return res.redirect(`/signup?email=${userInfo.email}&name=${userInfo.name}`);
+    }
+  } catch (error) {
+    console.error("Error exchanging authorization code:", error);
+    res.status(500).send("Authentication failed");
+  }
+});
+
 app.get("/", (req, res) => {
   const validSession = req.session.authenticated;
   res.render("index", { hasValidSession: validSession });
@@ -166,11 +242,13 @@ app.get("/", (req, res) => {
 app.get("/signup", (req, res) => {
   const { emailInUse, nameInUse } = req.query;
   const errors = {};
+  let email = req.query.email;
+  let name = req.query.name;
 
   if (emailInUse) errors.emailInUse = "Email is already in use";
   if (nameInUse) errors.nameInUse = "Username is already in use";
 
-  res.render("signup", { errors });
+  res.render("signup", { errors, email, name });
 });
 
 app.post("/signupSubmit", accountValidation(), async (req, res) => {
@@ -520,7 +598,9 @@ app.post("/loggingin", async (req, res) => {
       req.session.current_pet = await petsCollection.findOne({
         _id: result[0].current_pet,
       });
-      req.session.current_costume = await costumesCollection.findOne({ _id: result[0].current_costume });
+      req.session.current_costume = await costumesCollection.findOne({
+        _id: result[0].current_costume,
+      });
 
       await usersCollection.updateOne(
         { _id: new ObjectId(req.session.userID) },
@@ -621,7 +701,10 @@ app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
   let equippedCostume = null;
 
   // Checks if there are any costumes equipped.
-  if (req.session.current_costume !== null && req.session.current_costume !== undefined) {
+  if (
+    req.session.current_costume !== null &&
+    req.session.current_costume !== undefined
+  ) {
     equippedCostume = req.session.current_costume.name;
   }
 

@@ -1,30 +1,58 @@
 <%- include("templates/default_header") %>
 <div class="relative max-w-full mx-auto">
-    <img class="h-64 w-full object-cover" src="pets_background.jpg" alt="Placeholder image">
-    <div class="absolute inset-0 bg-gray-700 opacity-60"></div>
-    <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <h1 class="text-white text-2xl font-bold mb-2">StudyPals</h1>
-        <h2 class="text-white text-xl font-bold mb-2 text-center">Let's get pawductive!</h2>
-        <% if (hasValidSession) { %>
-            <form action='/home_page' method='get'>
-                <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow mb-2" type='submit'>Go to Home Page</button>
-            </form>
-          <% } else { %>
-            <form action='/signup' method='get'>
-                <button class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow mb-2" type='submit'>Sign up</button>
-            </form>
-            <form action='/login' method='get'>
-                <button class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow" type='submit'>Log in</button>
-            </form>
-          <% } %>
-    </div>
+  <img
+    class="h-64 w-full object-cover"
+    src="pets_background.jpg"
+    alt="Placeholder image"
+  />
+  <div class="absolute inset-0 bg-gray-700 opacity-60"></div>
+  <div class="absolute inset-0 flex flex-col items-center justify-center">
+    <h1 class="text-white text-2xl font-bold mb-2">StudyPals</h1>
+    <h2 class="text-white text-xl font-bold mb-2 text-center">
+      Let's get pawductive!
+    </h2>
+    <% if (hasValidSession) { %>
+    <form action="/home_page" method="get">
+      <button
+        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow mb-2"
+        type="submit"
+      >
+        Go to Home Page
+      </button>
+    </form>
+    <% } else { %>
+    <form action="/signup" method="get">
+      <button
+        class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow mb-2"
+        type="submit"
+      >
+        Sign up
+      </button>
+    </form>
+    <form action="/login" method="get">
+      <button
+        class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow"
+        type="submit"
+      >
+        Log in
+      </button>
+    </form>
+    <% } %>
+    <a
+      href="https://accounts.google.com/o/oauth2/v2/auth?client_id=346808690886-6lh75824tlrvifnsal8vkcnqcak8719k.apps.googleusercontent.com&redirect_uri=http://localhost:3001/oauth2callback&response_type=code&scope=email%20profile"
+      >Sign in with Google</a
+    >
+  </div>
 </div>
 <% for (let i = 0; i < 3; i++) { %>
-    <div class="relative">
-        <img class="h-64 w-full object-cover" src="dummy2.png" alt="Placeholder image">
-        <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <h2 class="text-3xl font-bold">TBD</h2>
-        </div>    
-    </div>
-<% } %>
-<%- include("templates/footer") %>
+<div class="relative">
+  <img
+    class="h-64 w-full object-cover"
+    src="dummy2.png"
+    alt="Placeholder image"
+  />
+  <div class="absolute inset-0 flex flex-col items-center justify-center">
+    <h2 class="text-3xl font-bold">TBD</h2>
+  </div>
+</div>
+<% } %> <%- include("templates/footer") %>
