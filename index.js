@@ -378,31 +378,90 @@ app.post("/update-costume", async (req, res) => {
   }
 });
 
-app.get("/petshop", (req, res) => {
-  res.render("petshop");
+app.get("/petshop", async (req, res) => {
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(req.session.userID),
+  });
+  res.render("petshop", { user: user });
+});
+
+app.get('/get-user-points', async (req, res) => {
+  const userId = req.session.userID;
+  const user = await usersCollection.findOne(
+    { _id: new ObjectId(userId) },
+    { projection: { points: 1 } }
+  );
+
+  if (!user) {
+    return res.status(404).send('User not found');
+  }
+
+  res.json({ points: user.points });
+
 });
 
 app.get('/get-owned-items', async (req, res) => {
-  const userId = new ObjectId(req.session.userID);
-  const user = await usersCollection.findOne({ _id: userId }, { projection: { pets_owned: 1, costumes_owned: 1 } });
 
-  res.status(200).json(user);
-});
-
-app.post('/buy-pet', async (req, res) => {
-  const user = await usersCollection.updateOne(
-    { _id: new ObjectId(req.session.userID) },  // Query to find the document
-    { $push: { pets_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+  const user = await usersCollection.findOne(
+    { _id: new ObjectId(req.session.userID) },
+    { projection: { pets_owned: 1, costumes_owned: 1 } }
   );
 
-  res.status(200).send('Item added to account');
+  if (user) {
+    res.json({
+      pets_owned: user.pets_owned || [],
+      costumes_owned: user.costumes_owned || []
+    });
+  }
 
 });
 
+// app.post('/buy-pet', async (req, res) => {
+//   const user = await usersCollection.updateOne(
+//     { _id: new ObjectId(req.session.userID) },  // Query to find the document
+//     { $push: { pets_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+//   );
+
+//   res.status(200).send('Item added to account');
+// });
+
+app.post('/buy-pet', async (req, res) => {
+  const userId = req.session.userID;
+  const petId = req.body.itemId;
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  const pet = await petsCollection.findOne({ _id: new ObjectId(petId) });
+  if (user.points < pet.cost) {
+    return res.status(400).send('Not enough points to buy this pet');
+  }
+
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    {
+      $inc: { points: -pet.cost },
+      $push: { pets_owned: new ObjectId(petId) }
+    }
+  );
+
+  // res.status(200).send('Pet added to account');
+
+});
+
+
 app.post('/buy-item', async (req, res) => {
-  const user = await usersCollection.updateOne(
-    { _id: new ObjectId(req.session.userID) },  // Query to find the document
-    { $push: { costumes_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+  const userId = req.session.userID;
+  const costumeId = req.body.itemId;
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  const costume = await costumesCollection.findOne({ _id: new ObjectId(costumeId) });
+  if (user.points < costume.cost) {
+    return res.status(400).send('Not enough points to buy this costume');
+  }
+
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    {
+      $inc: { points: -costume.cost },
+      $push: { costumes_owned: new ObjectId(costumeId) }
+    }
   );
 
   res.status(200).send('Item added to account');
@@ -685,7 +744,7 @@ app.get(
         { _id: new ObjectId(req.session.userID) },
         { projection: { points: 1 } }
       );
-      res.send( points );
+      res.send(points);
     }
   }
 );
@@ -963,7 +1022,7 @@ app.post("/friend_profile", async (req, res) => {
   const result = await usersCollection.findOne({
     username: username,
   });
-  // Render the EJS template and send it as the response
+  // the EJS template and send it as the response
   ejs.renderFile("views/profile.ejs", { user: result }, (err, html) => {
     if (err) {
       console.error(err);
