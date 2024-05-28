@@ -157,7 +157,7 @@ This section is the css for the navbar
         transform: none !important;
     }
     .navbar-inner {
-        width: 80% !important;
+        width: 100% !important;
         border-radius: 1.5rem !important; /* Maintain rounded shape */
     }
     .navbar-icons {
