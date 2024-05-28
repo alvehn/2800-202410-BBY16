@@ -69,8 +69,9 @@
         fetch('/get-owned-items')
           .then(response => response.json())
           .then(data => {
-            // Creates a sub array of all owned items.
+            // Creates a sub array of all owned items and removes the fox pet.
             const ownedItems = new Set(data.pets_owned.concat(data.costumes_owned));
+            ownedItems.delete('664d3a5cfd6cca06e79cc641');
             // Iterates through every owned item and marks it as bought/sold out.
             ownedItems.forEach(item => {
               const itemObject = document.getElementById(item);
