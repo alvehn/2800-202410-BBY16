@@ -23,7 +23,6 @@ const study_group_schema = require("./models/group_schema");
 const costume_schema = require("./models/costume_schema");
 const achievement_schema = require("./models/achievement_schema");
 
-
 /*
     This part are all the static number for our project 
     (session expireTime, saltRounds etc)
@@ -44,7 +43,7 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_host = process.env.MONGODB_HOST;
 const email_account = process.env.EMAIL_ACCOUNT;
 const email_password = process.env.EMAIL_PASSWORD;
-const runScheduledTask = process.env.RUN_SCHEDULED_TASK === 'true';
+const runScheduledTask = process.env.RUN_SCHEDULED_TASK === "true";
 
 /*
     This part are for database connection.
@@ -68,11 +67,17 @@ const individual_sessionsCollection = studyPals.collection(
 );
 const sessionsCollection = studyPals.collection("sessions");
 const groupsCollection = studyPals.collection("groups");
+const costumesCollection = studyPals.collection("costumes");
 
 /* Validating that when you try to update the database, it ensures that it doesn't violate these properties. */
 studyPals.command({
   collMod: "users",
   validator: user_schema,
+});
+
+studyPals.command({
+  collMod: "costumes",
+  validator: costume_schema,
 });
 
 /*
@@ -206,10 +211,12 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
         display_name: displayname,
         current_pet: new ObjectId("664d3a5cfd6cca06e79cc641"),
         current_pet_name: "fox",
+        current_costume: null,
         friends: [],
         incoming_requests: [],
         groups: [],
         pets_owned: [new ObjectId("664d3a5cfd6cca06e79cc641")],
+        costumes_owned: [],
         total_study_hours: 0, // Initialize with default values
         points: 0, // Initialize with default values
         study_streak: 0, // Initialize with default values
@@ -221,6 +228,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
           inSession: false,
           intervalId: 0,
           currentSessionID: null,
+          group: false,
         },
         hours_per_day: 0,
         study_history: [],
@@ -269,14 +277,16 @@ app.get("/petinv", async (req, res) => {
       _id: new ObjectId(req.session.userID),
     });
 
-    const ownedPets = [];
+    const ownedPetsPromises = user.pets_owned.map(async (pet) => {
+      return await petsCollection.findOne({ _id: pet });
+    });
 
-    for (let i = 0; i < user.pets_owned.length; i++) {
-      let pet = await petsCollection.findOne({
-        _id: user.pets_owned[i],
-      });
-      ownedPets.push(pet);
-    }
+    const ownedCostumesPromises = user.costumes_owned.map(async (costume) => {
+      return await costumesCollection.findOne({ _id: costume });
+    });
+
+    const ownedPets = await Promise.all(ownedPetsPromises);
+    const ownedCostumes = await Promise.all(ownedCostumesPromises);
 
     if (!currentPetId) {
       console.error("No current pet ID in session");
@@ -287,10 +297,22 @@ app.get("/petinv", async (req, res) => {
       _id: new ObjectId(currentPetId),
     });
 
+    let equippedCostume = null;
+
+    if (user.current_costume) {
+      const costume = await costumesCollection.findOne({
+        _id: new ObjectId(user.current_costume),
+      });
+
+      equippedCostume = costume ? costume.name : null;
+    }
+
     if (currentPet) {
       res.render("petinv", {
         current_pet_name: req.session.current_pet.name,
         ownedPets,
+        ownedCostumes,
+        equippedCostume,
       });
     } else {
       console.error("No pet found with the given ID");
@@ -304,7 +326,7 @@ app.get("/petinv", async (req, res) => {
 
 app.post("/update-pet", async (req, res) => {
   // Changes what pet the user has equipped.
-  const result = await usersCollection.updateMany(
+  let result = await usersCollection.updateMany(
     { _id: new ObjectId(req.session.userID) },
     {
       $set: {
@@ -322,6 +344,36 @@ app.post("/update-pet", async (req, res) => {
     res.json({ success: true, message: "success updating pet" });
   } else {
     res.json({ success: false, message: "error updating pet" });
+  }
+});
+
+app.post("/update-costume", async (req, res) => {
+  let update;
+  if (req.body.costumeId) {
+    update = { current_costume: new ObjectId(req.body.costumeId) };
+  } else {
+    update = { current_costume: null };
+  }
+
+  let result = await usersCollection.updateMany(
+    { _id: new ObjectId(req.session.userID) },
+    {
+      $set: update,
+    }
+  );
+
+  if (req.body.costumeId) {
+    req.session.current_costume = await costumesCollection.findOne({
+      _id: new ObjectId(req.body.costumeId),
+    });
+  } else {
+    req.session.current_costume = null;
+  }
+
+  if (result.acknowledged) {
+    res.json({ success: true, message: "success updating costume" });
+  } else {
+    res.json({ success: false, message: "error updating costume" });
   }
 });
 
@@ -474,7 +526,16 @@ app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
   const user = await usersCollection.findOne({
     _id: new ObjectId(req.session.userID),
   });
-  res.render("home_page", { user: user });
+  let equippedCostume = null;
+
+  if (req.session.current_costume !== null) {
+    equippedCostume = req.session.current_costume.name;
+  }
+
+  res.render("home_page", {
+    user: user,
+    equippedCostume,
+  });
 });
 
 /*
@@ -505,7 +566,7 @@ app.post(
       // Sets a interval function on server side to give players points periodically
       const interval = 60 * 1000; // 10 minutes in milliseconds
       async function updateCoins(userID) {
-        let amount = Math.floor(Math.random() * 11 + 45.5 ); // random points between 45 and 55
+        let amount = Math.floor(Math.random() * 11 + 45.5); // random points between 45 and 55
         try {
           await usersCollection.updateOne(
             { _id: userID },
@@ -539,7 +600,7 @@ app.post(
       } catch (err) {
         console.log(err);
       }
-      
+
       res.redirect(`/study_session`);
     }
   }
@@ -556,6 +617,15 @@ app.get(
       res.redirect("/home_page");
     } else {
       const petName = user.current_pet_name;
+
+      let equippedCostume = null;
+      if (user.current_costume) {
+        const costume = await costumesCollection.findOne({
+          _id: new ObjectId(user.current_costume),
+        });
+  
+        equippedCostume = costume ? costume.name : null;
+      }
       const intervalId = user.study_session.intervalId;
       const sessionId = new ObjectId(user.study_session.currentSessionID);
       const studySession = await individual_sessionsCollection.findOne({
@@ -566,7 +636,8 @@ app.get(
         startTime: startTime.toISOString(),
         petName: petName,
         sessionId: sessionId,
-        intervalId: intervalId
+        intervalId: intervalId,
+        equippedCostume,
       });
     }
   }
@@ -604,7 +675,7 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
       },
       $inc: {
         total_study_hours: duration,
-        hours_per_day: duration
+        hours_per_day: duration,
       },
     }
   );
@@ -1011,77 +1082,83 @@ app.post("/notifications/decline", async (req, res) => {
 /*
   This part are scheduled task that will run ar a specific time.
 */
-if(runScheduledTask){
+if (runScheduledTask) {
   cron.schedule("0 0 * * *", async () => {
     console.log("Updating users' study history at midnight");
     const today = new Date();
     today.setDate(today.getDate() - 1);
     const formattedDate = today.toISOString().split("T")[0];
-  
+
     try {
       // Find all users with active study sessions
-      const activeSessions = await usersCollection.find({ "study_session.inSession": true }).toArray();
-      
+      const activeSessions = await usersCollection
+        .find({ "study_session.inSession": true })
+        .toArray();
+
       // End the study session for active users
       const endSessionPromises = activeSessions.map(async (user) => {
         const userId = user._id;
         const sessionId = user.study_session.currentSessionID;
-  
+
         // End the study session
         const endTime = new Date();
-        const session = await individual_sessionsCollection.findOne({ _id: sessionId });
+        const session = await individual_sessionsCollection.findOne({
+          _id: sessionId,
+        });
         const startTime = session.start_time;
         const duration = Math.floor((endTime - startTime) / 1000);
-  
+
         await individual_sessionsCollection.updateOne(
           { _id: sessionId },
           { $set: { end_time: endTime, duration: duration } }
         );
-  
+
         // Update the user document
         await usersCollection.updateOne(
           { _id: userId },
           {
-            $set: { 
-              "study_session.inSession": false, 
-              "study_session.currentSessionID": null 
+            $set: {
+              "study_session.inSession": false,
+              "study_session.currentSessionID": null,
             },
-            $inc: { 
+            $inc: {
               total_study_hours: duration,
-              hours_per_day: duration
-            }
+              hours_per_day: duration,
+            },
           }
         );
       });
-  
+
       // Wait for all end session promises to resolve
       await Promise.all(endSessionPromises);
-  
+
       // Update study history for all users
       const users = await usersCollection.find({}).toArray();
       const updateUsersPromises = users.map(async (user) => {
         const historyEntry = {
           date: formattedDate,
-          total_hours: user.hours_per_day || 0
+          total_hours: user.hours_per_day || 0,
         };
         await usersCollection.updateOne(
           { _id: user._id },
           { $push: { study_history: historyEntry } }
         );
       });
-  
+
       // Wait for all study history update promises to resolve
       await Promise.all(updateUsersPromises);
-  
+
       // Reset hours_per_day for all users
       await usersCollection.updateMany({}, { $set: { hours_per_day: 0 } });
-  
-      console.log("Successfully updated users' study history and reset hours_per_day");
+
+      console.log(
+        "Successfully updated users' study history and reset hours_per_day"
+      );
     } catch (error) {
       console.log("Error updating users' study history:", error);
     }
   });
-}else{
+} else {
   console.log("The scheduled task will not run on local server");
 }
 /*
