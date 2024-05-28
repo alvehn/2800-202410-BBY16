@@ -504,9 +504,9 @@ app.post(
       const newSessionId = result.insertedId;
 
       // Sets a interval function on server side to give players points periodically
-      const interval = 60 * 1000; // 10 minutes in milliseconds
+      const interval = 60 * 1000; // 1 minute in milliseconds
       async function updateCoins(userID) {
-        let amount = Math.floor(Math.random() * 11 + 45.5 ); // random points between 45 and 55
+        let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
         try {
           await usersCollection.updateOne(
             { _id: userID },
@@ -569,6 +569,25 @@ app.get(
         sessionId: sessionId,
         intervalId: intervalId
       });
+    }
+  }
+);
+
+app.get(
+  "/get_points",
+  sessionValidation("study_session"),
+  async (req, res) => {
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(req.session.userID),
+    });
+    if (!user.study_session.inSession) {
+      res.redirect("/home_page");
+    } else {
+      let points = await usersCollection.findOne(
+        { _id: new ObjectId(req.session.userID) },
+        { projection: { points: 1 } }
+      );
+      res.send( points );
     }
   }
 );

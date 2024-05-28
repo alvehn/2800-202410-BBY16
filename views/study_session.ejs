@@ -71,14 +71,15 @@
 </div>
 
 <script>
-  const startTime = new Date("<%= startTime %>");
+const startTime = new Date("<%= startTime %>");
 const hrSpan = document.getElementById("hr");
 const minSpan = document.getElementById("min");
 const secSpan = document.getElementById("sec");
 const pointsSpan = document.getElementById("points");
 const pointsInput = document.getElementById("pointsInput");
 let timerInterval;
-let points = parseInt(localStorage.getItem('points') || '0', 10);
+// let points = parseInt(localStorage.getItem('points') || '0', 10);
+let points = 0;
 let formSubmitted = false;
 
 function calculatePoints(duration) {
@@ -95,7 +96,25 @@ function updateDisplay() {
   const minutes = Math.floor((duration % 3600) / 60);
   const seconds = Math.floor(duration % 60);
 
-  points += calculatePoints(duration);
+  // points += calculatePoints(duration);
+
+  // Make a GET request to the server to retrieve points
+  fetch('/get_points')
+    .then(response => {
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      // Parse the JSON response
+      return response.json();
+    })
+    .then(data => {
+      // Data contains the points retrieved from the server
+      points = data.points;
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+    });
 
   hrSpan.textContent = String(hours).padStart(2, "0");
   minSpan.textContent = String(minutes).padStart(2, "0");
