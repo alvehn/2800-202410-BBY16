@@ -291,3 +291,8 @@ Extra added for groups.ejs
     background-color: #B5E58A;
     color:#fff;
 }
+
+.hover-image img {
+    transition: all 0.3s ease;
+  }
+  
