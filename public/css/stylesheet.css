@@ -286,11 +286,20 @@ End of the section
 Extra added for groups.ejs
 */
 
+#friends_container {
+    max-height: calc(2 * 4rem + 3 * 1rem + 4 * 0.5rem); /* Adjust the height calculation as needed */
+    overflow-y: auto;
+}
+
 #friends_container input:checked + label {
-    /* background-color: rgb(146 160 103 / var(--tw-bg-opacity)); */
-    background-color: #B5E58A;
+    background-color: #8AE3E5;
     color:#fff;
 }
+
+#friends_container input:checked + label span {
+    color: #fff;
+}
+
 
 #modal-container {
     position: relative;
@@ -321,3 +330,8 @@ Extra added for groups.ejs
         text-size-adjust: 80%;
     }
 }
+
+.custom-border {
+    border: 2px solid #8AE3E5 !important;
+}
+
