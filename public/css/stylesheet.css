@@ -292,6 +292,41 @@ Extra added for groups.ejs
     color:#fff;
 }
 
+/*
+    Css for the grid of studying history on profile page
+*/
+.calendar {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    overflow-x: scroll;
+}
+
+.day-box {
+    width: 60px;
+    height: 60px;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.low {
+    background-color: lightgreen;
+}
+.medium {
+    background-color: greenyellow;
+}
+.high {
+    background-color: green;
+}
 .hover-image img {
     transition: all 0.3s ease;
   }
