@@ -39,6 +39,13 @@ const user_schema = {
         },
         description: "must be an array of pet IDs",
       },
+      costumes_owned: {
+        bsonType: "array",
+        items: {
+          bsonType: "objectId",
+        },
+        description: "must be an array of costume IDs",
+      },
       friends: {
         bsonType: "array",
         items: {
@@ -76,6 +83,10 @@ const user_schema = {
         bsonType: "string",
         description: "must be a string.",
       },
+      current_costume: {
+        bsonType: ["null", "objectId"],
+        description: "must be an objectId of the equipped costume",
+      },
       study_streak: {
         bsonType: "int",
         description: "must be a number",
@@ -107,6 +118,11 @@ const user_schema = {
             bsonType: "int",
             description:
               "used to keep track of points for user study sessions.",
+          },
+          group: {
+            bsonType: "bool",
+            description:
+              "indicated whether or not the session is for a group study session",
           },
         },
         description: "contains the current study session information",
