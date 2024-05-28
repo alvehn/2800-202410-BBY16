@@ -27,17 +27,21 @@
     <div id="dropdownMenu" class="absolute right-4 top-14 z-10  bg-white divide-y divide-white rounded-lg shadow w-44  dark:divide-light-coral hidden ">
       <div class="py-2" aria-labelledby="dropdownButton">
         <div>
-          <a href="/petshop" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white"><img src="/assets/icons/shop_coral.png" class="w-7 h-7 mr-4">Shop</a>
+          <a href="/petshop" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+            <img src="/assets/icons/shop_coral.png" class="w-7 h-7 mr-4" data-hover="/assets/icons/shop_white.png">Shop</a>
         </div>
         <div>
-          <a href="/petinv" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white"><img src="/assets/icons/pets_coral_filled.png" class="w-6 h-6 mr-4">Inventory</a>
+          <a href="/petinv" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+            <img src="/assets/icons/pets_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/pets_white.png">Inventory</a>
         </div>
         <div
-          <a href="/change_password" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white"><img src="/assets/icons/profile_coral.png" class="w-6 h-6 mr-4">Change Password</a>
+          <a href="/change_password" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+            <img src="/assets/icons/profile_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/shop_white.png">Change Password</a>
         </div>
       </div>
       <div class="py-2">
-        <a href="/logout" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white"><img src="/assets/icons/logout_coral.png" class="w-6 h-6 mr-4">Logout</a>
+        <a href="/logout" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+          <img src="/assets/icons/logout_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/logout_white.png">Logout</a>
       </div>
     </div>
 
@@ -56,5 +60,19 @@
       if (!button.contains(event.target) && !dropdownMenu.contains(event.target)) {
         dropdownMenu.classList.add('hidden');
       }
+    });
+
+    document.querySelectorAll('.hover-image').forEach(link => {
+      const img = link.querySelector('img');
+      const originalSrc = img.src;
+      const hoverSrc = img.getAttribute('data-hover');
+
+      link.addEventListener('mouseenter', () => {
+        img.src = hoverSrc;
+      });
+
+      link.addEventListener('mouseleave', () => {
+        img.src = originalSrc;
+      });
     });
   </script>

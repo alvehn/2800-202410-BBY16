@@ -290,3 +290,8 @@ Extra added for groups.ejs
     background-color: rgb(146 160 103 / var(--tw-bg-opacity));
     color:#fff;
 }
+
+.hover-image img {
+    transition: all 0.3s ease;
+  }
+  
