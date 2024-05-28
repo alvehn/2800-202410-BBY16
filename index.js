@@ -615,7 +615,7 @@ app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
   });
   let equippedCostume = null;
 
-  if (req.session.current_costume !== null) {
+  if (req.session.current_costume) {
     equippedCostume = req.session.current_costume.name;
   }
 
