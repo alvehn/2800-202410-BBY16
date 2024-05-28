@@ -5,6 +5,13 @@
     Back
   </a>
 
+  <div class="flex justify-center text-2xl font-bold text-gray-700 items-center w-full mt-3 mb-1">
+    <img src="/assets/Favicon.png" class="w-6 h-auto">
+    <span class="ml-2">
+      <%= user.points %>
+    </span>
+  </div>
+
   <div class="flex flex-col items-center justify-center h-screen">
     <div class="max-w-md w-full bg-white shadow-md rounded-lg p-6">
       <h1 class="text-2xl font-bold text-center mb-6">Pet Shop</h1>
@@ -13,7 +20,7 @@
         <button onclick="filterItems('cosmetics')"
           class="bg-light-coral text-white px-3 py-2 rounded-lg">Cosmetics</button>
         <button onclick="filterItems('pets')" class="bg-light-coral text-white px-3 py-2 rounded-lg">Pets</button>
-        <button onclick="filterItems('dlcs')" class="bg-light-coral text-white px-3 py-2 rounded-lg">DLCs</button>
+        <!-- <button onclick="filterItems('dlcs')" class="bg-light-coral text-white px-3 py-2 rounded-lg">DLCs</button> -->
       </div>
       <div id="itemsContainer" class="grid grid-cols-2 gap-4">
         <!-- Example Items -->
@@ -21,35 +28,64 @@
           <img src="/assets/costumes/luffy_hat.png" alt="Cosmetic 1" class="w-full h-24 object-cover mb-2">
           <div class="flex items-center justify-center mb-2">
             <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
-            <span class="price text-lg font-semibold ml-2"> 30</span>
+            <span class="price text-lg font-semibold ml-2"> 1000</span>
           </div>
-          <button onclick="buyItem('66550f19d5751c69a81e807f')"
-            class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
+          <button id='66550f19d5751c69a81e807f' onclick="buyItem('66550f19d5751c69a81e807f')"
+            class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
         </div>
         <div class="item pets bg-white p-4 rounded-lg shadow-md text-center">
           <img src="/assets/icons/icon-bunny.png" alt="Pet 1" class="w-full h-24 object-cover mb-2">
           <div class="flex items-center justify-center mb-2">
             <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
-            <span class="price text-lg font-semibold ml-2"> 1000</span>
+            <span class="price text-lg font-semibold ml-2"> 3000</span>
           </div>
-          <button onclick="buyPet('664d38f6fd6cca06e79cc640')"
-            class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
+          <button id='664d38f6fd6cca06e79cc640' onclick="buyPet('664d38f6fd6cca06e79cc640')"
+            class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
         </div>
-        <div class="item dlcs bg-white p-4 rounded-lg shadow-md text-center">
+        <!-- <div class="item dlcs bg-white p-4 rounded-lg shadow-md text-center">
           <img src="path_to_dlc1.jpg" alt="DLC 1" class="w-full h-24 object-cover mb-2">
           <div class="flex items-center justify-center mb-2">
             <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
             <span class="price text-lg font-semibold ml-2"> 10</span>
           </div>
-          <button class="bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-        </div>
+          <button class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
+        </div> -->
         <!-- Add more items with appropriate classes as needed -->
       </div><br><br>
     </div>
   </div>
   <%- include("templates/navbar") %>
-
     <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchOwnedItems();
+      });
+
+      function fetchOwnedItems() {
+        fetch('/get-owned-items')
+          .then(response => response.json())
+          .then(data => {
+            const ownedItems = new Set(data.pets_owned.concat(data.costumes_owned));
+            ownedItems.delete('664d3a5cfd6cca06e79cc641');
+            ownedItems.forEach(item => {
+              const itemObject = document.getElementById(item);
+              itemObject.disabled = true;
+              itemObject.textContent = 'Sold Out';
+              itemObject.classList.remove('bg-argentinian-blue');
+              itemObject.classList.add('bg-gray-700');
+            }
+            );
+          });
+      }
+
+      function updateUserPoints() {
+        fetch('/get-user-points')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('userPoints').textContent = data.points;
+          })
+          .catch(error => console.error('Error:', error));
+      }
+
       function filterItems(category) {
         const items = document.querySelectorAll('.item');
         items.forEach(item => {
@@ -72,6 +108,7 @@
           .then(response => response.text())
           .then(data => {
             alert(data);
+            window.location.reload();
           })
           .catch(error => {
             console.error('Error:', error);
@@ -89,6 +126,7 @@
           .then(response => response.text())
           .then(data => {
             alert(data);
+            window.location.reload();
           })
           .catch(error => {
             console.error('Error:', error);
