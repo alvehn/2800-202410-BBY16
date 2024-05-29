@@ -960,7 +960,7 @@ app.post(
           { projection: { username: 1 } }
         );
         console.log(username.username);
-        sendNotificationToUser(username.username);
+        sendNotificationToUser(username.username, newSessionId);
       }
 
       res.redirect(`/study_session`);
@@ -1641,21 +1641,22 @@ io.on('connection', (socket) => {
   });
 
   // Listen for accept_group_session from client
-  socket.on('accept_group_session', () => {
+  socket.on('accept_group_session', (groupSessionId) => {
     // check if they are in session
     // then if its individual, or groups
     // then end the respective current session
     // then join into the invited group session 
+    console.log("accepted group session:" + groupSessionId);
   });
 
   // Example: sending a notification to a specific user
-  //setTimeout(() => {
-  //  sendNotificationToUser('daniel');
-  //}, 1000);
+  setTimeout(() => {
+    sendNotificationToUser('daniel');
+  }, 1000);
 });
 
 // Handle notifications
-function sendNotificationToUser(username) {
+function sendNotificationToUser(username, groupSessionId) {
   // Find the socket associated with the provided username
   const socketToEmit = findSocketByUsernameInRoom("online", username)
   // If the socket is found, emit the event
