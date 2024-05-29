@@ -37,11 +37,15 @@
         Log in
       </button>
     </form>
+    <form action="/googlesignin" method="get">
+      <button
+        class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow"
+        type="submit"
+      >
+        Sign in with Google
+      </button>
+    </form>
     <% } %>
-    <a
-      href="https://accounts.google.com/o/oauth2/v2/auth?client_id=346808690886-6lh75824tlrvifnsal8vkcnqcak8719k.apps.googleusercontent.com&redirect_uri=http://localhost:3001/oauth2callback&response_type=code&scope=email%20profile"
-      >Sign in with Google</a
-    >
   </div>
 </div>
 <% for (let i = 0; i < 3; i++) { %>
