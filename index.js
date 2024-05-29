@@ -1334,7 +1334,7 @@ app.post("/notifications/decline", async (req, res) => {
 */
 if (runScheduledTask) {
   console.log("Daily task is scheduled to run at midnight to update user document");
-  cron.schedule("*/2 * * * *", async () => {
+  cron.schedule("0 0 * * *", async () => {
     console.log("Updating users' study history at midnight");
     const today = new Date();
     today.setDate(today.getDate() - 1);
