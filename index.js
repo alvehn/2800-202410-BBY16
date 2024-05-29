@@ -11,7 +11,9 @@ const ejs = require("ejs");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const axios = require("axios");
-const { Int32 } = require("bson");
+const cloudinary = require('cloudinary');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
 const querystring = require("querystring");
@@ -47,6 +49,9 @@ const mongodb_host = process.env.MONGODB_HOST;
 const email_account = process.env.EMAIL_ACCOUNT;
 const email_password = process.env.EMAIL_PASSWORD;
 const runScheduledTask = process.env.RUN_SCHEDULED_TASK === "true";
+const cloudinary_name = process.env.CLOUDINARY_CLOUD_NAME;
+const cloudinary_key = process.env.CLOUDINARY_CLOUD_KEY;
+const cloudinary_secret = process.env.CLOUDINARY_CLOUD_SECRET;
 
 /*
     This part are for database connection.
@@ -68,7 +73,6 @@ const resetCodeCollection = studyPals.collection("reset_code");
 const individual_sessionsCollection = studyPals.collection(
   "individual_sessions"
 );
-const sessionsCollection = studyPals.collection("sessions");
 const groupsCollection = studyPals.collection("groups");
 const costumesCollection = studyPals.collection("costumes");
 
@@ -166,6 +170,20 @@ const gmailTransporter = nodemailer.createTransport({
     pass: email_password,
   },
 });
+
+/*
+  This part is for cloudinary config for uploading files
+  and the setting for multer
+*/
+
+cloudinary.config({
+  cloud_name: cloudinary_name,
+  api_key: cloudinary_key,
+  api_secret: cloudinary_secret
+})
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage});
 
 /*
     Below are route handlers
@@ -889,7 +907,11 @@ app.get("/profile", sessionValidation("profile"), async (req, res) => {
   const result = await usersCollection.findOne({
     _id: new ObjectId(req.session.userID),
   });
-  res.render("profile", { user: result });
+
+  const cloudinaryBaseUrl = `https://res.cloudinary.com/${cloudinary_name}/image/upload/`;
+  const defaultProfileImageUrl = '/profile_images/profile1.png';
+  const profileImageUrl = result.equip_profile_image ? cloudinaryBaseUrl + result.equip_profile_image : defaultProfileImageUrl;
+  res.render("profile", { user: result, profileImageUrl: profileImageUrl });
 });
 
 app.get(
@@ -899,26 +921,50 @@ app.get(
     const result = await usersCollection.findOne({
       _id: new ObjectId(req.session.userID),
     });
-    res.render("update_profile", { user: result });
+
+    const cloudinaryBaseUrl = `https://res.cloudinary.com/${cloudinary_name}/image/upload/`;
+    const defaultProfileImageUrl = '/profile_images/profile1.png';
+    const profileImageUrl = result.equip_profile_image ? cloudinaryBaseUrl + result.equip_profile_image : defaultProfileImageUrl;
+    res.render("update_profile", { user: result, profileImageUrl: profileImageUrl });
   }
 );
 
 app.post(
   "/updating_profile",
+  upload.single('profile_image'),
   sessionValidation("updating_profile"),
   async (req, res) => {
     const { display_name, username, email } = req.body;
-    await usersCollection.updateOne(
-      { _id: new ObjectId(req.session.userID) },
-      {
-        $set: {
-          display_name: display_name,
-          username: username,
-          email: email,
-        },
+    const userId = new ObjectId(req.session.userID);
+    const userIdStr = userId.toString();
+
+    let updateData = {
+      display_name: display_name,
+      username: username,
+      email: email
+    }
+
+    if(req.file){
+      const buffer = req.file.buffer;
+      const dataURI = `data:${req.file.mimetype};base64,${buffer.toString('base64')}`;
+
+      try {
+        const publicId = `profile_${userIdStr}`; // Use the string version of userId
+        const result = await cloudinary.uploader.upload(dataURI, { public_id: publicId });
+        console.log("image update sucessfully");
+        updateData.equip_profile_image = result.public_id;
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        return res.status(500).send('Error uploading image');
       }
+    }
+
+    await usersCollection.updateOne(
+      {_id: userId},
+      { $set: updateData}
     );
-    res.redirect("/profile");
+
+    res.redirect('/profile');
   }
 );
 
