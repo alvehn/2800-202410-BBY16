@@ -286,9 +286,13 @@ End of the section
 Extra added for groups.ejs
 */
 
+#friends_container {
+    max-height: calc(2 * 4rem + 3 * 1rem + 4 * 0.5rem); /* Adjust the height calculation as needed */
+    overflow-y: auto;
+}
+
 #friends_container input:checked + label {
-    /* background-color: rgb(146 160 103 / var(--tw-bg-opacity)); */
-    background-color: #B5E58A;
+    background-color: #8AE3E5;
     color:#fff;
 }
 
@@ -331,3 +335,44 @@ Extra added for groups.ejs
     transition: all 0.3s ease;
   }
   
+
+
+#friends_container input:checked + label span {
+    color: #fff;
+}
+
+
+#modal-container {
+    position: relative;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    height: 70%;
+    z-index: 9999;
+}
+    
+#modal-content {
+    max-width: 100%;
+    max-height: 100%; 
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 640px) {
+    #modal-container {
+        width: 85%;
+        height: 60%;
+    }
+
+    #modal-content {
+        width: 100%;
+        height: 100%;
+        text-size-adjust: 80%;
+    }
+}
+
+.custom-border {
+    border: 2px solid #8AE3E5 !important;
+}
+

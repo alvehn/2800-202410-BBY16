@@ -1178,33 +1178,17 @@ app.post("/groups/get_groups", async (req, res) => {
   res.json({ groups });
 });
 
-app.post("/groups/get_group_name", async (req, res) => {
+app.post("/groups/get_group_details", async (req, res) => {
   let group_id = req.body.group_id;
   let objId = new ObjectId(group_id);
   try {
     let group = await groupsCollection.findOne(
       { _id: objId },
-      { projection: { group_name: 1 } }
+      { projection: { group_name: 1, members: 1 } }
     );
     let groupName = group.group_name;
-    res.json({ groupName });
-    return;
-  } catch (err) {
-    res.json(err);
-    return;
-  }
-});
-
-app.post("/groups/get_group_members_count", async (req, res) => {
-  let group_id = req.body.group_id;
-  let objId = new ObjectId(group_id);
-  try {
-    let group = await groupsCollection.findOne(
-      { _id: objId },
-      { projection: { members: 1 } }
-    );
     let membersCount = group.members.length;
-    res.json({ membersCount });
+    res.json({ groupName, membersCount });
     return;
   } catch (err) {
     res.json(err);
