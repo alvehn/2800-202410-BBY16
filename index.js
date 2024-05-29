@@ -1661,7 +1661,7 @@ function sendNotificationToUser(username, groupSessionId) {
   const socketToEmit = findSocketByUsernameInRoom("online", username)
   // If the socket is found, emit the event
   if (socketToEmit) {
-    socketToEmit.emit("notification", "You got a group invite!");
+    socketToEmit.emit("notification", groupSessionId);
   } else {
     console.log(`Socket with username ${username} not found.`);
   }
