@@ -950,11 +950,11 @@ app.post(
       }
 
       // Invite group members to join the group session
-      var indexToRemove = members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
+      var indexToRemove = members.members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
       if (indexToRemove !== -1) {
-        members.splice(indexToRemove, 1);
+        members.members.splice(indexToRemove, 1);
       }
-      for (let member of members) {
+      for (let member of members.members) {
         let username = await usersCollection.findOne(
           { _id: member },
           { projection: { username: 1 } }
@@ -1647,10 +1647,9 @@ io.on('connection', (socket) => {
   });
 
   // Example: sending a notification to a specific user
-  setTimeout(() => {
-    sendNotificationToUser('daniel');
-  }, 1000);
-  // Handle other Socket.IO events here
+  //setTimeout(() => {
+  //  sendNotificationToUser('daniel');
+  //}, 1000);
 });
 
 // Handle notifications

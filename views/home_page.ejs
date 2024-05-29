@@ -68,17 +68,6 @@
           <button type="submit" class="px-4 py-2 bg-argentinian-blue text-white rounded transition">Start Group Session</button>
         </form>
       <% } %>
-      <% if (user.study_session.inSession && user.study_session.group) { %>
-        <form action="/start_group_session" method="POST">
-          <input type="hidden" name="inSession" value="true">
-          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">View Group Session</button>
-        </form>
-      <% } else { %>
-        <form onsubmit="return openSelectGroups()">
-          <input type="hidden" name="inSession" value="false">
-          <button type="submit" class="px-4 py-2 bg-argentinian-blue text-white rounded transition">Start Group Session</button>
-        </form>
-      <% } %>
     </div>
 
     <div
@@ -246,6 +235,68 @@
     } catch (error) {
         // Handle network errors or errors from the server
         console.error('Error:', error);
+    }
+  }
+
+  async function displayGroupsDynamically() {
+    let groups;
+    await fetch('/groups/get_groups', {
+        method: 'post',
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json(); // Get the response as JSON
+        } else {
+          throw new Error('Form submission failed');
+        }
+      })
+      .then(data => {
+        groups = data.groups;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+
+    let cardTemplate = document.getElementById("groupCardTemplate");
+    let groupName = "test";
+    for (let group of groups) {
+      let newcard = cardTemplate.content.cloneNode(true);
+      // Serialize friend data into a JSON object
+      let jsonObject = {};
+      jsonObject["group_id"] = group;
+      // fetch friend username and status from the database
+      await fetch('/groups/get_group_details', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json' // Set Content-Type to JSON
+        },
+        body: JSON.stringify(jsonObject) // Send JSON data in the body
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json(); // Get the response as JSON
+          } else {
+            throw new Error('Form submission failed');
+          }
+        })
+        .then(data => {
+          groupName = data.groupName;
+          membersCount = data.membersCount;
+        })
+        .catch(error => {
+          // Handle network errors or errors from the server
+          console.error('Error:', error);
+        });
+
+      newcard.getElementById("group_name").textContent = groupName;
+      newcard.getElementById("members_Count").textContent = membersCount + " people";
+      let button = newcard.querySelector('button');
+      button.id = group;
+      // Attach click event listener to the newly created button
+      button.addEventListener('click', function(event) {
+        clickedButton = event.currentTarget;
+      });
+      document.getElementById("groups_container").appendChild(newcard);
     }
   }
 
