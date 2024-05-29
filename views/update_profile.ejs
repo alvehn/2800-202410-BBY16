@@ -1,61 +1,39 @@
 <%- include("templates/header") %>
-<div
-  class="min-h-screen pt-16 pb-16 flex items-center justify-center bg-cover bg-center"
-  style="background-image: url('background2.webp')"
->
-  <!-- Background Image Placeholder -->
-
-  <!-- Profile Information Update Component -->
-  <div
-    class="bg-white bg-opacity-80 rounded-lg shadow-md p-8 max-w-lg w-full mx-4"
-  >
+<div class="min-h-screen pt-16 pb-16 flex items-center justify-center bg-cover bg-center" style="background-image: url('background2.webp')">
+  <div class="bg-white bg-opacity-80 rounded-lg shadow-md p-8 max-w-lg w-full mx-4">
     <h2 class="text-2xl font-semibold mb-6 text-center">Profile</h2>
-    <form
-      action="/updating_profile"
-      method="post"
-      class="flex flex-col space-y-4"
-    >
+    <form action="/updating_profile" method="post" enctype="multipart/form-data" class="flex flex-col space-y-4">
+      <div class="flex flex-col items-center">
+        <img id="profileImage" src="<%= profileImageUrl %>" alt="Profile Image" class="w-32 h-32 rounded-full object-cover border-4 border-white mb-4">
+        <label for="profileImageUpload" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Upload New Picture</label>
+        <input type="file" id="profileImageUpload" name="profile_image" class="hidden" accept="image/*">
+        <span id="uploadedImageName" class="mt-2"></span> <!-- Span to display the uploaded image name -->
+      </div>
       <div class="flex flex-col">
         <label class="font-medium">Display Name</label>
-        <input
-          name="display_name"
-          class="bg-gray-200 rounded-md p-2"
-          value="<%= user.display_name %>"
-        />
+        <input name="display_name" class="bg-gray-200 rounded-md p-2" value="<%= user.display_name %>">
       </div>
-
       <div class="flex flex-col">
         <label class="font-medium">Username</label>
-        <input
-          name="username"
-          class="bg-gray-200 rounded-md p-2"
-          value="<%= user.username %>"
-        />
+        <input name="username" class="bg-gray-200 rounded-md p-2" value="<%= user.username %>">
       </div>
-
       <div class="flex flex-col">
         <label class="font-medium">Email</label>
-        <input
-          name="email"
-          class="bg-gray-200 rounded-md p-2"
-          value="<%= user.email %>"
-        />
+        <input name="email" class="bg-gray-200 rounded-md p-2" value="<%= user.email %>">
       </div>
-
       <div class="flex justify-evenly pt-4">
-        <button
-          type="submit"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Save
-        </button>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
         <a href="/profile" class="text-blue-500 hover:underline">Go back</a>
       </div>
     </form>
   </div>
 </div>
-
 <script>
-  // Add JavaScript code here.
+  document.getElementById('profileImageUpload').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      document.getElementById('uploadedImageName').textContent = file.name;
+    }
+  });
 </script>
 <%- include("templates/navbar") %>
