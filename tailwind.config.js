@@ -33,7 +33,9 @@ module.exports = {
         "light-beige": "#f3efe9",
         "light-blue": "#8AE3E5",
         "font": "#717171",
-        
+        "calendar-yellow": "#F6E619",
+        "calendar-light-green": "#B0CA0F",
+        "calendar-green": "#69B42D",
       },
       keyframes: {
         idle: {

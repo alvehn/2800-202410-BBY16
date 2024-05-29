@@ -295,8 +295,8 @@ Extra added for groups.ejs
     flex-wrap: wrap;
     width: 100%;
     height: 100%;
+    padding-bottom: 1rem;
     justify-content: center;
-    margin: 0 auto;
     overflow-x: scroll;
 }
 .day-box {
@@ -313,14 +313,37 @@ Extra added for groups.ejs
     border-radius: 5px;
 }
 .low {
-    background-color: lightgreen;
+    /* background-color: lightgreen; */
+    background-color: #F6E619;
 }
 .medium {
-    background-color: greenyellow;
+    /* background-color: greenyellow; */
+    background-color: #B0CA0F;
+    
 }
 .high {
-    background-color: green;
+    /* background-color: green; */
+    background-color: #69B42D;
 }
+
+.calendar-container {
+    flex-grow: 1;
+}
+
+@media (max-width: 500px) {
+    .study-calendar {
+        padding: 0 !important; 
+        margin: 1rem !important;
+    }
+
+    .year-select-container {
+        display: flex;
+        justify-content: center !important;
+        align-items: center;
+        margin: 1rem 0;
+    }
+}
+
 .hover-image img {
     transition: all 0.3s ease;
   }
@@ -329,6 +352,11 @@ Extra added for groups.ejs
     max-height: 140px; /* Set a height limit, adjust as necessary */
     overflow-y: auto;
     padding: 1rem; /* Ensure there is enough padding for the hover outline */
+}
+
+#profile-header {
+    top: 0;
+    max-height: 240px;
 }
 
 @media (min-height: 670px) {
@@ -410,4 +438,3 @@ Extra added for groups.ejs
 .custom-border {
     border: 2px solid #8AE3E5 !important;
 }
-
