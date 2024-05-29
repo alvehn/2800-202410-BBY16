@@ -9,6 +9,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const ejs = require('ejs');
 const cron = require("node-cron");
+const socketIo = require('socket.io');
 const nodemailer = require("nodemailer");
 const { Int32 } = require("bson");
 const app = express();
@@ -67,6 +68,7 @@ const resetCodeCollection = studyPals.collection("reset_code");
 const individual_sessionsCollection = studyPals.collection(
   "individual_sessions"
 );
+const group_sessionsCollection = studyPals.collection("group_sessions");
 const sessionsCollection = studyPals.collection("sessions");
 const groupsCollection = studyPals.collection("groups");
 
@@ -155,7 +157,11 @@ app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   const validSession = req.session.authenticated;
-  res.render("index", { hasValidSession: validSession });
+  let username;
+  if (req.session.username) {
+    username = req.session.username;
+  }
+  res.render("index", { hasValidSession: validSession, username});
 });
 
 app.get("/signup", (req, res) => {
@@ -259,6 +265,7 @@ app.get("/groups", (req, res) => {
   res.render("groups", {
     currentPage: "groups",
     displayName: req.session.display_name,
+    username: req.session.username
   });
 });
 
@@ -292,6 +299,7 @@ app.get("/petinv", async (req, res) => {
       res.render("petinv", {
         current_pet_name: req.session.current_pet.name,
         ownedPets,
+        username: req.session.username
       });
     } else {
       console.error("No pet found with the given ID");
@@ -327,7 +335,7 @@ app.post("/update-pet", async (req, res) => {
 });
 
 app.get("/petshop", (req, res) => {
-  res.render("petshop");
+  res.render("petshop", { username: req.session.username });
 });
 
 app.get('/get-owned-items', async (req, res) => {
@@ -502,7 +510,8 @@ app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
   const user = await usersCollection.findOne({
     _id: new ObjectId(req.session.userID),
   });
-  res.render("home_page", { user: user });
+  let socketId = req.session.socketId
+  res.render("home_page", { user: user, socketId: socketId });
 });
 
 /*
@@ -530,7 +539,7 @@ app.post(
       const result = await individual_sessionsCollection.insertOne(newSession);
       const newSessionId = result.insertedId;
 
-      // Sets a interval function on server side to give players points periodically
+      // Sets an interval function on server side to give players points periodically
       const interval = 60 * 1000; // 1 minute in milliseconds
       async function updateCoins(userID) {
         let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
@@ -557,6 +566,7 @@ app.post(
                 inSession: true,
                 intervalId: Math.floor(intervalId),
                 currentSessionID: newSessionId,
+                group: false
               },
             },
             $push: {
@@ -586,16 +596,137 @@ app.get(
       const petName = user.current_pet_name;
       const intervalId = user.study_session.intervalId;
       const sessionId = new ObjectId(user.study_session.currentSessionID);
-      const studySession = await individual_sessionsCollection.findOne({
-        _id: sessionId,
-      });
+      let studySession;
+      let members;
+      if (user.study_session.group) {
+        studySession = await group_sessionsCollection.findOne({
+          _id: sessionId,
+        });
+        members = studySession.members;
+        console.log(members);
+        // Splices out the current user from the members array
+        var indexToRemove = members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
+        if (indexToRemove !== -1) {
+          members.splice(indexToRemove, 1);
+        }
+        console.log(members);
+      } else {
+        studySession = await individual_sessionsCollection.findOne({
+          _id: sessionId,
+        });
+      }
       const startTime = studySession.start_time;
+      let membersPet = [];
+      if (members) {
+        for (let member of members) {
+          let pet = await usersCollection.findOne(
+            { _id: member },
+            { projection: { current_pet_name: 1 } }
+          );
+          membersPet.push(pet.current_pet_name);
+        }
+      }
       res.render("study_session", {
         startTime: startTime.toISOString(),
         petName: petName,
         sessionId: sessionId,
-        intervalId: intervalId
+        intervalId: intervalId,
+        membersPet: membersPet,
+        username: req.session.username
       });
+    }
+  }
+);
+
+/*
+  The following handler is for starting a group study session.
+*/
+app.post(
+  "/start_group_session",
+  sessionValidation("start_group_session"),
+  async (req, res) => {
+    const isInSession = req.body.inSession === "true";
+    const userID = new ObjectId(req.session.userID);
+    const group = req.body.group;
+    const groupId = new ObjectId(group);
+    // Need to get members from database for selected Group
+    const members = await groupsCollection.findOne(
+      { _id: groupId },
+      { projection: { members: 1 } }
+    );
+
+    const joined = [userID]
+
+    if (isInSession) {
+      res.redirect(`/study_session`);
+      return;
+    } else {
+      const startTime = new Date();
+      const newSession = {
+        group_id: groupId,
+        start_time: startTime,
+        end_time: null,
+        duration: 0,
+        members: members.members,
+        joined: joined
+      };
+
+      const result = await group_sessionsCollection.insertOne(newSession);
+      const newSessionId = result.insertedId;
+
+      // Sets an interval function on server side to give players points periodically
+      const interval = 60 * 1000; // 1 minute in milliseconds
+      async function updateCoins(userID) {
+        let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
+        try {
+          await usersCollection.updateOne(
+            { _id: userID },
+            { $inc: { points: amount } }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      // Setup and runs interval function
+      const intervalId = setInterval(async () => {
+        await updateCoins(userID);
+      }, interval);
+
+      try {
+        await usersCollection.updateOne(
+          { _id: userID },
+          {
+            $set: {
+              study_session: {
+                inSession: true,
+                intervalId: Math.floor(intervalId),
+                currentSessionID: newSessionId,
+                group: true
+              },
+            },
+            $push: {
+              group_sessions: newSessionId,
+            },
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+
+      // Invite group members to join the group session
+      var indexToRemove = members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
+      if (indexToRemove !== -1) {
+        members.splice(indexToRemove, 1);
+      }
+      for (let member of members) {
+        let username = await usersCollection.findOne(
+          { _id: member },
+          { projection: { username: 1 } }
+        );
+        sendNotificationToUser(username);
+      }
+
+      res.redirect(`/study_session`);
     }
   }
 );
@@ -667,6 +798,7 @@ app.get("/friends", (req, res) => {
   res.render("friends", {
     currentPage: "friends",
     displayName: req.session.display_name,
+    username: req.session.username
   });
 });
 
@@ -711,7 +843,7 @@ app.get(
   "/change_password",
   sessionValidation("change_password"),
   async (req, res) => {
-    res.render("change_password", { error: null });
+    res.render("change_password", { error: null, username: req.session.username});
   }
 );
 
@@ -732,10 +864,10 @@ app.post(
         );
         res.redirect("/profile");
       } else {
-        res.render("change_password", { error: 2 });
+        res.render("change_password", { error: 2, username: req.session.username});
       }
     } else {
-      res.render("change_password", { error: 1 });
+      res.render("change_password", { error: 1, username: req.session.username});
     }
   }
 );
@@ -1145,6 +1277,69 @@ app.get("*", (req, res) => {
   res.render("404");
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log("The server is listening on port " + port);
 });
+
+const io = socketIo(server);
+let activeSocketIds = [];
+
+// Socket.IO logic
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  // Add the socket to room 'online'
+  socket.join('online'); 
+
+  // Listen for the 'username' event upon connection
+  socket.on('username', (username) => {
+    // Store the username with the socket object or associate it with the socket's ID
+    socket.username = username;
+  });
+
+  // Listen for accept_group_session from client
+  socket.on('accept_group_session', () => {
+    // check if they are in session
+    // then if its individual, or groups
+    // then end the respective current session
+    // then join into the invited group session 
+  });
+
+  // Example: sending a notification to a specific user
+  setTimeout(() => {
+    sendNotificationToUser('daniel');
+  }, 1000);
+  // Handle other Socket.IO events here
+});
+
+// Handle notifications
+function sendNotificationToUser(username) {
+  // Find the socket associated with the provided username
+  const socketToEmit = findSocketByUsernameInRoom("online", username)
+  // If the socket is found, emit the event
+  if (socketToEmit) {
+    socketToEmit.emit("notification", "You got a group invite!");
+  } else {
+    console.log(`Socket with username ${username} not found.`);
+  }
+}
+
+// Function to find a socket by username in a room
+function findSocketByUsernameInRoom(roomName, username) {
+  // Get all sockets in the specified room
+  const socketsInRoom = io.sockets.adapter.rooms.get(roomName);
+  
+  if (socketsInRoom) {
+    // Iterate over each socket ID in the room
+    for (const socketId of socketsInRoom) {
+      // Get the socket object
+      const socket = io.sockets.sockets.get(socketId);
+      
+      // Check if the socket has the specified username
+      if (socket && socket.username === username) {
+        return socket; // Return the socket if the username matches
+      }
+    }
+  }
+  
+  return null; // Return null if no socket with the username is found in the room
+}

@@ -291,3 +291,19 @@ Extra added for groups.ejs
     background-color: #B5E58A;
     color:#fff;
 }
+
+/*
+Extra added for notification popups
+*/
+
+.notification-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f8f9fa; /* Adjust background color as needed */
+    color: #212529; /* Adjust text color as needed */
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
+    z-index: 1000; /* Ensure it's above other content */
+}

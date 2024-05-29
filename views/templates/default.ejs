@@ -15,5 +15,39 @@
             font-family: 'Pixelify Sans';
         }
     </style>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body class="bg-beige">
+  <div id="notification-container"></div>
+  <script>
+    // Connect to the server using Socket.IO
+    const socket = io();
+
+    socket.on('connect', () => {
+      socket.emit('username', '<%= username %>');
+    });
+
+    // Listen for notifications from the server
+    socket.on('notification', (notification) => {
+      console.log('Received notification:', notification);
+      // Display the notification using a popup
+      displayNotification(notification);
+    });
+
+    // Function to display a floating notification popup
+    function displayNotification(notification) {
+      // Create a notification popup element
+      const popup = document.createElement('div');
+      popup.classList.add('notification-popup');
+      popup.textContent = notification;
+
+      // Append the popup to the notification container
+      const container = document.getElementById('notification-container');
+      container.appendChild(popup);
+
+      // Remove the popup after a certain duration (e.g., 5 seconds)
+      setTimeout(() => {
+        popup.remove();
+      }, 5000); // 5 seconds
+    }
+  </script>

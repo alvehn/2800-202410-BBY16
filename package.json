@@ -25,7 +25,8 @@
     "joi": "^17.13.1",
     "mongodb": "^6.6.1",
     "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",

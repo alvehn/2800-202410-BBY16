@@ -1,6 +1,6 @@
-<%- include("templates/default_header") %>
+<%- include("templates/default_header", { username: username }) %>
 <div class="h-screen relative mb-0 pb-0">
-  <div class="flex relative h-2/3 overflow-hidden justify-center">
+  <div id="canvas" class="flex relative h-2/3 overflow-hidden justify-center">
     <!-- Background layers for parallax effect -->
     <div class="parallax-layer layer1"></div>
     <div class="parallax-layer layer2"></div>
@@ -88,6 +88,31 @@ function calculatePoints(duration) {
   const randomFactor = Math.random();
   return Math.floor(base * proportionalFactor * randomFactor);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  let membersPet = '<%= membersPet %>'.split(',');
+  console.log('<%= membersPet %>');
+  console.log(membersPet);
+  let i = -100;
+  for (let pet of membersPet) {
+    // Create a new div element
+    var newDiv = document.createElement('div');
+
+    // Set class attribute for the div element
+    newDiv.className = "w-[320px] h-[160px] pet z-50 animate-run-" + pet;
+
+    newDiv.style.marginLeft = i + 'px';
+    // Set style attribute for the div element
+    newDiv.style.backgroundImage = "url('/sprite_sheets/" + pet + ".png')";
+
+    let canvas = document.getElementById("canvas");
+    // Append the div element to the document body (or any other parent element)
+    canvas.appendChild(newDiv);
+
+    i -= 100;
+  }
+});
+
 
 function updateDisplay() {
   const currentTime = new Date();
