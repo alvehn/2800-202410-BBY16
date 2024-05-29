@@ -1641,18 +1641,77 @@ io.on('connection', (socket) => {
   });
 
   // Listen for accept_group_session from client
-  socket.on('accept_group_session', (groupSessionId) => {
+  socket.on('accept_group_session', async (groupSessionId) => {
     // check if they are in session
     // then if its individual, or groups
     // then end the respective current session
     // then join into the invited group session 
+    const userID = new ObjectId(req.session.userID);
+    const user = await usersCollection.findOne({
+      _id: userID,
+    });
+    const isInSession = user.study_session.inSession === "true";
+    if (isInSession) {
+      res.redirect(`/study_session`);
+      return;
+    } else {
+
+      // Sets an interval function on server side to give players points periodically
+      const interval = 60 * 1000; // 1 minute in milliseconds
+      async function updateCoins(userID) {
+        let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
+        try {
+          await usersCollection.updateOne(
+            { _id: userID },
+            { $inc: { points: amount } }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      // Setup and runs interval function
+      const intervalId = setInterval(async () => {
+        await updateCoins(userID);
+      }, interval);
+
+      try {
+        await usersCollection.updateOne(
+          { _id: userID },
+          {
+            $set: {
+              study_session: {
+                inSession: true,
+                intervalId: Math.floor(intervalId),
+                currentSessionID: groupSessionId,
+                group: true
+              },
+            },
+            $push: {
+              group_sessions: groupSessionId,
+            },
+          }
+        );
+        await group_sessionsCollection.updateOne(
+          { _id: groupSessionId },
+          {
+            $push: {
+              joined: userID,
+            }
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+
+      res.redirect(`/study_session`);
+    }
     console.log("accepted group session:" + groupSessionId);
   });
 
   // Example: sending a notification to a specific user
-  setTimeout(() => {
-    sendNotificationToUser('daniel');
-  }, 1000);
+  // setTimeout(() => {
+  //   sendNotificationToUser('daniel');
+  // }, 1000);
 });
 
 // Handle notifications
