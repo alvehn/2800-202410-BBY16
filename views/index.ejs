@@ -31,17 +31,22 @@
     </form>
     <form action="/login" method="get">
       <button
-        class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow"
+        class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow mb-2"
         type="submit"
       >
         Log in
       </button>
     </form>
     <% } %>
-    <a
+    <button
+        class="bg-light-coral hover:bg-light-coral-700 text-white font-semibold py-2 px-4 rounded shadow mb-2"
+        type="submit"
+      >
+    <a class="text-white"
       href="https://accounts.google.com/o/oauth2/v2/auth?client_id=346808690886-6lh75824tlrvifnsal8vkcnqcak8719k.apps.googleusercontent.com&redirect_uri=http://localhost:3001/oauth2callback&response_type=code&scope=email%20profile"
       >Sign in with Google</a
     >
+    </button>
   </div>
 </div>
 <% for (let i = 0; i < 3; i++) { %>

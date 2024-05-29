@@ -1,18 +1,16 @@
 <%- include("templates/header") %>
 
-<a
-  href="/home_page"
-  class="absolute top-5 left-5 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
->
-  Back
-</a>
+<a href="/home_page"
+    class="absolute top-5 left-5 bg-light-coral text-white px-3 py-2 rounded-lg hover:bg-light-coral-700">
+    Back
+  </a>
 
 <div class="flex flex-col items-center justify-center h-screen">
   <h1 class="text-2xl font-bold">Current Pet</h1>
   <!-- Pet Image -->
   <!-- WARNING: THE BACKGROUND IMAGE STUDY MUST BE ONE IN **ONE LINE**!!! -->
   <div
-    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet-inv animate-idle z-50"
+    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet-inv animate-idle z-30"
     style="
       background-image: url('/sprite_sheets/<%= current_pet_name %><% if (equippedCostume) { %>_<%= equippedCostume %><% } %>.png');
     "
@@ -64,7 +62,7 @@
 
   <form action="/update-costume" method="POST">
     <button id="reset-costume-button">Remove Costume</button>
-  </form>
+  </form><br>
 
   <!-- An inventory for all the items owned -->
   <div></div>
