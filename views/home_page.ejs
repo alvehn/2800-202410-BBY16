@@ -1,14 +1,24 @@
 <%- include("templates/header", { username: user.username }) %>
 <div class="flex flex-col h-screen relative">
-  <div class="flex items-end justify-center bg-gray-200 relative h-2/3 overflow-hidden">
+  <div
+    class="flex items-end justify-center bg-gray-200 relative h-3/5 overflow-hidden"
+  >
     <!-- Background layers for parallax effect -->
     <div class="static-background-home"></div>
     <!-- animal sprite -->
-    <div class="w-[320px] h-[160px] pet z-20 animate-idle" style="background-image: url('/sprite_sheets/<%= user.current_pet_name %>.png')"></div>
+    <div
+      class="w-[320px] h-[160px] pet z-30 animate-idle"
+      style="
+        background-image: url('/sprite_sheets/<%= user.current_pet_name %><% if (equippedCostume) { %>_<%= equippedCostume %><% } %>.png');
+      "
+    ></div>
   </div>
 
   <div class="flex flex-col items-center justify-start bg-white pb-4 z-10 relative h-1/3">
     
+  <div
+    class="flex flex-col items-center justify-start bg-white pb-4 z-20 relative h-1/3"
+  >
     <div class="font-bold text-gray-700 mt-4 mb-3">
       <span id="hr" class="text-2xl">00</span>
       <span class="text-sm">Hr</span>
@@ -18,21 +28,44 @@
       <span class="text-sm">Sec</span>
     </div>
 
-    <div class="flex justify-center text-2xl font-bold text-gray-700 items-center w-full mt-3 mb-1">
-        <img src="/assets/Favicon.png" class="w-6 h-auto">
-        <span class="ml-5"><%= user.points %></span>
-    </div> 
+    <div
+      class="flex justify-center text-2xl font-bold text-gray-700 items-center w-full mt-3 mb-1"
+    >
+      <img src="/assets/Favicon.png" class="w-6 h-auto" />
+      <span class="ml-5"><%= user.points %></span>
+    </div>
 
-    <div class="mt-3">  
+    <div class="mt-3">
       <% if (user.study_session.inSession && !user.study_session.group) { %>
-        <form action="/start_study_session" method="POST">
+      <form action="/start_study_session" method="POST">
+        <input type="hidden" name="inSession" value="true" />
+        <button
+          type="submit"
+          class="px-4 py-2 bg-argentinian-blue text-white rounded transition"
+        >
+          View My Session
+        </button>
+      </form>
+      <% } else { %>
+      <form action="/start_study_session" method="POST">
+        <input type="hidden" name="inSession" value="false" />
+        <button
+          type="submit"
+          class="px-4 py-2 bg-argentinian-blue text-white rounded transition"
+        >
+          Start Study Session
+        </button>
+      </form>
+      <% } %>
+      <% if (user.study_session.inSession && user.study_session.group) { %>
+        <form action="/start_group_session" method="POST">
           <input type="hidden" name="inSession" value="true">
-          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">View My Session</button>
+          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">View Group Session</button>
         </form>
       <% } else { %>
-        <form action="/start_study_session" method="POST">
+        <form onsubmit="return openSelectGroups()">
           <input type="hidden" name="inSession" value="false">
-          <button type="submit" class="px-4 py-2 bg-argentinian-blue text-white rounded transition">Start Study Session</button>
+          <button type="submit" class="px-4 py-2 bg-argentinian-blue text-white rounded transition">Start Group Session</button>
         </form>
       <% } %>
       <% if (user.study_session.inSession && user.study_session.group) { %>
@@ -48,17 +81,45 @@
       <% } %>
     </div>
 
-    <div id="riddleModal" class="hidden fixed inset-0 flex items-center justify-center z-30 bg-gray-800 bg-opacity-75">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-1/3 relative">
-          <h2 class="text-2xl font-bold mb-4">Solve the Riddle</h2>
-          <p class="mb-4">Where do animals go to get their new tails when they're broken?</p>
-          <input type="text" id="riddleAnswer" class="w-full p-2 border border-gray-300 rounded mb-4" placeholder="Your answer">
-          <button onclick="checkAnswer()" class="bg-argentinian-blue text-white py-2 px-4 rounded hover:bg-blue-600">Submit</button>
-          <button onclick="closeModal()" class="bg-light-coral text-white rounded py-2 px-4 hover:bg-red-600">Close</button>
-          <p id="resultMessage" class="mt-4"></p>
-          <button id="claimPrizeButton" onclick="claimPrize()" class="hidden bg-celadon text-white py-2 px-4 rounded mt-4 hover:bg-green-600">Claim Prize</button>
+    <div
+      id="riddleModal"
+      class="hidden fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-75"
+    >
+      <div
+        class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-1/3 z-50 relative"
+      >
+        <h2 class="text-2xl font-bold mb-4">Solve the Riddle</h2>
+        <p class="mb-4">
+          Where do animals go to get their new tails when they're broken?
+        </p>
+        <input
+          type="text"
+          id="riddleAnswer"
+          class="w-full p-2 border border-gray-300 rounded mb-4"
+          placeholder="Your answer"
+        />
+        <button
+          onclick="checkAnswer()"
+          class="bg-argentinian-blue text-white py-2 px-4 rounded hover:bg-blue-600"
+        >
+          Submit
+        </button>
+        <button
+          onclick="closeModal()"
+          class="bg-light-coral text-white rounded py-2 px-4 hover:bg-red-600"
+        >
+          Close
+        </button>
+        <p id="resultMessage" class="mt-4"></p>
+        <button
+          id="claimPrizeButton"
+          onclick="claimPrize()"
+          class="hidden bg-celadon text-white py-2 px-4 rounded mt-4 hover:bg-green-600"
+        >
+          Claim Prize
+        </button>
       </div>
-    </div>
+      </div>
   </div>
 </div><br><br>
 

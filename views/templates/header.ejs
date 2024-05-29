@@ -8,7 +8,6 @@
   <link rel="stylesheet" type="text/css" href="/css/tailwind.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <title>StudyPals</title>
   <link rel="icon" href="/assets/favicon.png" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
     <style>
@@ -16,55 +15,74 @@
             font-family: 'Pixelify Sans';
         }
     </style>
+    <title>StudyPals</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body class="bg-beige">
-
-    <button id="dropdownButton"
-      class="absolute z-10 right-5 top-5 text-white bg-light-coral hover:bg-gray-100 rounded-lg text-sm px-3 py-2 text-center flex justify-center items-center"
+    <button id="dropdownButton" data-dropdown-toggle="dropdownMenu"
+      class="absolute z-10 right-4 top-5 text-white rounded-lg text-base px-3 py-2 text-center flex justify-center items-center"
       type="button">
-      <svg class="w-2.5 h-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <!-- <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l4 4 4-4" />
-      </svg>
+      </svg> -->
+      <img src="/assets/icons/dropdown.png" class="w-9 h-9">
+
     </button>
 
     <!-- Dropdown menu -->
-    <div id="dropdown"
-      class="absolute  right-5 top-5 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 hidden">
-      <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownButton">
-        <li>
-          <a href="/petshop" class="block px-4 py-2 hover:bg-gray-100">Shop</a>
-        </li>
-        <li>
-          <a href="/petinv" class="block px-4 py-2 hover:bg-gray-100">Inventory</a>
-        </li>
-        <li>
-          <a href="/change_password" class="block px-4 py-2 hover:bg-gray-100">Change Password</a>
-        </li>
-        <li>
-          <a href="/logout" class="block px-4 py-2 hover:bg-gray-100">Log out</a>
-        </li>
-      </ul>
+    <div id="dropdownMenu" class="absolute right-4 top-16 z-50  bg-white divide-y divide-white rounded-lg shadow w-44  dark:divide-light-coral hidden ">
+      <div class="py-2" aria-labelledby="dropdownButton">
+        <div>
+          <a href="/petshop" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+            <img src="/assets/icons/shop_coral.png" class="w-7 h-7 mr-4" data-hover="/assets/icons/shop_white.png">Shop</a>
+        </div>
+        <div>
+          <a href="/petinv" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+            <img src="/assets/icons/pets_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/pets_white.png">Inventory</a>
+        </div>
+        <div>
+          <a href="/change_password" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+            <img src="/assets/icons/profile_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/shop_white.png">Change Password</a>
+        </div>
+      </div>
+      <div class="py-2">
+        <a href="/logout" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+          <img src="/assets/icons/logout_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/logout_white.png">Logout</a>
+      </div>
     </div>
 
     <div id="notification-container"></div>
 
   <script>
-
     // JavaScript for toggling the dropdown menu
-    document.getElementById('dropdownButton').addEventListener('click', function () {
-      const dropdown = document.getElementById('dropdown');
-      dropdown.classList.toggle('hidden');
+    document.getElementById('dropdownButton').addEventListener('click', function (event) {
+      event.stopPropagation();
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      dropdownMenu.classList.toggle('hidden');
     });
 
     // Close the dropdown when clicking outside of it
     document.addEventListener('click', function (event) {
-      const dropdown = document.getElementById('dropdown');
+      const dropdownMenu = document.getElementById('dropdownMenu');
       const button = document.getElementById('dropdownButton');
-      if (!button.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.add('hidden');
+      if (!button.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.add('hidden');
       }
+    });
+
+    document.querySelectorAll('.hover-image').forEach(link => {
+      const img = link.querySelector('img');
+      const originalSrc = img.src;
+      const hoverSrc = img.getAttribute('data-hover');
+
+      link.addEventListener('mouseenter', () => {
+        img.src = hoverSrc;
+      });
+
+      link.addEventListener('mouseleave', () => {
+        img.src = originalSrc;
+      });
     });
   </script>
 

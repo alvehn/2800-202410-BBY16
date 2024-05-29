@@ -7,13 +7,17 @@ const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const ejs = require('ejs');
+const ejs = require("ejs");
 const cron = require("node-cron");
 const socketIo = require('socket.io');
 const nodemailer = require("nodemailer");
-const { Int32 } = require("bson");
+const axios = require("axios");
+const cloudinary = require('cloudinary');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
+const querystring = require("querystring");
 
 /* 
     Importing database schema 
@@ -24,7 +28,6 @@ const group_session_schema = require("./models/group_session_schema");
 const study_group_schema = require("./models/group_schema");
 const costume_schema = require("./models/costume_schema");
 const achievement_schema = require("./models/achievement_schema");
-
 
 /*
     This part are all the static number for our project 
@@ -46,7 +49,10 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_host = process.env.MONGODB_HOST;
 const email_account = process.env.EMAIL_ACCOUNT;
 const email_password = process.env.EMAIL_PASSWORD;
-const runScheduledTask = process.env.RUN_SCHEDULED_TASK === 'true';
+const runScheduledTask = process.env.RUN_SCHEDULED_TASK === "true";
+const cloudinary_name = process.env.CLOUDINARY_CLOUD_NAME;
+const cloudinary_key = process.env.CLOUDINARY_CLOUD_KEY;
+const cloudinary_secret = process.env.CLOUDINARY_CLOUD_SECRET;
 
 /*
     This part are for database connection.
@@ -69,13 +75,18 @@ const individual_sessionsCollection = studyPals.collection(
   "individual_sessions"
 );
 const group_sessionsCollection = studyPals.collection("group_sessions");
-const sessionsCollection = studyPals.collection("sessions");
 const groupsCollection = studyPals.collection("groups");
+const costumesCollection = studyPals.collection("costumes");
 
 /* Validating that when you try to update the database, it ensures that it doesn't violate these properties. */
 studyPals.command({
   collMod: "users",
   validator: user_schema,
+});
+
+studyPals.command({
+  collMod: "costumes",
+  validator: costume_schema,
 });
 
 /*
@@ -138,6 +149,18 @@ function accountValidation() {
   };
 }
 
+// This is for verifying the token when a user logs in with their gmail.
+async function verifyToken(idToken) {
+  const { OAuth2Client } = require("google-auth-library");
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const ticket = await client.verifyIdToken({
+    idToken: idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  return payload;
+}
+
 /*
   This part is for mail transpoter
 */
@@ -151,9 +174,85 @@ const gmailTransporter = nodemailer.createTransport({
 });
 
 /*
+  This part is for cloudinary config for uploading files
+  and the setting for multer
+*/
+
+cloudinary.config({
+  cloud_name: cloudinary_name,
+  api_key: cloudinary_key,
+  api_secret: cloudinary_secret
+})
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage});
+
+/*
     Below are route handlers
 */
 app.set("view engine", "ejs");
+
+// Handling google authorization API callback.
+app.get("/oauth2callback", async (req, res) => {
+  const code = req.query.code;
+
+  // Exchange authorization code for access token
+  try {
+    const response = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      querystring.stringify({
+        code: code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: "authorization_code",
+      })
+    );
+
+    const tokens = response.data;
+    const idToken = tokens.id_token;
+
+    // Verify the ID token and get user info
+    const userInfo = await verifyToken(idToken);
+    // Handle user info (e.g., create a session, store user data in the database)
+    let user = await usersCollection.findOne({ email: userInfo.email });
+
+    // Handles logging in with your gmail.
+    if (user) {
+      await usersCollection.updateOne(
+        { email: userInfo.email },
+        { $set: { status: "online" } }
+      );
+      req.session.authenticated = true;
+      req.session.userID = user._id.toString();
+      req.session.username = user.username;
+      req.session.display_name = user.display_name;
+      req.session.friends = user.friends;
+      req.session.incoming_requests = user.incoming_requests;
+      req.session.groups = user.groups;
+      req.session.cookie.maxAge = expireTime;
+      req.session.current_pet = await petsCollection.findOne({
+        _id: user.current_pet,
+      });
+      req.session.current_costume = await costumesCollection.findOne({
+        _id: user.current_costume,
+      });
+
+      await usersCollection.updateOne(
+        { _id: new ObjectId(req.session.userID) },
+        { $set: { current_pet_name: req.session.current_pet.name } }
+      );
+
+      return res.redirect("/home_page");
+    } else {
+      // Handles signing up for an account using the users email.
+      return res.redirect(`/signup?email=${userInfo.email}&name=${userInfo.name}`);
+    }
+  } catch (error) {
+    console.error("Error exchanging authorization code:", error);
+    res.status(500).send("Authentication failed");
+  }
+});
 
 app.get("/", (req, res) => {
   const validSession = req.session.authenticated;
@@ -167,11 +266,13 @@ app.get("/", (req, res) => {
 app.get("/signup", (req, res) => {
   const { emailInUse, nameInUse } = req.query;
   const errors = {};
+  let email = req.query.email;
+  let name = req.query.name;
 
   if (emailInUse) errors.emailInUse = "Email is already in use";
   if (nameInUse) errors.nameInUse = "Username is already in use";
 
-  res.render("signup", { errors });
+  res.render("signup", { errors, email, name });
 });
 
 app.post("/signupSubmit", accountValidation(), async (req, res) => {
@@ -213,10 +314,12 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
         display_name: displayname,
         current_pet: new ObjectId("664d3a5cfd6cca06e79cc641"),
         current_pet_name: "fox",
+        current_costume: null,
         friends: [],
         incoming_requests: [],
         groups: [],
         pets_owned: [new ObjectId("664d3a5cfd6cca06e79cc641")],
+        costumes_owned: [],
         total_study_hours: 0, // Initialize with default values
         points: 0, // Initialize with default values
         study_streak: 0, // Initialize with default values
@@ -228,6 +331,7 @@ app.post("/signupSubmit", accountValidation(), async (req, res) => {
           inSession: false,
           intervalId: 0,
           currentSessionID: null,
+          group: false,
         },
         hours_per_day: 0,
         study_history: [],
@@ -277,14 +381,16 @@ app.get("/petinv", async (req, res) => {
       _id: new ObjectId(req.session.userID),
     });
 
-    const ownedPets = [];
+    const ownedPetsPromises = user.pets_owned.map(async (pet) => {
+      return await petsCollection.findOne({ _id: pet });
+    });
 
-    for (let i = 0; i < user.pets_owned.length; i++) {
-      let pet = await petsCollection.findOne({
-        _id: user.pets_owned[i],
-      });
-      ownedPets.push(pet);
-    }
+    const ownedCostumesPromises = user.costumes_owned.map(async (costume) => {
+      return await costumesCollection.findOne({ _id: costume });
+    });
+
+    const ownedPets = await Promise.all(ownedPetsPromises);
+    const ownedCostumes = await Promise.all(ownedCostumesPromises);
 
     if (!currentPetId) {
       console.error("No current pet ID in session");
@@ -295,11 +401,23 @@ app.get("/petinv", async (req, res) => {
       _id: new ObjectId(currentPetId),
     });
 
+    let equippedCostume = null;
+
+    if (user.current_costume) {
+      const costume = await costumesCollection.findOne({
+        _id: new ObjectId(user.current_costume),
+      });
+
+      equippedCostume = costume ? costume.name : null;
+    }
+
     if (currentPet) {
       res.render("petinv", {
         current_pet_name: req.session.current_pet.name,
         ownedPets,
-        username: req.session.username
+        username: req.session.username,
+        ownedCostumes,
+        equippedCostume,
       });
     } else {
       console.error("No pet found with the given ID");
@@ -313,7 +431,7 @@ app.get("/petinv", async (req, res) => {
 
 app.post("/update-pet", async (req, res) => {
   // Changes what pet the user has equipped.
-  const result = await usersCollection.updateMany(
+  let result = await usersCollection.updateMany(
     { _id: new ObjectId(req.session.userID) },
     {
       $set: {
@@ -334,35 +452,127 @@ app.post("/update-pet", async (req, res) => {
   }
 });
 
-app.get("/petshop", (req, res) => {
-  res.render("petshop", { username: req.session.username });
-});
+app.post("/update-costume", async (req, res) => {
+  let update;
+  if (req.body.costumeId) {
+    update = { current_costume: new ObjectId(req.body.costumeId) };
+  } else {
+    update = { current_costume: null };
+  }
 
-app.get('/get-owned-items', async (req, res) => {
-  const userId = new ObjectId(req.session.userID);
-  const user = await usersCollection.findOne({ _id: userId }, { projection: { pets_owned: 1, costumes_owned: 1 } });
-
-  res.status(200).json(user);
-});
-
-app.post('/buy-pet', async (req, res) => {
-  const user = await usersCollection.updateOne(
-    { _id: new ObjectId(req.session.userID) },  // Query to find the document
-    { $push: { pets_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+  let result = await usersCollection.updateMany(
+    { _id: new ObjectId(req.session.userID) },
+    {
+      $set: update,
+    }
   );
 
-  res.status(200).send('Item added to account');
+  if (req.body.costumeId) {
+    req.session.current_costume = await costumesCollection.findOne({
+      _id: new ObjectId(req.body.costumeId),
+    });
+  } else {
+    req.session.current_costume = null;
+  }
 
+  if (result.acknowledged) {
+    res.json({ success: true, message: "success updating costume" });
+  } else {
+    res.json({ success: false, message: "error updating costume" });
+  }
 });
 
-app.post('/buy-item', async (req, res) => {
-  const user = await usersCollection.updateOne(
-    { _id: new ObjectId(req.session.userID) },  // Query to find the document
-    { $push: { costumes_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+app.get("/petshop", async (req, res) => {
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(req.session.userID),
+  });
+
+  // Gets all the costumes from the costumes collection.
+  const costumes = await costumesCollection.find({}).toArray();
+  // Gets all the pets from the pets collection.
+  const pets = await petsCollection.find({}).toArray();
+
+  // Passing all the costumes and pets from the database.
+  res.render("petshop", { user: user, costumes, pets, username: req.session.username });
+});
+
+app.get("/get-user-points", async (req, res) => {
+  const userId = req.session.userID;
+  const user = await usersCollection.findOne(
+    { _id: new ObjectId(userId) },
+    { projection: { points: 1 } }
   );
 
-  res.status(200).send('Item added to account');
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
 
+  res.json({ points: user.points });
+});
+
+app.get("/get-owned-items", async (req, res) => {
+  const user = await usersCollection.findOne(
+    { _id: new ObjectId(req.session.userID) },
+    { projection: { pets_owned: 1, costumes_owned: 1 } }
+  );
+
+  if (user) {
+    res.json({
+      pets_owned: user.pets_owned || [],
+      costumes_owned: user.costumes_owned || [],
+    });
+  }
+});
+
+// app.post('/buy-pet', async (req, res) => {
+//   const user = await usersCollection.updateOne(
+//     { _id: new ObjectId(req.session.userID) },  // Query to find the document
+//     { $push: { pets_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
+//   );
+
+//   res.status(200).send('Item added to account');
+// });
+
+app.post("/buy-pet", async (req, res) => {
+  const userId = req.session.userID;
+  const petId = req.body.itemId;
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  const pet = await petsCollection.findOne({ _id: new ObjectId(petId) });
+  if (user.points < pet.cost) {
+    return res.status(400).send("Not enough points to buy this pet");
+  }
+
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    {
+      $inc: { points: -pet.cost },
+      $push: { pets_owned: new ObjectId(petId) },
+    }
+  );
+
+  // res.status(200).send('Pet added to account');
+});
+
+app.post("/buy-item", async (req, res) => {
+  const userId = req.session.userID;
+  const costumeId = req.body.itemId;
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  const costume = await costumesCollection.findOne({
+    _id: new ObjectId(costumeId),
+  });
+  if (user.points < costume.cost) {
+    return res.status(400).send("Not enough points to buy this costume");
+  }
+
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    {
+      $inc: { points: -costume.cost },
+      $push: { costumes_owned: new ObjectId(costumeId) },
+    }
+  );
+
+  res.status(200).send("Item added to account");
 });
 
 app.get("/login", (req, res) => {
@@ -393,6 +603,7 @@ app.post("/loggingin", async (req, res) => {
         _id: 1,
         current_pet: 1,
         display_name: 1,
+        current_costume: 1,
       })
       .toArray();
     if (result.length != 1) {
@@ -412,6 +623,9 @@ app.post("/loggingin", async (req, res) => {
       req.session.cookie.maxAge = expireTime;
       req.session.current_pet = await petsCollection.findOne({
         _id: result[0].current_pet,
+      });
+      req.session.current_costume = await costumesCollection.findOne({
+        _id: result[0].current_costume,
       });
 
       await usersCollection.updateOne(
@@ -510,8 +724,20 @@ app.get("/home_page", sessionValidation("home_page"), async (req, res) => {
   const user = await usersCollection.findOne({
     _id: new ObjectId(req.session.userID),
   });
-  let socketId = req.session.socketId
-  res.render("home_page", { user: user, socketId: socketId });
+  let equippedCostume = null;
+
+  // Checks if there are any costumes equipped.
+  if (
+    req.session.current_costume !== null &&
+    req.session.current_costume !== undefined
+  ) {
+    equippedCostume = req.session.current_costume.name;
+  }
+
+  res.render("home_page", {
+    user: user,
+    equippedCostume,
+  });
 });
 
 /*
@@ -542,7 +768,7 @@ app.post(
       // Sets an interval function on server side to give players points periodically
       const interval = 60 * 1000; // 1 minute in milliseconds
       async function updateCoins(userID) {
-        let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
+        let amount = Math.floor(Math.random() * 11 + 45.5); // random points between 45 and 55
         try {
           await usersCollection.updateOne(
             { _id: userID },
@@ -594,6 +820,15 @@ app.get(
       res.redirect("/home_page");
     } else {
       const petName = user.current_pet_name;
+
+      let equippedCostume = null;
+      if (user.current_costume) {
+        const costume = await costumesCollection.findOne({
+          _id: new ObjectId(user.current_costume),
+        });
+
+        equippedCostume = costume ? costume.name : null;
+      }
       const intervalId = user.study_session.intervalId;
       const sessionId = new ObjectId(user.study_session.currentSessionID);
       let studySession;
@@ -631,6 +866,7 @@ app.get(
         petName: petName,
         sessionId: sessionId,
         intervalId: intervalId,
+        equippedCostume,
         membersPet: membersPet,
         username: req.session.username
       });
@@ -731,24 +967,113 @@ app.post(
   }
 );
 
-app.get(
-  "/get_points",
-  sessionValidation("study_session"),
+/*
+  The following handler is for starting a group study session.
+*/
+app.post(
+  "/start_group_session",
+  sessionValidation("start_group_session"),
   async (req, res) => {
-    const user = await usersCollection.findOne({
-      _id: new ObjectId(req.session.userID),
-    });
-    if (!user.study_session.inSession) {
-      res.redirect("/home_page");
+    const isInSession = req.body.inSession === "true";
+    const userID = new ObjectId(req.session.userID);
+    const group = req.body.group;
+    const groupId = new ObjectId(group);
+    // Need to get members from database for selected Group
+    const members = await groupsCollection.findOne(
+      { _id: groupId },
+      { projection: { members: 1 } }
+    );
+
+    const joined = [userID]
+
+    if (isInSession) {
+      res.redirect(`/study_session`);
+      return;
     } else {
-      let points = await usersCollection.findOne(
-        { _id: new ObjectId(req.session.userID) },
-        { projection: { points: 1 } }
-      );
-      res.send( points );
+      const startTime = new Date();
+      const newSession = {
+        group_id: groupId,
+        start_time: startTime,
+        end_time: null,
+        duration: 0,
+        members: members.members,
+        joined: joined
+      };
+
+      const result = await group_sessionsCollection.insertOne(newSession);
+      const newSessionId = result.insertedId;
+
+      // Sets an interval function on server side to give players points periodically
+      const interval = 60 * 1000; // 1 minute in milliseconds
+      async function updateCoins(userID) {
+        let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
+        try {
+          await usersCollection.updateOne(
+            { _id: userID },
+            { $inc: { points: amount } }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      // Setup and runs interval function
+      const intervalId = setInterval(async () => {
+        await updateCoins(userID);
+      }, interval);
+
+      try {
+        await usersCollection.updateOne(
+          { _id: userID },
+          {
+            $set: {
+              study_session: {
+                inSession: true,
+                intervalId: Math.floor(intervalId),
+                currentSessionID: newSessionId,
+                group: true
+              },
+            },
+            $push: {
+              group_sessions: newSessionId,
+            },
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+
+      // Invite group members to join the group session
+      var indexToRemove = members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
+      if (indexToRemove !== -1) {
+        members.splice(indexToRemove, 1);
+      }
+      for (let member of members) {
+        let username = await usersCollection.findOne(
+          { _id: member },
+          { projection: { username: 1 } }
+        );
+        sendNotificationToUser(username);
+      }
+
+      res.redirect(`/study_session`);
     }
   }
 );
+
+app.get("/get_points", sessionValidation("study_session"), async (req, res) => {
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(req.session.userID),
+  });
+  if (!user.study_session.inSession) {
+    res.redirect("/home_page");
+  } else {
+    let points = await usersCollection.findOne(
+      { _id: new ObjectId(req.session.userID) },
+      { projection: { points: 1 } }
+    );
+    res.send(points);
+  }
+});
 
 app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
   const userId = new ObjectId(req.session.userID);
@@ -782,7 +1107,7 @@ app.post("/end_session", sessionValidation("end_session"), async (req, res) => {
       },
       $inc: {
         total_study_hours: duration,
-        hours_per_day: duration
+        hours_per_day: duration,
       },
     }
   );
@@ -806,7 +1131,11 @@ app.get("/profile", sessionValidation("profile"), async (req, res) => {
   const result = await usersCollection.findOne({
     _id: new ObjectId(req.session.userID),
   });
-  res.render("profile", { user: result });
+
+  const cloudinaryBaseUrl = `https://res.cloudinary.com/${cloudinary_name}/image/upload/`;
+  const defaultProfileImageUrl = '/profile_images/profile1.png';
+  const profileImageUrl = result.equip_profile_image ? cloudinaryBaseUrl + result.equip_profile_image : defaultProfileImageUrl;
+  res.render("profile", { user: result, profileImageUrl: profileImageUrl });
 });
 
 app.get(
@@ -816,26 +1145,50 @@ app.get(
     const result = await usersCollection.findOne({
       _id: new ObjectId(req.session.userID),
     });
-    res.render("update_profile", { user: result });
+
+    const cloudinaryBaseUrl = `https://res.cloudinary.com/${cloudinary_name}/image/upload/`;
+    const defaultProfileImageUrl = '/profile_images/profile1.png';
+    const profileImageUrl = result.equip_profile_image ? cloudinaryBaseUrl + result.equip_profile_image : defaultProfileImageUrl;
+    res.render("update_profile", { user: result, profileImageUrl: profileImageUrl });
   }
 );
 
 app.post(
   "/updating_profile",
+  upload.single('profile_image'),
   sessionValidation("updating_profile"),
   async (req, res) => {
     const { display_name, username, email } = req.body;
-    await usersCollection.updateOne(
-      { _id: new ObjectId(req.session.userID) },
-      {
-        $set: {
-          display_name: display_name,
-          username: username,
-          email: email,
-        },
+    const userId = new ObjectId(req.session.userID);
+    const userIdStr = userId.toString();
+
+    let updateData = {
+      display_name: display_name,
+      username: username,
+      email: email
+    }
+
+    if(req.file){
+      const buffer = req.file.buffer;
+      const dataURI = `data:${req.file.mimetype};base64,${buffer.toString('base64')}`;
+
+      try {
+        const publicId = `profile_${userIdStr}`; // Use the string version of userId
+        const result = await cloudinary.uploader.upload(dataURI, { public_id: publicId });
+        console.log("image update sucessfully");
+        updateData.equip_profile_image = result.public_id;
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        return res.status(500).send('Error uploading image');
       }
+    }
+
+    await usersCollection.updateOne(
+      {_id: userId},
+      { $set: updateData}
     );
-    res.redirect("/profile");
+
+    res.redirect('/profile');
   }
 );
 
@@ -1024,11 +1377,11 @@ app.post("/friend_profile", async (req, res) => {
   const result = await usersCollection.findOne({
     username: username,
   });
-  // Render the EJS template and send it as the response
+  // the EJS template and send it as the response
   ejs.renderFile("views/profile.ejs", { user: result }, (err, html) => {
     if (err) {
       console.error(err);
-      res.status(500).send('Internal Server Error');
+      res.status(500).send("Internal Server Error");
       return;
     }
     res.send(html);
@@ -1095,33 +1448,17 @@ app.post("/groups/get_groups", async (req, res) => {
   res.json({ groups });
 });
 
-app.post("/groups/get_group_name", async (req, res) => {
+app.post("/groups/get_group_details", async (req, res) => {
   let group_id = req.body.group_id;
   let objId = new ObjectId(group_id);
   try {
     let group = await groupsCollection.findOne(
       { _id: objId },
-      { projection: { group_name: 1 } }
+      { projection: { group_name: 1, members: 1 } }
     );
     let groupName = group.group_name;
-    res.json({ groupName });
-    return;
-  } catch (err) {
-    res.json(err);
-    return;
-  }
-});
-
-app.post("/groups/get_group_members_count", async (req, res) => {
-  let group_id = req.body.group_id;
-  let objId = new ObjectId(group_id);
-  try {
-    let group = await groupsCollection.findOne(
-      { _id: objId },
-      { projection: { members: 1 } }
-    );
     let membersCount = group.members.length;
-    res.json({ membersCount });
+    res.json({ groupName, membersCount });
     return;
   } catch (err) {
     res.json(err);
@@ -1195,7 +1532,6 @@ app.post("/notifications/decline", async (req, res) => {
   This part are scheduled task that will run ar a specific time.
 */
 if (runScheduledTask) {
-  console.log("Schedule a task run at midnight");
   cron.schedule("0 0 * * *", async () => {
     console.log("Updating users' study history at midnight");
     const today = new Date();
@@ -1204,7 +1540,9 @@ if (runScheduledTask) {
 
     try {
       // Find all users with active study sessions
-      const activeSessions = await usersCollection.find({ "study_session.inSession": true }).toArray();
+      const activeSessions = await usersCollection
+        .find({ "study_session.inSession": true })
+        .toArray();
 
       // End the study session for active users
       const endSessionPromises = activeSessions.map(async (user) => {
@@ -1213,7 +1551,9 @@ if (runScheduledTask) {
 
         // End the study session
         const endTime = new Date();
-        const session = await individual_sessionsCollection.findOne({ _id: sessionId });
+        const session = await individual_sessionsCollection.findOne({
+          _id: sessionId,
+        });
         const startTime = session.start_time;
         const duration = Math.floor((endTime - startTime) / 1000);
 
@@ -1228,12 +1568,12 @@ if (runScheduledTask) {
           {
             $set: {
               "study_session.inSession": false,
-              "study_session.currentSessionID": null
+              "study_session.currentSessionID": null,
             },
             $inc: {
               total_study_hours: duration,
-              hours_per_day: duration
-            }
+              hours_per_day: duration,
+            },
           }
         );
       });
@@ -1246,7 +1586,7 @@ if (runScheduledTask) {
       const updateUsersPromises = users.map(async (user) => {
         const historyEntry = {
           date: formattedDate,
-          total_hours: user.hours_per_day || 0
+          total_hours: user.hours_per_day || 0,
         };
         await usersCollection.updateOne(
           { _id: user._id },
@@ -1260,7 +1600,9 @@ if (runScheduledTask) {
       // Reset hours_per_day for all users
       await usersCollection.updateMany({}, { $set: { hours_per_day: 0 } });
 
-      console.log("Successfully updated users' study history and reset hours_per_day");
+      console.log(
+        "Successfully updated users' study history and reset hours_per_day"
+      );
     } catch (error) {
       console.log("Error updating users' study history:", error);
     }

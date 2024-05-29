@@ -15,13 +15,6 @@ const costume_schema = {
         bsonType: "int",
         description: "must be a number and is required",
       },
-      compatibility: {
-        bsonType: "array",
-        items: {
-          bsonType: "objectId",
-        },
-        description: "must be an array of pet IDs that can equipt this costume",
-      },
       description: {
         bsonType: "string",
         description: "must be a string and is required",

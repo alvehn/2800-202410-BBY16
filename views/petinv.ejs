@@ -1,18 +1,19 @@
 <%- include("templates/header", { username: username }) %>
 
-<a
-  href="/home_page"
-  class="absolute top-5 left-5 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
->
-  Back
-</a>
+<a href="/home_page"
+    class="absolute top-5 left-5 bg-light-coral text-white px-3 py-2 rounded-lg hover:bg-light-coral-700">
+    Back
+  </a>
 
 <div class="flex flex-col items-center justify-center h-screen">
   <h1 class="text-2xl font-bold">Current Pet</h1>
   <!-- Pet Image -->
+  <!-- WARNING: THE BACKGROUND IMAGE STUDY MUST BE ONE IN **ONE LINE**!!! -->
   <div
-    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet-inv animate-idle z-50"
-    style="background-image: url('/sprite_sheets/<%= current_pet_name %>.png')"
+    class="w-[320px] h-[160px] pb-48 bg-no-repeat bg-left-top pet-inv animate-idle z-30"
+    style="
+      background-image: url('/sprite_sheets/<%= current_pet_name %><% if (equippedCostume) { %>_<%= equippedCostume %><% } %>.png');
+    "
   ></div>
 
   <!-- Inventory Grid -->
@@ -41,6 +42,27 @@
       </div> -->
     </div>
   </div>
+
+  <div class="relative w-full max-w-xs bg-gray-200 p-4 rounded-lg">
+    <h1 class="text-2xl font-bold text-center mb-4">Costumes Owned</h1>
+    <div class="relative grid grid-cols-2 gap-4">
+      <!-- Example Items -->
+      <% for (let i = 0; i < ownedCostumes.length; i++) { %>
+      <div class="bg-white p-1 rounded-lg shadow-md text-center">
+        <img
+          src="/assets/costumes/<%= ownedCostumes[i].name %>.png"
+          alt="Item 1"
+          class="w-full h-24 object-cover mb-2"
+          id="<%= ownedCostumes[i].name %>"
+        />
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <form action="/update-costume" method="POST">
+    <button id="reset-costume-button">Remove Costume</button>
+  </form><br>
 
   <!-- An inventory for all the items owned -->
   <div></div>
@@ -77,6 +99,78 @@
           });
       });
     }
+
+    const ownedCostumes = <%- JSON.stringify(ownedCostumes) %>;
+
+    for (let i = 0; i < ownedCostumes.length; i++) {
+      const costume = document.getElementById(ownedCostumes[i].name);
+
+      costume.addEventListener("click", () => {
+        const costumeId = ownedCostumes[i]._id;
+
+        fetch("/update-costume", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ costumeId }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              console.log(data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error: " + error);
+          });
+      });
+    }
+
+    const resetButton = document.getElementById("reset-costume-button");
+
+  // Ensure this script runs once the DOM is fully loaded
+  if (resetButton) {
+    // Check if the resetButton already has an event listener
+    if (!resetButton.dataset.listenerAdded) {
+      resetButton.addEventListener("click", (event) => {
+        event.preventDefault(); // Prevent form submission if the button is within a form
+        const costumeId = null;
+
+        fetch("/update-costume", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ costumeId }),
+        })
+          .then(response => {
+            console.log('Received response:', response);
+            if (!response.ok) {
+              throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Parsed JSON data:', data);
+            if (data.success) {
+              console.log("Success! Redirecting to /petinv");
+              window.location.href = "/petinv"; // Redirect to the "petinv" directory
+            } else {
+              console.log('Server returned error message:', data.message);
+            }
+          })
+          .catch(error => {
+            console.error("Error caught in catch block:", error);
+          });
+      });
+      resetButton.dataset.listenerAdded = true; // Mark that the listener has been added
+    }
+  } else {
+    console.error('resetButton element not found');
+  }
   });
 
   
