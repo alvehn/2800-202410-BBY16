@@ -17,6 +17,12 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const { ObjectId } = require("mongodb"); // Use new ObjectId() to generate a new unique ID
 const querystring = require("querystring");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
 
 /* 
     Importing database schema 
@@ -149,8 +155,6 @@ function accountValidation() {
 
 // This is for verifying the token when a user logs in with their gmail.
 async function verifyToken(idToken) {
-  const { OAuth2Client } = require("google-auth-library");
-  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   const ticket = await client.verifyIdToken({
     idToken: idToken,
     audience: process.env.GOOGLE_CLIENT_ID,
@@ -190,6 +194,18 @@ const upload = multer({ storage: storage});
 */
 app.set("view engine", "ejs");
 
+app.get("/googlesignin", (req, res) => {
+  const url = client.generateAuthUrl({
+    access_type: "offline",
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email",
+    ],
+    prompt: "consent",
+  });
+  res.redirect(url);
+});
+
 // Handling google authorization API callback.
 app.get("/oauth2callback", async (req, res) => {
   const code = req.query.code;
@@ -204,7 +220,14 @@ app.get("/oauth2callback", async (req, res) => {
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
         redirect_uri: process.env.GOOGLE_REDIRECT_URI,
         grant_type: "authorization_code",
-      })
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        },
+      }
     );
 
     const tokens = response.data;
@@ -244,7 +267,9 @@ app.get("/oauth2callback", async (req, res) => {
       return res.redirect("/home_page");
     } else {
       // Handles signing up for an account using the users email.
-      return res.redirect(`/signup?email=${userInfo.email}&name=${userInfo.name}`);
+      return res.redirect(
+        `/signup?email=${userInfo.email}&name=${userInfo.name}`
+      );
     }
   } catch (error) {
     console.error("Error exchanging authorization code:", error);
@@ -1309,7 +1334,7 @@ app.post("/notifications/decline", async (req, res) => {
 */
 if (runScheduledTask) {
   console.log("Daily task is scheduled to run at midnight to update user document");
-  cron.schedule("*/2 * * * *", async () => {
+  cron.schedule("0 0 * * *", async () => {
     console.log("Updating users' study history at midnight");
     const today = new Date();
     today.setDate(today.getDate() - 1);
