@@ -959,7 +959,8 @@ app.post(
           { _id: member },
           { projection: { username: 1 } }
         );
-        sendNotificationToUser(username);
+        console.log(username.username);
+        sendNotificationToUser(username.username);
       }
 
       res.redirect(`/study_session`);
