@@ -169,6 +169,19 @@ This section is the css for the navbar
 End of the section
 */
 
+.static-background-home {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 250%;
+    height: 100%;
+    background-repeat: repeat-x;
+    background-image: url('/animation_background/Nature/origbig.png');
+    background-size: contain;
+    overflow: hidden;
+}
+
 /**
     This section is the css for animation on the timer page (study_session.ejs)
 */
@@ -183,53 +196,41 @@ End of the section
     left: 0;
     background-size: contain;
     background-repeat: repeat-x;
-    width: 250%;
+    width: 300%;
     height: 100%;
-    animation: parallaxScroll 20s linear infinite;
+    animation: parallaxScroll linear infinite;
 }
 
-.static-background-home {
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    width: 250%;
-    height: 100%;
-    background-repeat: repeat-x;
-    background-image: url('/animation_background/Forest/Background.png');
-    background-size: contain;
-    overflow: hidden;
-}
 .layer1 {
-    background-image: url('/animation_background/Forest/Layer_0011_0.png');
+    background-image: url('/animation_background/Nature/1.png');
     animation-duration: 85s;
     z-index: 1;
 }
 
 .layer2 {
-    background-image: url('/animation_background/Forest/Layer_0010_1.png');
+    background-image: url('/animation_background/Nature/2.png');
     animation-duration: 80s;
     z-index: 2;
 }
 
 .layer3 {
-    background-image: url('/animation_background/Forest/Layer_0009_2.png');
+    background-image: url('/animation_background/Nature/3.png');
     z-index: 3;
-    animation-duration: 75s;
+    animation-duration: 60s;
 }
 
 .layer4 {
-    background-image: url('/animation_background/Forest/Layer_0008_3.png');
+    background-image: url('/animation_background/Nature/4.png');
     z-index: 4;
-    animation-duration: 70s;
+    animation-duration: 50s;
 }
 .layer5 {
-    background-image: url('/animation_background/Forest/Layer_0007_Lights.png');
+    background-image: url('/animation_background/Nature/5.png');
     z-index: 5;
     animation-duration: 65s;
 }
 
-.layer6 {
+/* .layer6 {
     background-image: url('/animation_background/Forest/Layer_0006_4.png');
     animation-duration: 60s;
     z-index: 6;
@@ -267,7 +268,7 @@ End of the section
     background-image: url('/animation_background/Forest/Layer_0000_9.png');
     z-index: 12;
     animation-duration: 30s;
-}
+} */
 
 /* .animal {
     z-index: 15;
