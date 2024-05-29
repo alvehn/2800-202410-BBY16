@@ -39,7 +39,8 @@
                 </div>
                 <div class="mb-2">
                     <input name='email' type='text' placeholder='Email' required
-                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight ">
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+                        <% if (email) { %>value="<%= email %>";<% } %>>
                 </div>
                 <div class="mb-2">
                     <input name='password' type='password' placeholder='Password' required
@@ -47,7 +48,8 @@
                 </div>
                 <div class="mb-2">
                     <input name='displayname' type='text' placeholder='Display Name' required
-                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                        class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+                        <% if (name) { %>value="<%= name %>";<% } %>>
                 </div><br>
                 <div class="flex items-center justify-center">
                     <button
