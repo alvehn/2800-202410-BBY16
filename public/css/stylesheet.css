@@ -286,16 +286,6 @@ End of the section
 Extra added for groups.ejs
 */
 
-#friends_container {
-    max-height: calc(2 * 4rem + 3 * 1rem + 4 * 0.5rem); /* Adjust the height calculation as needed */
-    overflow-y: auto;
-}
-
-#friends_container input:checked + label {
-    background-color: #8AE3E5;
-    color:#fff;
-}
-
 /*
     Css for the grid of studying history on profile page
 */
@@ -334,20 +324,65 @@ Extra added for groups.ejs
 .hover-image img {
     transition: all 0.3s ease;
   }
-  
 
-
-#friends_container input:checked + label span {
-    color: #fff;
+#friends_container, #groups_container {
+    max-height: 140px; /* Set a height limit, adjust as necessary */
+    overflow-y: auto;
+    padding: 1rem; /* Ensure there is enough padding for the hover outline */
 }
 
+@media (min-height: 670px) {
+    #friends_container, #groups_container {
+        max-height: 220px; /* Set a height limit, adjust as necessary */
+        overflow-y: auto;
+        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+    }
+}
+
+@media (min-height: 750px) {
+    #friends_container, #groups_container {
+        max-height: 300px; /* Set a height limit, adjust as necessary */
+        overflow-y: auto;
+        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+    }
+}
+
+@media (min-height: 850px) {
+    #friends_container, #groups_container {
+        max-height: 350px; /* Set a height limit, adjust as necessary */
+        overflow-y: auto;
+        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+    }
+}
+
+@media (min-height: 900px) {
+    #friends_container, #groups_container {
+        max-height: 400px; /* Set a height limit, adjust as necessary */
+        overflow-y: auto;
+        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+    }
+}
+
+#friends_card_container {
+    max-height: calc(2 * 4rem + 4 * 1rem + 4 * 0.5rem); /* Adjust the height calculation as needed */
+    overflow-y: auto;
+}
+
+#friends__card_container input:checked + label {
+    background-color: #8AE3E5;
+    color:#fff;
+}
+
+#friends_card_container input:checked + label span {
+    color: #fff;
+}
 
 #modal-container {
     position: relative;
     display: flex;
     justify-content:center;
     align-items: center;
-    height: 70%;
+    height: 75%;
     z-index: 9999;
 }
     
@@ -362,7 +397,7 @@ Extra added for groups.ejs
 @media (max-width: 640px) {
     #modal-container {
         width: 85%;
-        height: 60%;
+        height: 75%;
     }
 
     #modal-content {
