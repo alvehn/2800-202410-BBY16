@@ -1,3 +1,13 @@
 <%- include("templates/default", { username: username }) %>
-404 page not found 
+<div class="flex flex-col items-center justify-center h-screen">
+    <div class="text-center">
+      <h1 class="text-6xl font-bold text-gray-800">404</h1>
+      <img src="/assets/icons/bear.png" alt="404 image" class="mx-auto w-20 h-20 max-w-sm">
+      <p class="text-xl text-gray-600 mt-4">Oops! Page not found.</p>
+      <p class="text-gray-500 mt-2">The page you are looking for doesn't exist or has been moved.</p>
+      <a href="/" class="mt-6 inline-block bg-light-coral text-white px-6 py-3 rounded-full text-lg font-medium">
+        Go to Homepage
+      </a>
+    </div>
+</div>
 <%- include("templates/default_footer") %>

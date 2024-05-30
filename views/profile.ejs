@@ -29,7 +29,7 @@
             </div>
             <div class="bg-light-blue w-1/3 h-full flex flex-col items-center justify-center rounded-xl m-2 p-4 border-4 border-white">
                 <span class="text-5xl">🥉</span>
-                <span class="flex items-center justify-center h-full text-xl font-semibold">placeholder</span>
+                <span class="flex items-center justify-center h-full text-xl font-semibold">GroupsNumber</span>
             </div>
         </div>
     </div>
@@ -48,76 +48,66 @@
 </div>
 
 <script>
+    const user_study_history = JSON.parse('<%- JSON.stringify(user.study_history) %>');
     document.addEventListener('DOMContentLoaded', () => {
-    const user_study_history = [
-        { date: '2020-01-04', total_hours: 2 },
-        { date: '2020-02-15', total_hours: 4 },
-        { date: '2021-03-27', total_hours: 6 },
-        { date: '2022-04-01', total_hours: 2 },
-        { date: '2022-05-17', total_hours: 4 },
-        { date: '2022-06-09', total_hours: 6 },
-        { date: '2023-07-01', total_hours: 2 },
-        { date: '2024-08-22', total_hours: 4 },
-        { date: '2024-09-13', total_hours: 6 },
-    ];
+        console.log(user_study_history);
+        const calendar = document.querySelector('.calendar');
+        const yearSelect = document.getElementById('year-select');
+        const years = new Set(user_study_history.map(day => day.date.split('-')[0]));
 
-    console.log(user_study_history);
-    const calendar = document.querySelector('.calendar');
-    const yearSelect = document.getElementById('year-select');
-    const years = new Set(user_study_history.map(day => day.date.split('-')[0]));
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'All Years';
+        yearSelect.appendChild(defaultOption);
 
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = 'All Years';
-    yearSelect.appendChild(defaultOption);
-
-    years.forEach(year => {
-        const yearOption = document.createElement('option');
-        yearOption.value = year;
-        yearOption.textContent = year;
-        yearSelect.appendChild(yearOption);
-    });
-
-    yearSelect.addEventListener('change', () => {
-        displayHistory(yearSelect.value);
-    });
-
-    function displayHistory(selectedYear) {
-        calendar.innerHTML = '';
-        user_study_history.forEach(day => {
-            const [year, month, date] = day.date.split('-');
-            console.log(`Processing date: ${date}`);
-            if (selectedYear === '' || year === selectedYear) {
-                const dayBox = document.createElement('div');
-                dayBox.classList.add('day-box');
-                if (day.total_hours <= 2) {
-                    dayBox.classList.add('low');
-                } else if (day.total_hours <= 4) {
-                    dayBox.classList.add('medium');
-                } else {
-                    dayBox.classList.add('high');
-                }
-                const yearSpan = document.createElement('span');
-                yearSpan.textContent = year;
-
-                const hoursSpan = document.createElement('span');
-                hoursSpan.textContent = `${day.total_hours} hrs`;
-
-                const dateSpan = document.createElement('span');
-                dateSpan.textContent = `${month} - ${date}`; // Extract and format the month and day
-                dateSpan.classList.add('text-xs');
-
-                dayBox.appendChild(yearSpan);
-                dayBox.appendChild(dateSpan);
-                dayBox.appendChild(hoursSpan);
-
-                calendar.appendChild(dayBox);
-            }
+        years.forEach(year => {
+            const yearOption = document.createElement('option');
+            yearOption.value = year;
+            yearOption.textContent = year;
+            yearSelect.appendChild(yearOption);
         });
-    }
-    yearSelect.value = '';
-    displayHistory('');
-});
 
+        yearSelect.addEventListener('change', () => {
+            displayHistory(yearSelect.value);
+        });
+
+        function displayHistory(selectedYear) {
+            calendar.innerHTML = '';
+            user_study_history.forEach(day => {
+                const [year, month, date] = day.date.split('-');
+                console.log(`Processing date: ${date}`);
+                if (selectedYear === '' || year === selectedYear) {
+                    const dayBox = document.createElement('div');
+                    dayBox.classList.add('day-box');
+                    if (day.total_hours <= 7200) { // 2 hours in seconds
+                        dayBox.classList.add('low');
+                    } else if (day.total_hours <= 14400) { // 4 hours in seconds
+                        dayBox.classList.add('medium');
+                    } else {
+                        dayBox.classList.add('high');
+                    }
+                    const yearSpan = document.createElement('span');
+                    yearSpan.textContent = year;
+
+                    const hoursSpan = document.createElement('span');
+                    const hours = (day.total_hours / 3600).toFixed(1);
+                    hoursSpan.textContent = `${hours} hrs`;
+
+                    const dateSpan = document.createElement('span');
+                    dateSpan.textContent = `${month} - ${date}`; // Extract and format the month and day
+                    dateSpan.classList.add('text-xs');
+
+                    dayBox.appendChild(yearSpan);
+                    dayBox.appendChild(dateSpan);
+                    dayBox.appendChild(hoursSpan);
+
+                    calendar.appendChild(dayBox);
+                }
+            });
+        }
+        yearSelect.value = '';
+        displayHistory('');
+    });
 </script>
+
 <%- include("templates/navbar") %>
