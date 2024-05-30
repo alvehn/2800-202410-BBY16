@@ -138,10 +138,17 @@
       var acceptButton = createButton("accept", "✓", "#8EE4AF", "#59A96A");
       var declineButton = createButton("decline", "×", "#8EE4AF", "#59A96A");
       
-      acceptButton.addEventListener("click", function() {
+      acceptButton.addEventListener("click", async function() {
         popup.remove();
         console.log("accepted_group_session");
-        socket.emit('accept_group_session', groupSessionId, '<%= username %>');
+        // socket.emit('accept_group_session', groupSessionId, '<%= username %>');
+        await fetch('/accepted_group_session', {
+          method: 'post',
+          headers: {
+              'Content-Type': 'application/json' // Set Content-Type to JSON
+          },
+          body: JSON.stringify({ groupSessionId }) // Send JSON data in the body
+        });
       });
 
       declineButton.addEventListener("click", function() {
