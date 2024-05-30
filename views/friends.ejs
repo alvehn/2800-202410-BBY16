@@ -1,6 +1,6 @@
 <%- include("templates/default") %>
     <div class="flex flex-col items-center h-screen select-none">
-        <div class="bg-celadon w-full p-4 flex flex-col items-center justify-center text-white rounded-b-3xl">
+        <div class="bg-celadon w-full p-4 flex flex-col items-center justify-center text-white">
             <img class="w-24 h-24 rounded-full object-cover border-4 border-white" src="https://via.placeholder.com/150"
                 alt="profile picture">
             <h1 class="text-2xl font-bold mt-2">
@@ -24,12 +24,14 @@
             <div id="friends_container">
             </div>
             <div>
-                <button id="open_adding" onclick="openAddFriends()"
-                    class="fixed w-12 h-12 bottom-28 right-12 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">+</button>
+                <button id="open_adding" onclick="openAddFriends()" class="fixed bottom-28 right-12 flex items-center justify-center">
+                <img src="/assets/icons/add.png" class="w-10 h-10">
+                </button>
             </div>
             <div>
-                <button id="open_notification" onclick="openNotifications()"
-                    class="fixed w-12 h-12 bottom-28 left-12 bg-celadon hover:bg-dark-celadon text-white rounded-full text-2xl flex items-center justify-center shadow-lg">🔔</button>
+                <button id="open_notification" onclick="openNotifications()" class="fixed bottom-28 left-12 flex items-center justify-center">
+                <img src="/assets/icons/notification-cap.png" class="w-10 h-10">
+                </button>
             </div>
         </div>
 
@@ -336,7 +338,7 @@
                     .then(data => {
                         newcard.getElementById("friend_username").textContent = data.username || 'Unknown';
                         const statusElement = newcard.getElementById("friend_status");
-                        statusElement.textContent = data.status || 'away';
+                        statusElement.textContent = data.status || 'offline';
                         if (data.status === 'online') {
                             statusElement.classList.add('text-green-600');
                         } else {
