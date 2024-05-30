@@ -1694,7 +1694,7 @@ app.post('/accept_group_session', async (req, res) => {
 
 app.get("*", (req, res) => {
   res.status(404);
-  res.render("404");
+  res.render("404", {username: req.session.username});
 });
 
 const server = app.listen(port, () => {
