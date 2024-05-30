@@ -1,5 +1,5 @@
 <%- include("templates/default_header") %>
-<div class="relative max-w-full mx-auto">
+<div class="relative max-w-full mx-auto ">
   <img
     class="h-64 w-full object-cover"
     src="pets_background.jpg"
@@ -48,15 +48,49 @@
     <% } %>
   </div>
 </div>
-<% for (let i = 0; i < 3; i++) { %>
-<div class="relative">
-  <img
-    class="h-64 w-full object-cover"
-    src="dummy2.png"
-    alt="Placeholder image"
-  />
-  <div class="absolute inset-0 flex flex-col items-center justify-center">
-    <h2 class="text-3xl font-bold">TBD</h2>
+<div class="flex justify-evenly mt-4">
+  <div class="relative w-1/2 bg-white border border-gray-300 shadow">
+    <img
+      class="h-64 w-full object-cover"
+      src="/index_photos/1.png"
+      alt="App screenshot 1"
+    />
+    <!-- <div class="absolute inset-0 flex flex-col items-center justify-center">
+      <h2 class="text-3xl font-bold text-white">App Feature 1</h2>
+    </div> -->
+  </div>
+  <div class="relative w-1/2 bg-white border border-gray-300 shadow">
+    <img
+      class="h-64 w-full object-cover"
+      src="/index_photos/2.png"
+      alt="App screenshot 2"
+    />
+    <!-- <div class="absolute inset-0 flex flex-col items-center justify-center">
+      <h2 class="text-3xl font-bold text-white">App Feature 2</h2>
+    </div> -->
+  </div>
+  
+</div>
+<div class="flex justify-evenly mt-4 ">
+  <div class="relative w-1/2 bg-white border border-gray-300 shadow">
+    <img
+      class="h-64 w-full object-cover"
+      src="/index_photos/4.png"
+      alt="App screenshot 3"
+    />
+    <!-- <div class="absolute inset-0 flex flex-col items-center justify-center">
+      <h2 class="text-3xl font-bold text-white">App Feature 3</h2>
+    </div> -->
+  </div>
+  <div class="relative w-1/2 bg-white border border-gray-300 shadow">
+    <img
+      class="h-64 w-full object-cover"
+      src="/index_photos/5.png"
+      alt="App screenshot 4"
+    />
+    <!-- <div class="absolute inset-0 flex flex-col items-center justify-center">
+      <h2 class="text-3xl font-bold text-white">App Feature 4</h2>
+    </div> -->
   </div>
 </div>
-<% } %> <%- include("templates/footer") %>
+<%- include("templates/footer") %>
