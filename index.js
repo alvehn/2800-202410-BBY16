@@ -1641,16 +1641,18 @@ io.on('connection', (socket) => {
   });
 
   // Listen for accept_group_session from client
-  socket.on('accept_group_session', async (groupSessionId) => {
+  socket.on('accept_group_session', async (groupSessionId, username) => {
+    console.log("running accept_group_session");
     // check if they are in session
     // then if its individual, or groups
     // then end the respective current session
     // then join into the invited group session 
-    const userID = new ObjectId(req.session.userID);
     const user = await usersCollection.findOne({
-      _id: userID,
+      username: username,
     });
+    const userID = user.username;
     const isInSession = user.study_session.inSession === "true";
+    console.log();
     if (isInSession) {
       res.redirect(`/study_session`);
       return;
@@ -1673,7 +1675,7 @@ io.on('connection', (socket) => {
       const intervalId = setInterval(async () => {
         await updateCoins(userID);
       }, interval);
-
+      console.log("Start process to set study_session");
       try {
         await usersCollection.updateOne(
           { _id: userID },
@@ -1691,6 +1693,8 @@ io.on('connection', (socket) => {
             },
           }
         );
+        console.log("Finished setting study_session");
+        console.log("Start process to push user to joined in group_sessions");
         await group_sessionsCollection.updateOne(
           { _id: groupSessionId },
           {
@@ -1699,6 +1703,7 @@ io.on('connection', (socket) => {
             }
           }
         );
+        console.log("finished pushing user to joined in group_sessions");
       } catch (err) {
         console.log(err);
       }

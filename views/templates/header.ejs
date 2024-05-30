@@ -140,7 +140,8 @@
       
       acceptButton.addEventListener("click", function() {
         popup.remove();
-        socket.emit('accept_group_session', groupSessionId);
+        console.log("accepted_group_session");
+        socket.emit('accept_group_session', groupSessionId, '<%= username %>');
       });
 
       declineButton.addEventListener("click", function() {
