@@ -838,13 +838,11 @@ app.get(
           _id: sessionId,
         });
         members = studySession.members;
-        console.log(members);
         // Splices out the current user from the members array
         var indexToRemove = members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
         if (indexToRemove !== -1) {
           members.splice(indexToRemove, 1);
         }
-        console.log(members);
       } else {
         studySession = await individual_sessionsCollection.findOne({
           _id: sessionId,
@@ -959,7 +957,6 @@ app.post(
           { _id: member },
           { projection: { username: 1 } }
         );
-        console.log(username.username);
         sendNotificationToUser(username.username, newSessionId);
       }
 
@@ -1630,7 +1627,7 @@ app.post('/accept_group_session', async (req, res) => {
     _id: userID,
   });
   const isInSession = user.study_session.inSession === "true";
-  console.log();
+  console.log("In session?" + isInSession);
   if (isInSession) {
     res.redirect(`/study_session`);
     return;

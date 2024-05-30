@@ -141,8 +141,7 @@
       acceptButton.addEventListener("click", async function() {
         popup.remove();
         console.log("accepted_group_session");
-        // socket.emit('accept_group_session', groupSessionId, '<%= username %>');
-        await fetch('/accepted_group_session', {
+        await fetch('/accept_group_session', {
           method: 'post',
           headers: {
               'Content-Type': 'application/json' // Set Content-Type to JSON
