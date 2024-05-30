@@ -904,7 +904,6 @@ app.get(
           username: req.session.username
         });
         console.log("Rendered study_session");
-        return;
       } catch (err) {
         console.error("Error rendering study_session:", error);
       }
@@ -999,99 +998,6 @@ app.post(
           { projection: { username: 1 } }
         );
         sendNotificationToUser(username.username, newSessionId);
-      }
-
-      res.redirect(`/study_session`);
-    }
-  }
-);
-
-/*
-  The following handler is for starting a group study session.
-*/
-app.post(
-  "/start_group_session",
-  sessionValidation("start_group_session"),
-  async (req, res) => {
-    const isInSession = req.body.inSession === "true";
-    const userID = new ObjectId(req.session.userID);
-    const group = req.body.group;
-    const groupId = new ObjectId(group);
-    // Need to get members from database for selected Group
-    const members = await groupsCollection.findOne(
-      { _id: groupId },
-      { projection: { members: 1 } }
-    );
-
-    const joined = [userID]
-
-    if (isInSession) {
-      res.redirect(`/study_session`);
-      return;
-    } else {
-      const startTime = new Date();
-      const newSession = {
-        group_id: groupId,
-        start_time: startTime,
-        end_time: null,
-        duration: 0,
-        members: members.members,
-        joined: joined
-      };
-
-      const result = await group_sessionsCollection.insertOne(newSession);
-      const newSessionId = result.insertedId;
-
-      // Sets an interval function on server side to give players points periodically
-      const interval = 60 * 1000; // 1 minute in milliseconds
-      async function updateCoins(userID) {
-        let amount = Math.floor(Math.random() * 5) + 3; // random points between 45 and 55
-        try {
-          await usersCollection.updateOne(
-            { _id: userID },
-            { $inc: { points: amount } }
-          );
-        } catch (err) {
-          console.log(err);
-        }
-      }
-      // Setup and runs interval function
-      const intervalId = setInterval(async () => {
-        await updateCoins(userID);
-      }, interval);
-
-      try {
-        await usersCollection.updateOne(
-          { _id: userID },
-          {
-            $set: {
-              study_session: {
-                inSession: true,
-                intervalId: Math.floor(intervalId),
-                currentSessionID: newSessionId,
-                group: true
-              },
-            },
-            $push: {
-              group_sessions: newSessionId,
-            },
-          }
-        );
-      } catch (err) {
-        console.log(err);
-      }
-
-      // Invite group members to join the group session
-      var indexToRemove = members.findIndex(id => id.equals(new ObjectId(req.session.userID)));
-      if (indexToRemove !== -1) {
-        members.splice(indexToRemove, 1);
-      }
-      for (let member of members) {
-        let username = await usersCollection.findOne(
-          { _id: member },
-          { projection: { username: 1 } }
-        );
-        sendNotificationToUser(username);
       }
 
       res.redirect(`/study_session`);
@@ -1655,7 +1561,7 @@ if (runScheduledTask) {
 */
 
 // Listen for accept_group_session from client
-app.post('/accept_group_session', async (req, res) => {
+app.post('/accept_group_session', sessionValidation("accept_group_session"), async (req, res) => {
   console.log("running accept_group_session");
   // check if they are in session
   // then if its individual, or groups
@@ -1725,7 +1631,6 @@ app.post('/accept_group_session', async (req, res) => {
     }
 
     res.redirect('/study_session');
-    return;
   }
 });
 
@@ -1754,9 +1659,9 @@ io.on('connection', (socket) => {
   });
 
   // Example: sending a notification to a specific user
-  // setTimeout(() => {
-  //   sendNotificationToUser('daniel');
-  // }, 1000);
+   setTimeout(() => {
+     sendNotificationToUser('daniel');
+   }, 1000);
 });
 
 // Handle notifications

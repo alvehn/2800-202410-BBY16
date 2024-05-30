@@ -524,12 +524,14 @@ Extra added for notification popups
 
 .notification-popup {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 10px; /* Adjust the distance from the top */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally */
+    max-width: 80%; /* Adjust maximum width as needed */
     background-color: #f8f9fa; /* Adjust background color as needed */
     color: #212529; /* Adjust text color as needed */
-    padding: 10px;
+    padding: 10px 20px; /* Adjust padding as needed */
+    border-radius: 30px; /* Adjust border radius to make it look bubbly */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
     z-index: 1000; /* Ensure it's above other content */
 }
