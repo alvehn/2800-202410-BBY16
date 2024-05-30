@@ -122,12 +122,24 @@ html, body {
     }
 }
 
+@keyframes run_corgi {
+    from {
+        background-position: 0 -480px;
+    } to {
+        background-position: -1600px -460px;
+    }
+}
+
 .animate-run-fox {
     animation: run_fox 1s steps(4) infinite;
 }
 
 .animate-run-bunny {
     animation: run_bunny 1s steps(5) infinite;
+}
+
+.animate-run-corgi {
+    animation: run_corgi 1s steps(5) infinite;
 }
 
 .animate-idle {
