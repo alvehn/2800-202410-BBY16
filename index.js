@@ -1623,6 +1623,8 @@ app.post('/accept_group_session', async (req, res) => {
   // then if its individual, or groups
   // then end the respective current session
   // then join into the invited group session 
+  const groupSessionId = req.body.groupSessionId;
+  console.log("The Group Session Id: " + groupSessionId);
   const userID = new ObjectId(req.session.userID);
   const user = await usersCollection.findOne({
     _id: userID,
@@ -1704,7 +1706,6 @@ let activeSocketIds = [];
 
 // Socket.IO logic
 io.on('connection', (socket) => {
-  console.log('A user connected');
   // Add the socket to room 'online'
   socket.join('online'); 
 
