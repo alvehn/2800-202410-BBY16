@@ -12,11 +12,11 @@
     <div class="py-2" aria-labelledby="editButton">
         <div>
         <a href="/update_profile" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
-            <img src="/assets/icons/profile_coral.png" class="w-7 h-7 mr-4" edit-hover="/assets/icons/profile_white.png">Update Profile</a>
+            <img src="/assets/icons/profile_outline_coral.png" class="w-7 h-7 mr-4" edit-hover="/assets/icons/profile_outline_white.png">Update Profile</a>
         </div>
         <div>
         <a href="/change_password" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
-            <img src="/assets/icons/profile_coral.png" class="w-6 h-6 mr-4" edit-hover="/assets/icons/shop_white.png">Change Password</a>
+            <img src="/assets/icons/key_coral.png" class="w-6 h-6 mr-4" edit-hover="/assets/icons/key_white.png">Change Password</a>
         </div>
     </div>
     </div>
@@ -30,7 +30,7 @@
         <p class="text-center text-xl mb-1"><%= user.email %></p>
     </div>
 </div>
-<div id="goal-button-container" class="flex justify-start mt-4 mb-4 ml-8 pl-7 w-full">
+<div id="goal-button-container" class="flex justify-start mt-4 mb-4 ml-8 pl-7 ">
     <button id="goal-button" class="bg-light-blue hover:bg-argentinian-blue text-white p-2 rounded">Set Goals</button>
 </div>
 <div class="w-full flex flex-row justify-evenly mt-4 mb-2">
@@ -113,162 +113,166 @@
 </div>
 
 <script>
-// JavaScript for toggling the dropdown menu
-document.getElementById('editButton').addEventListener('click', function (event) {
-    event.stopPropagation();
-    const dropdownMenu = document.getElementById('editMenu');
-    dropdownMenu.classList.toggle('hidden');
-});
-
-// Close the dropdown when clicking outside of it
-document.addEventListener('click', function (event) {
-    const dropdownMenu = document.getElementById('editMenu');
-    const button = document.getElementById('editButton');
-    if (!button.contains(event.target) && !dropdownMenu.contains(event.target)) {
-    dropdownMenu.classList.add('hidden');
-    }
-});
-
-document.querySelectorAll('.hover-image').forEach(link => {
-    const img = link.querySelector('img');
-    const originalSrc = img.src;
-    const hoverSrc = img.getAttribute('edit-hover');
-
-    link.addEventListener('mouseenter', () => {
-        img.src = hoverSrc;
-    });
-
-    link.addEventListener('mouseleave', () => {
-        img.src = originalSrc;
-    });
-});
-
-let userDailyGoal = 12; 
-let userWeeklyGoal = 80; 
-const userDailyProgress = 9; 
-const userWeeklyProgress = 50; 
-
-// Max values in hours
-const maxDailyGoal = 24;
-const maxWeeklyGoal = 168;
-
-// Calculate progress percentages
-var dailyProgressPercent = (userDailyProgress / userDailyGoal) * 100;
-var weeklyProgressPercent = (userWeeklyProgress / userWeeklyGoal) * 100;
-
-// Update the progress bars
-document.getElementById('daily-progress').style.width = `${Math.min(dailyProgressPercent, 100)}%`;
-document.getElementById('weekly-progress').style.width = `${Math.min(weeklyProgressPercent, 100)}%`;
-
-// Update goal labels    
-document.getElementById('daily-goal-label').textContent = `${userDailyGoal} hrs`;
-document.getElementById('weekly-goal-label').textContent = `${userWeeklyGoal} hrs`;
-
-// Modal handling
-const modal = document.getElementById("goal-modal");
-const button = document.getElementById("goal-button");
-const close = document.getElementById("close-modal");
-
-// Open the modal
-button.onclick = function() {
-    modal.style.display = "flex";
-}
-
-// Close the modal
-close.onclick = function() {
-    modal.style.display = "none";
-}
-
-// Close the modal if clicked outside of it
-window.onclick = function(event) {
-    if (event.target == modal) {
-    modal.style.display = "none";
-    }
-}
-
-// Form submission
-document.getElementById('goal-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    userDailyGoal = document.getElementById('daily-goal').value;
-    userWeeklyGoal = document.getElementById('weekly-goal').value;
-
-    // Recalculate progress percentages
-    const newDailyProgressPercent = (userDailyProgress / userDailyGoal) * 100;
-    const newWeeklyProgressPercent = (userWeeklyProgress / userWeeklyGoal) * 100;
-
-    // Update the progress bars
-    document.getElementById('daily-progress').style.width = `${Math.min(newDailyProgressPercent, 100)}%`;
-    document.getElementById('weekly-progress').style.width = `${Math.min(newWeeklyProgressPercent, 100)}%`;
-
-    // Update goal labels
-    document.getElementById('daily-goal-label').textContent = `${userDailyGoal} hrs`;
-    document.getElementById('weekly-goal-label').textContent = `${userWeeklyGoal} hrs`;
-
-    // Close the modal
-    modal.style.display = "none";
-});
-
-
-
     const user_study_history = JSON.parse('<%- JSON.stringify(user.study_history) %>');
+
     document.addEventListener('DOMContentLoaded', () => {
-        console.log(user_study_history);
+        console.log("DOM fully loaded and parsed in profile");
+
+        // JavaScript for toggling the dropdown menu
+        document.getElementById('editButton').addEventListener('click', function (event) {
+            event.stopPropagation();
+            const dropdownMenu = document.getElementById('editMenu');
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Close the dropdown when clicking outside of it
+        document.addEventListener('click', function (event) {
+            const dropdownMenu = document.getElementById('editMenu');
+            const button = document.getElementById('editButton');
+            if (!button.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        document.querySelectorAll('.hover-image').forEach(link => {
+            const img = link.querySelector('img');
+            console.log(img);
+            const originalSrc = img.src;
+            const hoverSrc = img.getAttribute('edit-hover');
+            console.log(hoverSrc);
+            console.log(originalSrc);
+
+            link.addEventListener('mouseenter', () => {
+                img.src = hoverSrc;
+            });
+
+            link.addEventListener('mouseleave', () => {
+                img.src = originalSrc;
+            });
+        });
+
+        let userDailyGoal = 12; 
+        let userWeeklyGoal = 80; 
+        const userDailyProgress = 9; 
+        const userWeeklyProgress = 50; 
+
+        // Max values in hours
+        const maxDailyGoal = 24;
+        const maxWeeklyGoal = 168;
+
+        // Calculate progress percentages
+        var dailyProgressPercent = (userDailyProgress / userDailyGoal) * 100;
+        var weeklyProgressPercent = (userWeeklyProgress / userWeeklyGoal) * 100;
+
+        // Update the progress bars
+        document.getElementById('daily-progress').style.width = `${Math.min(dailyProgressPercent, 100)}%`;
+        document.getElementById('weekly-progress').style.width = `${Math.min(weeklyProgressPercent, 100)}%`;
+
+        // Update goal labels    
+        document.getElementById('daily-goal-label').textContent = `${userDailyGoal} hrs`;
+        document.getElementById('weekly-goal-label').textContent = `${userWeeklyGoal} hrs`;
+
+        // Modal handling
+        const modal = document.getElementById("goal-modal");
+        const button = document.getElementById("goal-button");
+        const close = document.getElementById("close-modal");
+
+        // Open the modal
+        button.onclick = function() {
+            modal.style.display = "flex";
+        }
+
+        // Close the modal
+        close.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal if clicked outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+            modal.style.display = "none";
+            }
+        }
+
+        // Form submission
+        document.getElementById('goal-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            userDailyGoal = document.getElementById('daily-goal').value;
+            userWeeklyGoal = document.getElementById('weekly-goal').value;
+
+            // Recalculate progress percentages
+            const newDailyProgressPercent = (userDailyProgress / userDailyGoal) * 100;
+            const newWeeklyProgressPercent = (userWeeklyProgress / userWeeklyGoal) * 100;
+
+            // Update the progress bars
+            document.getElementById('daily-progress').style.width = `${Math.min(newDailyProgressPercent, 100)}%`;
+            document.getElementById('weekly-progress').style.width = `${Math.min(newWeeklyProgressPercent, 100)}%`;
+
+            // Update goal labels
+            document.getElementById('daily-goal-label').textContent = `${userDailyGoal} hrs`;
+            document.getElementById('weekly-goal-label').textContent = `${userWeeklyGoal} hrs`;
+
+            // Close the modal
+            modal.style.display = "none";
+        });
+
+
+        // Code for displaying calendar
         const calendar = document.querySelector('.calendar');
         const yearSelect = document.getElementById('year-select');
         const years = new Set(user_study_history.map(day => day.date.split('-')[0]));
 
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "All";
-    yearSelect.appendChild(defaultOption);
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "All";
+        yearSelect.appendChild(defaultOption);
 
-        years.forEach(year => {
-            const yearOption = document.createElement('option');
-            yearOption.value = year;
-            yearOption.textContent = year;
-            yearSelect.appendChild(yearOption);
-        });
-
-        yearSelect.addEventListener('change', () => {
-            displayHistory(yearSelect.value);
-        });
-
-        function displayHistory(selectedYear) {
-            calendar.innerHTML = '';
-            user_study_history.forEach(day => {
-                const [year, month, date] = day.date.split('-');
-                console.log(`Processing date: ${date}`);
-                if (selectedYear === '' || year === selectedYear) {
-                    const dayBox = document.createElement('div');
-                    dayBox.classList.add('day-box');
-                    if (day.total_hours <= 7200) { // 2 hours in seconds
-                        dayBox.classList.add('low');
-                    } else if (day.total_hours <= 14400) { // 4 hours in seconds
-                        dayBox.classList.add('medium');
-                    } else {
-                        dayBox.classList.add('high');
-                    }
-                    const yearSpan = document.createElement('span');
-                    yearSpan.textContent = year;
-
-                    const hoursSpan = document.createElement('span');
-                    const hours = (day.total_hours / 3600).toFixed(1);
-                    hoursSpan.textContent = `${hours} hrs`;
-
-                    const dateSpan = document.createElement('span');
-                    dateSpan.textContent = `${month} - ${date}`; // Extract and format the month and day
-                    dateSpan.classList.add('text-xs');
-
-                    dayBox.appendChild(yearSpan);
-                    dayBox.appendChild(dateSpan);
-                    dayBox.appendChild(hoursSpan);
-
-                    calendar.appendChild(dayBox);
-                }
+            years.forEach(year => {
+                const yearOption = document.createElement('option');
+                yearOption.value = year;
+                yearOption.textContent = year;
+                yearSelect.appendChild(yearOption);
             });
-        }
-        yearSelect.value = '';
-        displayHistory('');
+
+            yearSelect.addEventListener('change', () => {
+                displayHistory(yearSelect.value);
+            });
+
+            function displayHistory(selectedYear) {
+                calendar.innerHTML = '';
+                user_study_history.forEach(day => {
+                    const [year, month, date] = day.date.split('-');
+                    if (selectedYear === '' || year === selectedYear) {
+                        const dayBox = document.createElement('div');
+                        dayBox.classList.add('day-box');
+                        if (day.total_hours <= 7200) { // 2 hours in seconds
+                            dayBox.classList.add('low');
+                        } else if (day.total_hours <= 14400) { // 4 hours in seconds
+                            dayBox.classList.add('medium');
+                        } else {
+                            dayBox.classList.add('high');
+                        }
+                        const yearSpan = document.createElement('span');
+                        yearSpan.textContent = year;
+
+                        const hoursSpan = document.createElement('span');
+                        const hours = (day.total_hours / 3600).toFixed(1);
+                        hoursSpan.textContent = `${hours} hrs`;
+
+                        const dateSpan = document.createElement('span');
+                        dateSpan.textContent = `${month} - ${date}`; // Extract and format the month and day
+                        dateSpan.classList.add('text-xs');
+
+                        dayBox.appendChild(yearSpan);
+                        dayBox.appendChild(dateSpan);
+                        dayBox.appendChild(hoursSpan);
+
+                        calendar.appendChild(dayBox);
+                    }
+                });
+            }
+            yearSelect.value = '';
+            displayHistory('');
     });
 </script>
 

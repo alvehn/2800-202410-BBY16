@@ -425,6 +425,9 @@ Extra added for groups.ejs
 .hover-image img {
     transition: all 0.3s ease;
 }
+.hover-image-dropdown img {
+    transition: all 0.3s ease;
+}
 
 #friends_container, #groups_container {
     max-height: 140px; /* Set a height limit, adjust as necessary */

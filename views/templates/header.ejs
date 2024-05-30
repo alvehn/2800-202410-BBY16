@@ -24,16 +24,16 @@
     <div id="dropdownMenu" class="absolute right-4 top-16 z-50  bg-white divide-y divide-white rounded-lg shadow w-44  dark:divide-light-coral hidden ">
       <div class="py-2" aria-labelledby="dropdownButton">
         <div>
-          <a href="/petshop" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+          <a href="/petshop" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image-dropdown">
             <img src="/assets/icons/shop_coral.png" class="w-7 h-7 mr-4" data-hover="/assets/icons/shop_white.png">Shop</a>
         </div>
         <div>
-          <a href="/petinv" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+          <a href="/petinv" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image-dropdown">
             <img src="/assets/icons/pets_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/pets_white.png">Inventory</a>
         </div>
       </div>
       <div class="py-2">
-        <a href="/logout" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image">
+        <a href="/logout" class="flex items-center px-4 py-2 no-underline hover:bg-light-coral dark:hover:bg-light-coral dark:text-light-coral dark:hover:text-white hover-image-dropdown">
           <img src="/assets/icons/logout_coral.png" class="w-6 h-6 mr-4" data-hover="/assets/icons/logout_white.png">Logout</a>
       </div>
     </div>
@@ -42,7 +42,9 @@
 
   <script>
     // JavaScript for toggling the dropdown menu
-    document.getElementById('dropdownButton').addEventListener('click', function (event) {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("Page is loaded in header")
+      document.getElementById('dropdownButton').addEventListener('click', function (event) {
       event.stopPropagation();
       const dropdownMenu = document.getElementById('dropdownMenu');
       dropdownMenu.classList.toggle('hidden');
@@ -57,8 +59,10 @@
       }
     });
 
-    document.querySelectorAll('.hover-image').forEach(link => {
+    document.querySelectorAll('.hover-image-dropdown').forEach(link => {
       const img = link.querySelector('img');
+      console.log("in the header");
+      console.log(img);
       const originalSrc = img.src;
       const hoverSrc = img.getAttribute('data-hover');
 
@@ -69,6 +73,7 @@
       link.addEventListener('mouseleave', () => {
         img.src = originalSrc;
       });
+    });
     });
   </script>
 
