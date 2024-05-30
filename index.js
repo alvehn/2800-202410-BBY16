@@ -893,15 +893,20 @@ app.get(
         }
       }
       console.log("got to rendering study_session");
-      res.render("study_session", {
-        startTime: startTime.toISOString(),
-        petName: petName,
-        sessionId: sessionId,
-        intervalId: intervalId,
-        equippedCostume,
-        membersPet: membersPet,
-        username: req.session.username
-      });
+      try {
+        res.render("study_session", {
+          startTime: startTime.toISOString(),
+          petName: petName,
+          sessionId: sessionId,
+          intervalId: intervalId,
+          equippedCostume,
+          membersPet: membersPet,
+          username: req.session.username
+        });
+      } catch (err) {
+        console.error("Error rendering study_session:", error);
+      }
+      
     }
   }
 );
