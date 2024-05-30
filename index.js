@@ -903,15 +903,6 @@ app.get(
           membersPet: membersPet,
           username: req.session.username
         });
-        res.render("study_session", {
-          startTime: startTime.toISOString(),
-          petName: petName,
-          sessionId: sessionId,
-          intervalId: intervalId,
-          equippedCostume,
-          membersPet: membersPet,
-          username: req.session.username
-        });
         console.log("Rendered study_session");
       } catch (err) {
         console.error("Error rendering study_session:", error);
