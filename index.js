@@ -848,6 +848,7 @@ app.get(
     const user = await usersCollection.findOne({
       _id: new ObjectId(req.session.userID),
     });
+    console.log("inSession:" + user.study_session.inSession);
     if (!user.study_session.inSession) {
       console.log("Direct" + user.username + " out of study_session");
       res.redirect("/home_page");
