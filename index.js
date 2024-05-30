@@ -892,6 +892,7 @@ app.get(
           membersPet.push(pet.current_pet_name);
         }
       }
+      console.log("got to rendering study_session");
       res.render("study_session", {
         startTime: startTime.toISOString(),
         petName: petName,
@@ -1716,7 +1717,7 @@ app.post('/accept_group_session', async (req, res) => {
       console.log(err);
     }
 
-    res.redirect(`/study_session`);
+    res.json({message:"Successful Acceptance"});
   }
 });
 
