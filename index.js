@@ -1717,7 +1717,8 @@ app.post('/accept_group_session', async (req, res) => {
       console.log(err);
     }
 
-    res.json({message:"Successful Acceptance"});
+    res.redirect('/study_session');
+    return;
   }
 });
 
