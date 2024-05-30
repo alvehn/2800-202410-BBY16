@@ -903,6 +903,15 @@ app.get(
           membersPet: membersPet,
           username: req.session.username
         });
+        res.render("study_session", {
+          startTime: startTime.toISOString(),
+          petName: petName,
+          sessionId: sessionId,
+          intervalId: intervalId,
+          equippedCostume,
+          membersPet: membersPet,
+          username: req.session.username
+        });
         console.log("Rendered study_session");
       } catch (err) {
         console.error("Error rendering study_session:", error);
@@ -1659,9 +1668,9 @@ io.on('connection', (socket) => {
   });
 
   // Example: sending a notification to a specific user
-   setTimeout(() => {
-     sendNotificationToUser('daniel');
-   }, 1000);
+  // setTimeout(() => {
+  //   sendNotificationToUser('daniel');
+  // }, 1000);
 });
 
 // Handle notifications
