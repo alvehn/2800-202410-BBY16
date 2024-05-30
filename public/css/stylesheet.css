@@ -1,7 +1,16 @@
+@font-face {
+    font-family: 'Pixelify Sans';
+    src: url('/fonts/PixelifySans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    font-family: 'Pixelify Sans', sans-serif !important;
 }
 /* footer {
     width: 100vw;
@@ -113,12 +122,24 @@ html, body {
     }
 }
 
+@keyframes run_corgi {
+    from {
+        background-position: 0 -480px;
+    } to {
+        background-position: -1600px -460px;
+    }
+}
+
 .animate-run-fox {
     animation: run_fox 1s steps(4) infinite;
 }
 
 .animate-run-bunny {
     animation: run_bunny 1s steps(5) infinite;
+}
+
+.animate-run-corgi {
+    animation: run_corgi 1s steps(5) infinite;
 }
 
 .animate-idle {
@@ -295,8 +316,8 @@ Extra added for groups.ejs
     flex-wrap: wrap;
     width: 100%;
     height: 100%;
+    padding-bottom: 1rem;
     justify-content: center;
-    margin: 0 auto;
     overflow-x: scroll;
 }
 .day-box {
@@ -313,22 +334,110 @@ Extra added for groups.ejs
     border-radius: 5px;
 }
 .low {
-    background-color: lightgreen;
+    /* background-color: lightgreen; */
+    background-color: #F6E619;
 }
 .medium {
-    background-color: greenyellow;
+    /* background-color: greenyellow; */
+    background-color: #B0CA0F;
+    
 }
 .high {
-    background-color: green;
+    /* background-color: green; */
+    background-color: #69B42D;
 }
+
+.calendar-container {
+    flex-grow: 1;
+}
+
+@media (max-width: 500px) {
+    .study-calendar {
+        padding: 0 !important; 
+        margin: 1rem !important;
+    }
+
+    .year-select-container {
+        display: flex;
+        justify-content: center !important;
+        align-items: center;
+        margin: 1rem 0;
+    }
+}
+
+@media (max-width: 419px) {
+    #goal-button-container {
+        margin-left: 1.25rem !important;
+        padding: 0 !important;
+    }
+}
+
+@media (min-width: 420px) and (max-width: 600px) {
+    #goal-button-container {
+        margin-left: 2rem !important;
+        padding: 0 !important;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 770px) {
+    #goal-button-container {
+        margin-left: 2.5rem !important;
+        padding: 0 !important;
+
+    }
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 50;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.50);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .hover-image img {
     transition: all 0.3s ease;
-  }
+}
+.hover-image-dropdown img {
+    transition: all 0.3s ease;
+}
 
 #friends_container, #groups_container {
     max-height: 140px; /* Set a height limit, adjust as necessary */
     overflow-y: auto;
     padding: 1rem; /* Ensure there is enough padding for the hover outline */
+}
+
+#profile-header {
+    top: 0;
+    max-height: 240px;
 }
 
 @media (min-height: 670px) {
@@ -343,7 +452,7 @@ Extra added for groups.ejs
     #friends_container, #groups_container {
         max-height: 300px; /* Set a height limit, adjust as necessary */
         overflow-y: auto;
-        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+        padding: 0.5rem; /* Ensure there is enough padding for the hover outline */
     }
 }
 
@@ -351,7 +460,7 @@ Extra added for groups.ejs
     #friends_container, #groups_container {
         max-height: 350px; /* Set a height limit, adjust as necessary */
         overflow-y: auto;
-        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+        padding: 0.5rem; /* Ensure there is enough padding for the hover outline */
     }
 }
 
@@ -359,7 +468,7 @@ Extra added for groups.ejs
     #friends_container, #groups_container {
         max-height: 400px; /* Set a height limit, adjust as necessary */
         overflow-y: auto;
-        padding: 1rem; /* Ensure there is enough padding for the hover outline */
+        padding: 0.5rem; /* Ensure there is enough padding for the hover outline */
     }
 }
 
@@ -410,4 +519,3 @@ Extra added for groups.ejs
 .custom-border {
     border: 2px solid #8AE3E5 !important;
 }
-
