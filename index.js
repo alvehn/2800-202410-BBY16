@@ -1620,7 +1620,7 @@ app.post('/accept_group_session', async (req, res) => {
   // then if its individual, or groups
   // then end the respective current session
   // then join into the invited group session 
-  const groupSessionId = req.body.groupSessionId;
+  const groupSessionId = new ObjectId(req.body.groupSessionId);
   console.log("The Group Session Id: " + groupSessionId);
   const userID = new ObjectId(req.session.userID);
   const user = await usersCollection.findOne({
