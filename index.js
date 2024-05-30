@@ -33,6 +33,7 @@ const group_session_schema = require("./models/group_session_schema");
 const study_group_schema = require("./models/group_schema");
 const costume_schema = require("./models/costume_schema");
 const achievement_schema = require("./models/achievement_schema");
+const pet_schema = require("./models/pet_schema");
 
 /*
     This part are all the static number for our project 
@@ -91,6 +92,11 @@ studyPals.command({
 studyPals.command({
   collMod: "costumes",
   validator: costume_schema,
+});
+
+studyPals.command({
+  collMod: "pets",
+  validator: pet_schema,
 });
 
 /*
