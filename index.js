@@ -844,10 +844,12 @@ app.get(
   "/study_session",
   sessionValidation("study_session"),
   async (req, res) => {
+    console.log("Directed to study_session");
     const user = await usersCollection.findOne({
       _id: new ObjectId(req.session.userID),
     });
     if (!user.study_session.inSession) {
+      console.log("Direct" + user.username + " out of study_session");
       res.redirect("/home_page");
     } else {
       const petName = user.current_pet_name;
@@ -1716,7 +1718,6 @@ app.post('/accept_group_session', async (req, res) => {
 
     res.redirect(`/study_session`);
   }
-  console.log("accepted group session:" + groupSessionId);
 });
 
 
