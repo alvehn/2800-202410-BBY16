@@ -903,6 +903,8 @@ app.get(
           membersPet: membersPet,
           username: req.session.username
         });
+        console.log("Rendered study_session");
+        return;
       } catch (err) {
         console.error("Error rendering study_session:", error);
       }
