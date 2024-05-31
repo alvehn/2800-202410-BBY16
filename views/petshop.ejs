@@ -20,42 +20,38 @@
         <button onclick="filterItems('cosmetics')"
           class="bg-light-coral text-white px-3 py-2 rounded-lg">Cosmetics</button>
         <button onclick="filterItems('pets')" class="bg-light-coral text-white px-3 py-2 rounded-lg">Pets</button>
-        <!-- <button onclick="filterItems('dlcs')" class="bg-light-coral text-white px-3 py-2 rounded-lg">DLCs</button> -->
       </div>
       <div id="itemsContainer" class="grid grid-cols-2 gap-4">
         <!-- Example Items -->
-        <% for (let i = 0; i < costumes.length; i++) { %>
-        <div class="item cosmetics bg-white p-4 rounded-lg shadow-md text-center">
-          <img src="/assets/costumes/<%= costumes[i].name %>.png" alt="<%= costumes[i].name %>" class="w-full h-24 object-cover mb-2">
-          <div class="flex items-center justify-center mb-2">
-            <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
-            <span class="price text-lg font-semibold ml-2"><%= costumes[i].cost %></span>
+        <% for (let i=0; i < costumes.length; i++) { %>
+          <div class="item cosmetics bg-white p-4 rounded-lg shadow-md text-center">
+            <img src="/assets/costumes/<%= costumes[i].name %>.png" alt="<%= costumes[i].name %>"
+              class="w-full h-24 object-cover mb-2">
+            <div class="flex items-center justify-center mb-2">
+              <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
+              <span class="price text-lg font-semibold ml-2">
+                <%= costumes[i].cost %>
+              </span>
+            </div>
+            <button id='<%= costumes[i]._id.toString() %>' onclick="buyItem('<%= costumes[i]._id.toString() %>')"
+              class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
           </div>
-          <button id='<%= costumes[i]._id.toString() %>' onclick="buyItem('<%= costumes[i]._id.toString() %>')"
-            class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-        </div>
-        <% } %>
-        <% for (let i = 0; i < pets.length; i++) { %>
-          <% if (pets[i]._id.toString() === ('664d3a5cfd6cca06e79cc641')) continue; %>
-        <div class="item pets bg-white p-4 rounded-lg shadow-md text-center">
-          <img src="/assets/icons/icon-<%= pets[i].name %>.png" alt="<%= pets[i].name %>" class="w-full h-24 object-cover mb-2">
-          <div class="flex items-center justify-center mb-2">
-            <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
-            <span class="price text-lg font-semibold ml-2"><%= pets[i].cost %></span>
-          </div>
-          <button id='<%= pets[i]._id.toString() %>' onclick="buyPet('<%= pets[i]._id.toString() %>')"
-            class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-        </div>
-        <% } %>
-        <!-- <div class="item dlcs bg-white p-4 rounded-lg shadow-md text-center">
-          <img src="path_to_dlc1.jpg" alt="DLC 1" class="w-full h-24 object-cover mb-2">
-          <div class="flex items-center justify-center mb-2">
-            <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
-            <span class="price text-lg font-semibold ml-2"> 10</span>
-          </div>
-          <button class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
-        </div> -->
-        <!-- Add more items with appropriate classes as needed -->
+          <% } %>
+            <% for (let i=0; i < pets.length; i++) { %>
+              <% if (pets[i]._id.toString()===('664d3a5cfd6cca06e79cc641')) continue; %>
+                <div class="item pets bg-white p-4 rounded-lg shadow-md text-center">
+                  <img src="/assets/icons/icon-<%= pets[i].name %>.png" alt="<%= pets[i].name %>"
+                    class="w-full h-24 object-cover mb-2">
+                  <div class="flex items-center justify-center mb-2">
+                    <img src="/assets/Favicon.png" class="w-6 h-auto mr-1">
+                    <span class="price text-lg font-semibold ml-2">
+                      <%= pets[i].cost %>
+                    </span>
+                  </div>
+                  <button id='<%= pets[i]._id.toString() %>' onclick="buyPet('<%= pets[i]._id.toString() %>')"
+                    class="buy-button bg-argentinian-blue text-white px-3 py-2 rounded-lg">Buy</button>
+                </div>
+                <% } %>
       </div><br><br>
     </div>
   </div>

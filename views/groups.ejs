@@ -25,30 +25,33 @@
             <div id="groups_container">
             </div>
             <div>
-                <button id="open_create" onclick="openCreateGroups()" class="fixed bottom-28 right-12 flex items-center justify-center">
-                <img src="/assets/icons/add.png" class="w-10 h-10">
+                <button id="open_create" onclick="openCreateGroups()"
+                    class="fixed bottom-28 right-12 flex items-center justify-center">
+                    <img src="/assets/icons/add.png" class="w-10 h-10">
                 </button>
             </div>
         </div>
 
         <!--Modal for adding groups-->
-        <div id="createGroup" onclick="hideCreateGroups()" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 transition-opacity duration-500 hidden">
+        <div id="createGroup" onclick="hideCreateGroups()"
+            class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 transition-opacity duration-500 hidden">
             <div id="modal-container" class="w-full max-w-md overflow-auto">
                 <div onclick="event.stopImmediatePropagation()" id="modal-content" class="w-full bg-white rounded-lg">
                     <div class="w-full flex-grow bg-white rounded-lg shadow-lg p-6">
                         <form id="form">
                             <p class="text-lg sm:text-xl md:text-2xl font-semibold text-font">Create Group</p>
                             <div class="mt-4">
-                                <input name='group_name' id='group_name' type='text' placeholder='Group Name' 
-                                class="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-celadon">
+                                <input name='group_name' id='group_name' type='text' placeholder='Group Name'
+                                    class="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-celadon">
                             </div>
                             <p class="text-md sm:text-lg md:text-xl font-medium text-font">Select Friends</p>
                             <div id="friends_card_container" class="bg-white rounded-lg border p-4 mb-6"></div>
                             <p class="text-md sm:text-lg md:text-xl font-medium text-font">Upload Group Image</p>
-                            <input name="group_image" id="group_image" type="file" accept="image/*" 
+                            <input name="group_image" id="group_image" type="file" accept="image/*"
                                 class="w-full px-4 py-4 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-celadon">
                             <button type="button" onclick="return createGroup()"
-                                class="w-full px-4 py-2 bg-celadon hover:bg-dark-celadon text-white rounded-3xl">Create group</button>
+                                class="w-full px-4 py-2 bg-celadon hover:bg-dark-celadon text-white rounded-3xl">Create
+                                group</button>
                         </form>
                         <div class="flex justify-center mt-4">
                             <button id="close_adding" onclick="hideCreateGroups()"
@@ -61,7 +64,8 @@
     </div>
     <!-- This is the template for popup when viewing user profile -->
     <template id="groupCardTemplate">
-        <div class="group flex justify-between bg-white p-3 border rounded-2xl mb-2 items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
+        <div
+            class="group flex justify-between bg-white p-3 border rounded-2xl mb-2 items-center transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#B5E58A] hover:shadow-[0_0_2px_2px_#B5E58A]">
             <img src="https://via.placeholder.com/50" alt="group picture" class="rounded-full w-12 h-12 object-cover">
             <div class=" w-55 ml-2">
                 <div id="group_name" class="font-bold text-font"></div>
@@ -75,13 +79,15 @@
     <!-- This is the template for popup when veiwing user profile -->
     <template id="friendCardTemplate">
         <input id="select" type="checkbox" value="" class="hidden">
-        <label id="selectLabel" class="p-3 custom-border rounded-lg mb-2 w-full flex items-center cursor-pointer transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#8AE3E5] hover:shadow-[0_0_2px_2px_#8AE3E5]">
-            <img src="https://via.placeholder.com/50" alt="profile picture" class="rounded-full w-12 h-12 object-cover border-3 border-white" id="profileImage">
+        <label id="selectLabel"
+            class="p-3 custom-border rounded-lg mb-2 w-full flex items-center cursor-pointer transition-colors duration-100 hover:outline hover:outline-1 hover:outline-[#8AE3E5] hover:shadow-[0_0_2px_2px_#8AE3E5]">
+            <img src="https://via.placeholder.com/50" alt="profile picture"
+                class="rounded-full w-12 h-12 object-cover border-3 border-white" id="profileImage">
             <span id="username" class="ml-4 font-medium text-font"></span>
         </label>
     </template>
-    
-    
+
+
 
     <script>
         // fix up Search bar for groups
@@ -225,20 +231,20 @@
                     },
                     body: JSON.stringify(jsonObject) // Send JSON data in the body
                 })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json(); // Get the response as JSON
-                    } else {
-                        throw new Error('Form submission failed');
-                    }
-                })
-                .then(data => {
-                    username = data.username;
-                })
-                .catch(error => {
-                    // Handle network errors or errors from the server
-                    console.error('Error:', error);
-                });
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json(); // Get the response as JSON
+                        } else {
+                            throw new Error('Form submission failed');
+                        }
+                    })
+                    .then(data => {
+                        username = data.username;
+                    })
+                    .catch(error => {
+                        // Handle network errors or errors from the server
+                        console.error('Error:', error);
+                    });
                 newcard.getElementById("select").setAttribute('value', `${username}`);
                 newcard.getElementById("select").setAttribute('id', `${username}`);
                 newcard.getElementById("selectLabel").setAttribute('for', `${username}`);
@@ -306,8 +312,6 @@
                         // Handle network errors or errors from the server
                         console.error('Error:', error);
                     });
-
-                //<label id="selectLabel" class="p-4 border rounded-lg shadow-md mb-4 w-full"><input id="select" type="checkbox" value=""></label>
                 newcard.getElementById("group_name").textContent = groupName;
                 newcard.getElementById("members_Count").textContent = membersCount + " people";
                 document.getElementById("groups_container").appendChild(newcard);
