@@ -547,15 +547,6 @@ app.get("/get-owned-items", async (req, res) => {
   }
 });
 
-// app.post('/buy-pet', async (req, res) => {
-//   const user = await usersCollection.updateOne(
-//     { _id: new ObjectId(req.session.userID) },  // Query to find the document
-//     { $push: { pets_owned: new ObjectId(req.body.itemId) } }         // Update operation to push the new element
-//   );
-
-//   res.status(200).send('Item added to account');
-// });
-
 app.post("/buy-pet", async (req, res) => {
   const userId = req.session.userID;
   const petId = req.body.itemId;
@@ -573,7 +564,7 @@ app.post("/buy-pet", async (req, res) => {
     }
   );
 
-  // res.status(200).send('Pet added to account');
+  res.status(200).send('Pet added to account');
 });
 
 app.post("/buy-item", async (req, res) => {
@@ -604,6 +595,19 @@ app.get("/login", (req, res) => {
     return;
   }
   res.render("login");
+});
+
+app.post('/claim_prize', async (req, res) => {
+  const userId = req.session.userID;
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    { $inc: { points: 500 } },
+  );
+
+  res.json({ points: user.points });
+
 });
 
 app.post("/loggingin", async (req, res) => {
@@ -1031,18 +1035,6 @@ app.post(
     }
   }
 );
-
-app.get("/buy_cosmetics", (req, res) => {
-  res.render("buy_cosmetics");
-});
-
-app.get("/buy_pets", (req, res) => {
-  res.render("buy_pets");
-});
-
-app.get("/buy_dlcs", (req, res) => {
-  res.render("buy_dlcs");
-});
 
 app.get("/logout", async (req, res) => {
   let username = req.session.username;
