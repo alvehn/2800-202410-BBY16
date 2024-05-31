@@ -1145,32 +1145,6 @@ app.post("/friends/get_friend_status", async (req, res) => {
   }
 });
 
-app.post("/friends/get_friends", async (req, res) => {
-  let user = req.session.username;
-  let friendsObject = await usersCollection.findOne(
-    { username: user },
-    { projection: { friends: 1 } }
-  );
-  let friends = friendsObject.friends;
-  res.json({ friends });
-});
-
-app.post("/friends/get_friend_status", async (req, res) => {
-  let friend_id = req.body.friend_id;
-  let objId = new ObjectId(friend_id);
-  try {
-    let { username, status } = await usersCollection.findOne(
-      { _id: objId },
-      { projection: { username: 1, status: 1 } }
-    );
-    res.json({ username: username, status: status });
-    return;
-  } catch (err) {
-    res.json(err);
-    return;
-  }
-});
-
 app.post("/friend_profile", async (req, res) => {
   let username = req.body.username;
   const result = await usersCollection.findOne({
@@ -1185,10 +1159,6 @@ app.post("/friend_profile", async (req, res) => {
     }
     res.send(html);
   });
-});
-
-app.get("/groups", (req, res) => {
-  res.render("groups");
 });
 
 app.post("/groups/check", async (req, res) => {
