@@ -118,29 +118,29 @@
     }
 
     async function claimPrize() {
-    try {
-      const response = await fetch('/claim_prize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      try {
+        const response = await fetch('/claim_prize', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        closeModal();
-        alert('You have claimed your prize!');
-        // Reload the page to update points
-        location.reload();
-      } else {
-        const data = await response.json();
-        alert(data.error || 'Failed to claim prize.');
+        if (response.ok) {
+          const data = await response.json();
+          closeModal();
+          alert('You have claimed your prize!');
+          // Reload the page to update points
+          location.reload();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to claim prize.');
+        }
+      } catch (error) {
+        console.error('Error claiming prize:', error);
+        alert('Failed to claim prize.');
       }
-    } catch (error) {
-      console.error('Error claiming prize:', error);
-      alert('Failed to claim prize.');
     }
-  }
 
     displayTime();
   </script>

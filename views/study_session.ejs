@@ -1,172 +1,139 @@
 <%- include("templates/default_header") %>
-<div class="h-screen relative mb-0 pb-0">
-  <div class="flex relative h-2/3 overflow-hidden justify-center">
-    <!-- Background layers for parallax effect -->
-    <div class="parallax-layer layer1"></div>
-    <div class="parallax-layer layer2"></div>
-    <div
-      class="parallax-layer layer3"
-    ></div>
-    <div
-      class="parallax-layer layer4"
-    ></div>
-    <div
-      class="parallax-layer layer5"
-    ></div>
-    <!-- <div
-      class="parallax-layer layer6"
-    ></div>
-    <div
-      class="parallax-layer layer7"
-    ></div>
-    <div
-      class="parallax-layer layer8"
-    ></div>
-    <div
-      class="parallax-layer layer9"
-    ></div>
-    <div
-      class="parallax-layer layer10"
-    ></div>
-    <div
-      class="parallax-layer layer11"
-    ></div>
-    <div
-      class="parallax-layer layer12"
-    ></div> -->
+  <div class="h-screen relative mb-0 pb-0">
+    <div class="flex relative h-2/3 overflow-hidden justify-center">
+      <!-- Background layers for parallax effect -->
+      <div class="parallax-layer layer1"></div>
+      <div class="parallax-layer layer2"></div>
+      <div class="parallax-layer layer3"></div>
+      <div class="parallax-layer layer4"></div>
+      <div class="parallax-layer layer5"></div>
 
-    <!-- animal sprite -->
-    <div class="w-[320px] h-[160px] pet z-50 animate-run-<%= petName %>" style="background-image: url('/sprite_sheets/<%= petName %><% if (equippedCostume) { %>_<%= equippedCostume %><% } %>.png');"></div>
-  </div>
-  <div class="flex flex-col items-center justify-evenly bg-white p-4 z-20 relative h-1/3">
-    <div class="text-4xl font-bold text-gray-700">
-      <span id="hr">00</span>
-      <span class="text-sm">Hr</span>
-      <span id="min">00</span>
-      <span class="text-sm">Min</span>
-      <span id="sec">00</span>
-      <span class="text-sm">Sec</span>
+      <!-- animal sprite -->
+      <div class="w-[320px] h-[160px] pet z-50 animate-run-<%= petName %>"
+        style="background-image: url('/sprite_sheets/<%= petName %><% if (equippedCostume) { %>_<%= equippedCostume %><% } %>.png');">
+      </div>
     </div>
-    <div class="flex justify-center text-4xl font-bold text-gray-700 items-center w-full">
+    <div class="flex flex-col items-center justify-evenly bg-white p-4 z-20 relative h-1/3">
+      <div class="text-4xl font-bold text-gray-700">
+        <span id="hr">00</span>
+        <span class="text-sm">Hr</span>
+        <span id="min">00</span>
+        <span class="text-sm">Min</span>
+        <span id="sec">00</span>
+        <span class="text-sm">Sec</span>
+      </div>
+      <div class="flex justify-center text-4xl font-bold text-gray-700 items-center w-full">
         <img src="/assets/Favicon.png" class="w-6 h-auto">
         <span id="points" class="ml-5"></span>
-    </div>    
-    <div class="">
-      <form
-        id="endSessionForm"
-        action="/end_session"
-        method="POST"
-        class="flex flex-col items-center space-y-4"
-      >
-        <input type="hidden" name="startTime" value="<%= startTime %>" />
-        <input type="hidden" name="sessionId" value="<%= sessionId %>" />
-        <input type="hidden" id="pointsInput" name="pointsEarned" value=""/>
-        <input type="hidden" name="intervalId" value="<%= intervalId %>" />
-        <button type="submit" class="px-4 py-2 bg-light-coral text-white rounded hover:bg-light-coral-700 transition">
-          End Session
-        </button>
-      </form>
+      </div>
+      <div class="">
+        <form id="endSessionForm" action="/end_session" method="POST" class="flex flex-col items-center space-y-4">
+          <input type="hidden" name="startTime" value="<%= startTime %>" />
+          <input type="hidden" name="sessionId" value="<%= sessionId %>" />
+          <input type="hidden" id="pointsInput" name="pointsEarned" value="" />
+          <input type="hidden" name="intervalId" value="<%= intervalId %>" />
+          <button type="submit" class="px-4 py-2 bg-light-coral text-white rounded hover:bg-light-coral-700 transition">
+            End Session
+          </button>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-const startTime = new Date("<%= startTime %>");
-const hrSpan = document.getElementById("hr");
-const minSpan = document.getElementById("min");
-const secSpan = document.getElementById("sec");
-const pointsSpan = document.getElementById("points");
-const pointsInput = document.getElementById("pointsInput");
-let timerInterval;
-// let points = parseInt(localStorage.getItem('points') || '0', 10);
-let points = 0;
-let formSubmitted = false;
+  <script>
+    const startTime = new Date("<%= startTime %>");
+    const hrSpan = document.getElementById("hr");
+    const minSpan = document.getElementById("min");
+    const secSpan = document.getElementById("sec");
+    const pointsSpan = document.getElementById("points");
+    const pointsInput = document.getElementById("pointsInput");
+    let timerInterval;
+    let points = 0;
+    let formSubmitted = false;
 
-function calculatePoints(duration) {
-  const base = 10;
-  const proportionalFactor = duration / 3600;
-  const randomFactor = Math.random();
-  return Math.floor(base * proportionalFactor * randomFactor);
-}
+    function calculatePoints(duration) {
+      const base = 10;
+      const proportionalFactor = duration / 3600;
+      const randomFactor = Math.random();
+      return Math.floor(base * proportionalFactor * randomFactor);
+    }
 
-function updateDisplay() {
-  const currentTime = new Date();
-  let duration = Math.floor((currentTime - startTime) / 1000);
-  const hours = Math.floor(duration / 3600);
-  const minutes = Math.floor((duration % 3600) / 60);
-  const seconds = Math.floor(duration % 60);
+    function updateDisplay() {
+      const currentTime = new Date();
+      let duration = Math.floor((currentTime - startTime) / 1000);
+      const hours = Math.floor(duration / 3600);
+      const minutes = Math.floor((duration % 3600) / 60);
+      const seconds = Math.floor(duration % 60);
 
-  // points += calculatePoints(duration);
+      // Make a GET request to the server to retrieve points
+      fetch('/get_points')
+        .then(response => {
+          // Check if the response is successful
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          // Parse the JSON response
+          return response.json();
+        })
+        .then(data => {
+          // Data contains the points retrieved from the server
+          points = data.points;
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
 
-  // Make a GET request to the server to retrieve points
-  fetch('/get_points')
-    .then(response => {
-      // Check if the response is successful
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      hrSpan.textContent = String(hours).padStart(2, "0");
+      minSpan.textContent = String(minutes).padStart(2, "0");
+      secSpan.textContent = String(seconds).padStart(2, "0");
+      pointsSpan.textContent = points;
+
+      if (!formSubmitted) {
+        localStorage.setItem('points', points);
       }
-      // Parse the JSON response
-      return response.json();
-    })
-    .then(data => {
-      // Data contains the points retrieved from the server
-      points = data.points;
-    })
-    .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        updateDisplay();
+      }, 1000);
+    }
+
+    document.getElementById('endSessionForm').addEventListener("submit", (e) => {
+      e.preventDefault();
+      console.log("The points earned is: " + points);
+      pointsInput.value = points;
+      formSubmitted = true;
+      localStorage.removeItem('points');
+
+      setTimeout(() => {
+        e.target.submit();
+      }, 100);
     });
 
-  hrSpan.textContent = String(hours).padStart(2, "0");
-  minSpan.textContent = String(minutes).padStart(2, "0");
-  secSpan.textContent = String(seconds).padStart(2, "0");
-  pointsSpan.textContent = points;
+    // This part of code will redirect the user back to home page at midnight.
+    function timeUntilMidnight() {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0); // Set midnight time
+      return midnight.getTime() - now.getTime();
+    }
 
-  if (!formSubmitted) {
-    localStorage.setItem('points', points);
-  }
-}
+    // Function to redirect the user to the home page
+    function redirectToHomePage() {
+      window.location.href = "/home_page";
+    }
 
-function startTimer() {
-  timerInterval = setInterval(() => {
-    updateDisplay();
-  }, 1000);
-}
-
-document.getElementById('endSessionForm').addEventListener("submit", (e) => {
-  e.preventDefault(); 
-  console.log("The points earned is: " + points);
-  pointsInput.value = points;
-  formSubmitted = true;
-  localStorage.removeItem('points');
-  
-  setTimeout(() => {
-    e.target.submit();  
-  }, 100);  
-});
-
-// This part of code will redirect the user back to home page at midnight.
-function timeUntilMidnight() {
-    const now = new Date();
-    const midnight = new Date();
-    midnight.setHours(24, 0, 0, 0); // Set midnight time
-    return midnight.getTime() - now.getTime();
-  }
-
-  // Function to redirect the user to the home page
-  function redirectToHomePage() {
-    window.location.href = "/home_page";
-  }
-
-  // Set a timeout to redirect the user at midnight
-  setTimeout(redirectToHomePage, timeUntilMidnight());
-
-  // Ensure the timeout is set when the window loads
-  window.onload = () => {
+    // Set a timeout to redirect the user at midnight
     setTimeout(redirectToHomePage, timeUntilMidnight());
-  };
 
-updateDisplay();
-startTimer();
+    // Ensure the timeout is set when the window loads
+    window.onload = () => {
+      setTimeout(redirectToHomePage, timeUntilMidnight());
+    };
 
-</script>
-<%- include("templates/default_footer") %>
+    updateDisplay();
+    startTimer();
+
+  </script>
+  <%- include("templates/default_footer") %>
